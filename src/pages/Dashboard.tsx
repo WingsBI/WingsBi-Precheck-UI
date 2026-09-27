@@ -40,6 +40,8 @@ interface DashboardCard {
   route: string;
 }
 
+import PageHeader from "../components/ui/PageHeader";
+
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
@@ -176,17 +178,10 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: 600,
-          color: "primary.main",
-          fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1.5rem" },
-          mb: 1,
-        }}
-      >
-        Dashboard
-      </Typography>
+      <PageHeader
+        title="Dashboard"
+        subtitle={`Welcome back${user?.userName ? `, ${user.userName}` : ""}! Access your precheck workspace modules.`}
+      />
 
       <Grid container spacing={2}>
         {filteredCards.map((card, index) => (

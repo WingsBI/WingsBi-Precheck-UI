@@ -14,6 +14,7 @@ import {
   Clear as ClearIcon,
 } from "@mui/icons-material";
 import type { ProductionOrderMaster } from "../../../hooks/usePONumbers";
+import ActionButton from "../../../components/ui/ActionButton";
 
 interface PrecheckFormControlsProps {
   // PO Number
@@ -407,61 +408,23 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
       />
 
       {/* Apply Button */}
-      <Button
-        variant="contained"
-        size="small"
+      <ActionButton
+        variant="primary"
+        size="standard"
         onClick={onApply || onReset}
         disabled={!isApplyEnabled}
-        sx={{
-          height: 38,
-          minWidth: 65,
-          px: 2,
-          borderRadius: "6px",
-          backgroundColor: "primary.main",
-          color: "#FFFFFF",
-          fontWeight: 600,
-          fontSize: "0.82rem",
-          textTransform: "none",
-          boxShadow: "none",
-          "&:hover": {
-            backgroundColor: "primary.dark",
-            boxShadow: "none",
-          },
-          "&.Mui-disabled": {
-            backgroundColor: "#EAECF0",
-            color: "#98A2B3",
-          },
-        }}
       >
         Apply
-      </Button>
+      </ActionButton>
 
       {/* Clear Button */}
-      <Button
-        variant="outlined"
-        size="small"
+      <ActionButton
+        variant="secondary"
+        size="standard"
         onClick={onClear || onReset}
-        sx={{
-          height: 38,
-          minWidth: 55,
-          px: 1.5,
-          borderRadius: "6px",
-          borderColor: "#D0D5DD",
-          backgroundColor: "#ffffff",
-          color: "#667085",
-          fontWeight: 600,
-          fontSize: "0.82rem",
-          textTransform: "none",
-          boxShadow: "none",
-          "&:hover": {
-            borderColor: "#98A2B3",
-            backgroundColor: "#F9FAFB",
-            color: "#101828",
-          },
-        }}
       >
         Clear
-      </Button>
+      </ActionButton>
     </Paper>
   );
 };

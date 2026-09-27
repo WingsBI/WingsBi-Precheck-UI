@@ -25,6 +25,9 @@ import { CustomPagination } from "../../components/CustomPagination";
 import { EmptyState } from "../../components/EmptyState";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
 import { ComponentTypeChip } from "../../components/ComponentTypeChip";
+import SearchBar from "../../components/ui/SearchBar";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
 
 import {
   Search as SearchIcon,
@@ -35,7 +38,7 @@ import { format } from "date-fns";
 import api from "../../services/api";
 import { useProductionSeries } from "../../hooks/useMasterData";
 import { useDebounce } from "../../hooks/useDebounce";
-import { SortableTableHeader } from "../../components/SortableTableHeader";
+import { SortableTableHeader, TableCard, TableCardHeader } from "../../components/ui";
 
 
 // Helper function to format date
@@ -575,8 +578,6 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
         flexGrow: 1,
         py: hideHeader ? 0 : 1,
         px: hideHeader ? 0 : { xs: 1, sm: 2 },
-        bgcolor: "#fcfcfd",
-        minHeight: hideHeader ? "auto" : "100vh",
       }}
     >
       {!hideHeader && (
@@ -637,26 +638,14 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                   "&::-webkit-scrollbar": { display: "none" },
                 }}
               >
-                {/* Combined Search Bar */}
-                <TextField
-                  size="small"
+                <SearchBar
                   placeholder="Search Part Number, Item Code..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon sx={{ color: "#98A2B3", fontSize: 18 }} />
-                      </InputAdornment>
-                    ),
-                  }}
+                  onClear={() => setSearchQuery("")}
                   sx={{
                     flex: "1 1 250px",
                     minWidth: 200,
-                    "& .MuiOutlinedInput-root": {
-                      fontSize: "0.825rem",
-                      height: 38,
-                    },
                   }}
                 />
 
@@ -913,52 +902,7 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                 </Button>
               </Box>
 
-              {/* Active Chips Bar */}
-              {activeChips.length > 0 && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    mt: 1,
-                    pt: 0.75,
-                    borderTop: "1px solid #F2F4F7",
-                    flexWrap: "wrap",
-                    gap: 0.75,
-                  }}
-                >
-                  {activeChips.map((chip) => (
-                    <Chip
-                      key={chip.id}
-                      label={chip.label}
-                      onDelete={chip.onRemove}
-                      size="small"
-                      sx={{
-                        backgroundColor: "#F2F4F7",
-                        color: "#344054",
-                        fontWeight: 600,
-                        fontSize: "0.775rem",
-                        height: 24,
-                        borderRadius: "14px",
-                        border: "1px solid #E9EAEB",
-                      }}
-                    />
-                  ))}
-                  <Button
-                    variant="text"
-                    size="small"
-                    onClick={handleReset}
-                    sx={{
-                      color: "#6D2A8F",
-                      fontWeight: 600,
-                      fontSize: "0.775rem",
-                      textTransform: "none",
-                      p: 0,
-                    }}
-                  >
-                    Clear all
-                  </Button>
-                </Box>
-              )}
+              <ActiveFilterChips chips={activeChips} onClearAll={handleReset} />
             </Paper>
           </Grid>
 
@@ -966,31 +910,11 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
             <>
               {/* Left Side: BOM Details */}
               <Grid item xs={12} md={selectedBomRowIndex !== null ? 6 : 12}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    borderRadius: "12px",
-                    border: "1px solid #eaecf0",
-                    backgroundColor: "#ffffff",
-                    overflow: "hidden",
-                    minHeight: "450px",
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <Box sx={{ height: 48, px: 1.5, borderBottom: "1px solid #eaecf0", display: "flex", alignItems: "center", justifyContent: "space-between", boxSizing: "border-box" }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                      <Typography variant="body2" sx={{ color: "#475467", fontSize: "0.85rem", fontWeight: 600 }}>
-                        Material available in store
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: "#98A2B3", fontSize: "0.75rem", fontStyle: "italic" }}>
-                        (Click a row to view available QR codes)
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.85rem", fontWeight: 500 }}>
-                      {totalRecords} {totalRecords === 1 ? "item" : "items"}
-                    </Typography>
-                  </Box>
+                <TableCard sx={{ minHeight: "450px", display: "flex", flexDirection: "column" }}>
+                  <TableCardHeader
+                    title="Material available in store"
+                    count={totalRecords}
+                  />
 
                   <TableContainer sx={{ overflowX: "auto", flexGrow: 1 }}>
                     <Table stickyHeader size="small" sx={{ width: "100%" }}>
@@ -1076,32 +1000,17 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                       }}
                     />
                   )}
-                </Paper>
+                </TableCard>
               </Grid>
 
               {/* Right Side: Available QR Codes (Shown only when a row is clicked) */}
               {selectedBomRowIndex !== null && (
                 <Grid item xs={12} md={6}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      borderRadius: "12px",
-                      border: "1px solid #eaecf0",
-                      backgroundColor: "#ffffff",
-                      overflow: "hidden",
-                      minHeight: "450px",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <Box sx={{ height: 48, px: 1.5, borderBottom: "1px solid #eaecf0", display: "flex", alignItems: "center", justifyContent: "space-between", boxSizing: "border-box" }}>
-                      <Typography variant="body2" sx={{ color: "#475467", fontSize: "0.85rem", fontWeight: 600 }}>
-                        Available QR Codes
-                      </Typography>
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.85rem", fontWeight: 500 }}>
-                          {totalQrRecords} {totalQrRecords === 1 ? "QR code" : "QR codes"}
-                        </Typography>
+                  <TableCard sx={{ minHeight: "450px", display: "flex", flexDirection: "column" }}>
+                    <TableCardHeader
+                      title="Available QR Codes"
+                      count={totalQrRecords}
+                      actions={
                         <IconButton
                           size="small"
                           onClick={() => {
@@ -1113,8 +1022,8 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                         >
                           <CloseIcon fontSize="small" />
                         </IconButton>
-                      </Stack>
-                    </Box>
+                      }
+                    />
 
                     <TableContainer sx={{ overflowX: "auto", flexGrow: 1 }}>
                       <Table stickyHeader size="small" sx={{ width: "100%" }}>
@@ -1196,7 +1105,7 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                         }}
                       />
                     )}
-                  </Paper>
+                  </TableCard>
                 </Grid>
               )}
             </>
@@ -1220,16 +1129,12 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
           )}
         </Grid>
       </>
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={snackbar.severity === "error" ? 5000 : 4000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 };

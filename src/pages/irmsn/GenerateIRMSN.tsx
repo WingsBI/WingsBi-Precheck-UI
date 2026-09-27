@@ -18,14 +18,15 @@ import {
   Stack,
   CircularProgress,
   Alert,
-  Snackbar,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import {
   ContentCopy as CopyIcon,
   Refresh as RefreshIcon,
   Check as CheckIcon,
   FileDownload as DownloadIcon,
 } from "@mui/icons-material";
+import PageHeader from "../../components/ui/PageHeader";
 
 import type { RootState, AppDispatch } from "../../store/store";
 import type { DrawingNumber, FormData as BaseFormData } from "../../types";
@@ -618,31 +619,18 @@ export default function GenerateIRMSN() {
       sx={{
         py: { xs: 1, sm: 1.25 },
         px: { xs: 1.5, sm: 2 },
-        minHeight: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#FAFAFA",
         width: "100%",
         boxSizing: "border-box",
         pb: 2,
       }}
     >
-      {/* Header Section */}
-      <Box sx={{ mb: 1 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            fontSize: { xs: "1.25rem", sm: "1.5rem" },
-          }}
-        >
-          New IR/MSN
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#667085", mt: 0.15, fontSize: "0.825rem" }}>
-          Generate a new Inspection Report (IR) or Memo Stage Number (MSN) for an order line.
-        </Typography>
-      </Box>
+      {/* Page Header */}
+      <PageHeader
+        title="New IR/MSN"
+        subtitle="Generate a new Inspection Report (IR) or Memo Stage Number (MSN)."
+      />
 
       {/* Read-only Context Bar */}
       <Paper
@@ -1652,16 +1640,12 @@ export default function GenerateIRMSN() {
         </Paper>
       </form>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 }

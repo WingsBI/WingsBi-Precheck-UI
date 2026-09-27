@@ -10,6 +10,7 @@ import {
   IconButton,
   Grid,
 } from "@mui/material";
+import ActionButton from "../../../components/ui/ActionButton";
 import {
   CloudUpload as UploadIcon,
   PlayArrow as PlayIcon,
@@ -223,42 +224,36 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                 {!isFileUploadedToServer && (
-                  <Button
-                    variant="contained"
+                  <ActionButton
+                    variant="primary"
+                    size="compact"
                     onClick={onConfirmUpload}
                     disabled={isUploading || !isFileValid || hasInvalidFile}
-                    color="success"
-                    size="small"
                     startIcon={<CheckIcon sx={{ fontSize: 14 }} />}
-                    sx={{ height: 32, fontSize: "0.775rem" }}
                   >
                     {isUploading ? `Uploading (${selectedFiles.length})...` : "Confirm & Upload"}
-                  </Button>
+                  </ActionButton>
                 )}
 
                 {isFileUploadedToServer && (
-                  <Button
-                    variant="contained"
+                  <ActionButton
+                    variant="primary"
+                    size="compact"
                     onClick={onExecuteScript}
                     disabled={isExecuting || !isFileValid || hasInvalidFile}
-                    color="primary"
-                    size="small"
                     startIcon={<PlayIcon sx={{ fontSize: 14 }} />}
-                    sx={{ height: 32, fontSize: "0.775rem" }}
                   >
                     {isExecuting ? "Executing..." : "Execute Script"}
-                  </Button>
+                  </ActionButton>
                 )}
 
-                <Button
-                  variant="outlined"
-                  color="inherit"
-                  size="small"
+                <ActionButton
+                  variant="secondary"
+                  size="compact"
                   onClick={onCancel}
-                  sx={{ height: 32, fontSize: "0.775rem", borderColor: "grey.300" }}
                 >
                   Cancel
-                </Button>
+                </ActionButton>
               </Box>
             </Box>
           </Box>
@@ -347,40 +342,21 @@ export const PostUploadSummaryCard: React.FC<PostUploadSummaryCardProps> = ({
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Button
-            variant="outlined"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="compact"
             startIcon={<DownloadIcon sx={{ fontSize: 15 }} />}
             onClick={onDownloadErrorReport}
-            sx={{
-              height: 34,
-              px: 1.75,
-              borderRadius: 2,
-              borderColor: "neutral.border",
-              color: "text.primary",
-              fontWeight: 600,
-              textTransform: "none",
-              fontSize: "0.8rem",
-              bgcolor: "background.paper",
-              "&:hover": { borderColor: "grey.400", bgcolor: "neutral.hoverBg" },
-            }}
           >
-            Download error report
-          </Button>
-          <Button
-            variant="text"
-            size="small"
+            Download Error Report
+          </ActionButton>
+          <ActionButton
+            variant="secondary"
+            size="compact"
             onClick={onResetUpload}
-            sx={{
-              color: "text.primary",
-              fontWeight: 600,
-              textTransform: "none",
-              fontSize: "0.8rem",
-              "&:hover": { bgcolor: "transparent", textDecoration: "underline" },
-            }}
           >
-            Upload another file
-          </Button>
+            Upload Another File
+          </ActionButton>
         </Box>
       </Box>
 

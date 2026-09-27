@@ -46,6 +46,8 @@ import TreeTable from "../../components/TreeTable/TreeTable";
 import ViewBOM from "./ViewBOM";
 import { SopFilterCard } from "./components/SopFilterCard";
 import { EmptyState } from "../../components/EmptyState";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
 
 const ALL_SOP_EXPORT_COLUMNS = [
   { key: "level", label: "Level" },
@@ -769,41 +771,21 @@ const ViewSOP: React.FC = () => {
       sx={{
         py: { xs: 1, sm: 1.25 },
         px: { xs: 1.5, sm: 2 },
-        minHeight: "calc(100vh - 64px)",
-        backgroundColor: "#FAFAFA",
         width: "100%",
         boxSizing: "border-box",
       }}
     >
       {/* Top Header */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        spacing={1.5}
-        sx={{ mb: 1 }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-            }}
-          >
-            Assembly Explorer
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.825rem", mt: 0.15 }}>
-            {activeTab === "sop"
-              ? "Browse the BOM tree of a production order"
-              : "Browse the BOM tree of an Assembly"}
-          </Typography>
-        </Box>
-
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <Button
-            variant="outlined"
+      <PageHeader
+        title="Assembly Explorer"
+        subtitle={
+          activeTab === "sop"
+            ? "Browse the BOM tree of a production order"
+            : "Browse the BOM tree of an assembly"
+        }
+        actions={
+          <ActionButton
+            variant="secondary"
             size="small"
             onClick={handleHeaderExportClick}
             disabled={isExportDisabled}
@@ -814,22 +796,11 @@ const ViewSOP: React.FC = () => {
                 <DownloadIcon fontSize="small" />
               )
             }
-            sx={{
-              height: 34,
-              borderRadius: "6px",
-              borderColor: "grey.300",
-              color: "text.secondary",
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: "0.8rem",
-              backgroundColor: "background.paper",
-              "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-            }}
           >
             Export
-          </Button>
-        </Stack>
-      </Stack>
+          </ActionButton>
+        }
+      />
 
       {/* Navigation Tabs Bar */}
       <Box sx={{ borderBottom: "1px solid #EAECF0", mb: 1.25 }}>
@@ -1157,33 +1128,23 @@ const ViewSOP: React.FC = () => {
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button
-            variant="outlined"
-            color="inherit"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="compact"
             onClick={() => setExportDialogOpen(false)}
             disabled={isExporting}
-            sx={{ minWidth: 110, fontWeight: 600, borderRadius: "8px", textTransform: "none" }}
           >
             Cancel
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={isExporting ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
+          </ActionButton>
+          <ActionButton
+            variant="primary"
+            size="compact"
+            startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon />}
             onClick={handleConfirmExportData}
             disabled={isExporting || (exportMode === "custom" && selectedExportColumns.length === 0)}
-            sx={{
-              minWidth: 110,
-              fontWeight: 600,
-              borderRadius: "8px",
-              textTransform: "none",
-              backgroundColor: "primary.main",
-              "&:hover": { backgroundColor: "primary.dark" },
-            }}
           >
             {isExporting ? "Exporting..." : "Export"}
-          </Button>
+          </ActionButton>
         </DialogActions>
       </Dialog>
     </Box>

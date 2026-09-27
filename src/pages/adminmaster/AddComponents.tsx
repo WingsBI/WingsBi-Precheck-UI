@@ -21,7 +21,6 @@ import {
   Alert,
   Menu,
   MenuItem,
-  Snackbar,
   Paper,
   ClickAwayListener,
   Popper,
@@ -31,9 +30,12 @@ import {
   FormControlLabel,
   FormControl,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Check as CheckIcon, Close as CloseIcon, Search as SearchIcon, MoreVert as MoreVertIcon } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
+import ActionButton from "../../components/ui/ActionButton";
+import PageHeader from "../../components/ui/PageHeader";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { useQueryClient } from "@tanstack/react-query";
@@ -258,19 +260,19 @@ function AddEditDialog({
           {extraFields}
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button size="small" onClick={onClose} disabled={saving}>
+      <DialogActions sx={{ px: 3, py: 2 }}>
+        <ActionButton variant="secondary" size="standard" onClick={onClose} disabled={saving}>
           Cancel
-        </Button>
-        <Button
-          size="small"
-          variant="contained"
+        </ActionButton>
+        <ActionButton
+          variant="primary"
+          size="standard"
           onClick={handleSave}
           disabled={!name.trim() || saving}
-          startIcon={saving ? <CircularProgress size={14} /> : undefined}
+          startIcon={saving ? <CircularProgress size={14} color="inherit" /> : undefined}
         >
           {saving ? "Saving…" : "Save"}
-        </Button>
+        </ActionButton>
       </DialogActions>
     </Dialog>
   );
@@ -1536,31 +1538,11 @@ export default function AddComponents({ hideHeader = false }: { hideHeader?: boo
 
   return (
     <Box sx={{ py: hideHeader ? 0 : { xs: 1.5, sm: 2 }, px: hideHeader ? 0 : { xs: 1.5, sm: 2.5 } }}>
-      {/* 1. Top Header Bar */}
       {!hideHeader && (
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={2}
-          sx={{ mb: 1.5 }}
-        >
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                color: "primary.main",
-                fontSize: { xs: "1.25rem", sm: "1.5rem" },
-              }}
-            >
-              Master Data
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-              Manage system units, stages, materials, production series, and user signatures.
-            </Typography>
-          </Box>
-        </Stack>
+        <PageHeader
+          title="Master Data"
+          subtitle="Manage system units, stages, materials, production series, and user signatures."
+        />
       )}
 
       {/* 2. Tabs Bar (Outside Container) */}
@@ -1792,16 +1774,12 @@ export default function AddComponents({ hideHeader = false }: { hideHeader?: boo
         </Box>
       </Paper>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={snackbar.severity === "error" ? undefined : 6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 }

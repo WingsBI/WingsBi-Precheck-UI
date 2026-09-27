@@ -3,19 +3,15 @@ import {
   Box,
   Button,
   Typography,
-  Alert,
   LinearProgress,
   Chip,
-  Paper,
   Stack,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
-  IconButton,
   TextField,
-  Snackbar,
   InputAdornment,
   Menu,
   MenuItem,
@@ -30,7 +26,12 @@ import {
   Tooltip,
   CircularProgress,
   Select,
+  IconButton,
 } from "@mui/material";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import { TableCard } from "../../components/ui/TableCard";
 import {
   CloudUpload as UploadIcon,
   Download as DownloadIcon,
@@ -49,11 +50,7 @@ import {
   ChevronRight as ChevronRightIcon,
   CalendarToday as CalendarTodayIcon,
 } from "@mui/icons-material";
-
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format } from "date-fns";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
   DataGrid,
   type GridColDef,
@@ -67,7 +64,6 @@ import * as XLSX from "xlsx";
 import api from "../../services/api";
 import { useDebounce } from "../../hooks/useDebounce";
 import { usePageAccess, useProductionSeries } from "../../hooks/useMasterData";
-import { isPageAccessible } from "../../utils/accessUtils";
 import { useHasPermission } from "../../hooks/useHasPermission";
 import { getAutosizedColumns } from "../../utils/gridUtils";
 
@@ -168,11 +164,11 @@ const ALL_EXPORTABLE_COLUMNS = [
 
 const RowActionsMenu: React.FC<{
   row: any;
-  pageAccessData: any;
+  _pageAccessData?: any;
   deleteConfirmId: number | null;
   setDeleteConfirmId: (id: number | null) => void;
   deleteMutation: any;
-}> = ({ row, pageAccessData, deleteConfirmId, setDeleteConfirmId, deleteMutation }) => {
+}> = ({ row, _pageAccessData, deleteConfirmId, setDeleteConfirmId, deleteMutation }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -206,7 +202,7 @@ const RowActionsMenu: React.FC<{
           <IconButton
             size="small"
             color="success"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               deleteMutation.mutate(row);
             }}
@@ -218,7 +214,7 @@ const RowActionsMenu: React.FC<{
           <IconButton
             size="small"
             color="error"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               setDeleteConfirmId(null);
             }}
@@ -1685,7 +1681,7 @@ const ProductionOrderUpload: React.FC = () => {
       renderCell: (params) => (
         <RowActionsMenu
           row={params.row}
-          pageAccessData={pageAccessData}
+          _pageAccessData={pageAccessData}
           deleteConfirmId={deleteConfirmId}
           setDeleteConfirmId={setDeleteConfirmId}
           deleteMutation={deleteMutation}
@@ -1862,106 +1858,55 @@ const ProductionOrderUpload: React.FC = () => {
       sx={{
         py: { xs: 1, sm: 1.25 },
         px: { xs: 1.5, sm: 2 },
-        height: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#FAFAFA",
         width: "100%",
         boxSizing: "border-box",
         overflow: view === "history" ? "hidden" : "auto",
       }}
     >
       {/* Header Section */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        spacing={2}
-        sx={{ mb: 1 }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-            }}
-          >
-            {view === "upload" ? "Upload Production Orders" : "Production Order History"}
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-            {view === "upload"
-              ? "Import and validate production orders from an Excel sheet."
-              : "Track, filter, and view uploaded production orders."}
-          </Typography>
-        </Box>
-
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          {view === "upload" ? (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<HistoryIcon fontSize="small" />}
-              onClick={() => setView("history")}
-              sx={{
-                height: 34,
-                borderRadius: "6px",
-                borderColor: "grey.300",
-                color: "text.secondary",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.8rem",
-                backgroundColor: "background.paper",
-                "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-              }}
-            >
-              Upload history ({totalRowCount})
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={handleOpenExportDialog}
-                startIcon={<DownloadIcon fontSize="small" />}
-                sx={{
-                  height: 34,
-                  borderRadius: "6px",
-                  borderColor: "grey.300",
-                  color: "text.secondary",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.8rem",
-                  backgroundColor: "background.paper",
-                  "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-                }}
+      <PageHeader
+        title={view === "upload" ? "Upload Production Orders" : "Production Order History"}
+        subtitle={
+          view === "upload"
+            ? "Import and validate production orders from an Excel sheet."
+            : "Track, filter, and view uploaded production orders."
+        }
+        actions={
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            {view === "upload" ? (
+              <ActionButton
+                variant="secondary"
+                size="standard"
+                startIcon={<HistoryIcon fontSize="small" />}
+                onClick={() => setView("history")}
               >
-                Export
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={<UploadIcon fontSize="small" />}
-                onClick={() => setView("upload")}
-                sx={{
-                  height: 34,
-                  borderRadius: "6px",
-                  backgroundColor: "primary.main",
-                  color: "#ffffff",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.8rem",
-                  boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                  "&:hover": { backgroundColor: "primary.dark" },
-                }}
-              >
-                Upload Orders
-              </Button>
-            </>
-          )}
-        </Stack>
-      </Stack>
+                Upload History ({totalRowCount})
+              </ActionButton>
+            ) : (
+              <>
+                <ActionButton
+                  variant="secondary"
+                  size="standard"
+                  onClick={handleOpenExportDialog}
+                  startIcon={<DownloadIcon fontSize="small" />}
+                >
+                  Export
+                </ActionButton>
+                <ActionButton
+                  variant="primary"
+                  size="standard"
+                  startIcon={<UploadIcon fontSize="small" />}
+                  onClick={() => setView("upload")}
+                >
+                  Upload Orders
+                </ActionButton>
+              </>
+            )}
+          </Stack>
+        }
+      />
 
       {/* Main View Content */}
       {view === "upload" ? (
@@ -2001,16 +1946,11 @@ const ProductionOrderUpload: React.FC = () => {
           {uploadMutation.isPending && <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />}
 
           {/* Excel Rows Preview DataGrid */}
-          <Paper
-            elevation={0}
+          <TableCard
             sx={{
               flexGrow: 1,
               minHeight: 300,
-              borderRadius: "12px",
-              border: "1px solid #E9EAEB",
-              overflow: "hidden",
               p: 2,
-              backgroundColor: "#ffffff",
               display: "flex",
               flexDirection: "column",
             }}
@@ -2122,7 +2062,7 @@ const ProductionOrderUpload: React.FC = () => {
                 onPageSizeChange={(newPageSize) => setPreviewPaginationModel({ page: 0, pageSize: newPageSize })}
               />
             </Box>
-          </Paper>
+          </TableCard>
         </Box>
       ) : (
         /* History Tab Content */
@@ -2134,7 +2074,7 @@ const ProductionOrderUpload: React.FC = () => {
             sx={{ mb: 0.75 }}
           >
             <HistoryStatCard
-              title="Total orders"
+              title="Total Orders"
               count={totalOrdersCount}
               indicatorColor="#6D2A8F"
               subtext="All Orders"
@@ -2143,32 +2083,27 @@ const ProductionOrderUpload: React.FC = () => {
               title="Pending"
               count={pendingCount}
               indicatorColor="#f03737ff"
-              subtext={`${pendingPct}% · pending`}
+              subtext={`${pendingPct}% · Pending`}
             />
             <HistoryStatCard
               title="Partial"
               count={partialCount}
               indicatorColor="#F79009"
-              subtext={`${partialPct}% · precheck in progress`}
+              subtext={`${partialPct}% · Partial`}
             />
             <HistoryStatCard
               title="Completed"
               count={completedCount}
               indicatorColor="#12B76A"
-              subtext={`${completedPct}% · verified`}
+              subtext={`${completedPct}% · Completed`}
             />
           </Stack>
 
-          {/* Unified Single Container Card */}
-          <Paper
-            elevation={0}
+          {/* Unified Single Container TableCard */}
+          <TableCard
             sx={{
               flexGrow: 1,
               minHeight: 0,
-              borderRadius: "12px",
-              border: "1px solid #EAECF0",
-              backgroundColor: "#ffffff",
-              overflow: "hidden",
               display: "flex",
               flexDirection: "column",
             }}
@@ -2425,59 +2360,23 @@ const ProductionOrderUpload: React.FC = () => {
                   }}
                 />
 
-                <Button
-                  size="small"
-                  variant="contained"
+                <ActionButton
+                  variant="primary"
+                  size="standard"
                   disabled={!hasSelectedDropdownFilters}
                   onClick={handleApplyFilters}
-                  sx={{
-                    flex: "0 0 auto",
-                    backgroundColor: "primary.main",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                    fontSize: "0.82rem",
-                    borderRadius: "6px",
-                    px: 2,
-                    height: 38,
-                    textTransform: "none",
-                    boxShadow: "none",
-                    minWidth: 65,
-                    "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                    "&.Mui-disabled": {
-                      backgroundColor: "#EAECF0",
-                      color: "#98A2B3",
-                    },
-                  }}
                 >
                   Apply
-                </Button>
+                </ActionButton>
 
-                <Button
-                  size="small"
-                  variant="outlined"
+                <ActionButton
+                  variant="secondary"
+                  size="standard"
                   disabled={!hasAnyFilterActive}
                   onClick={handleClearFilters}
-                  sx={{
-                    flex: "0 0 auto",
-                    color: "#667085",
-                    borderColor: "#D0D5DD",
-                    backgroundColor: "#ffffff",
-                    borderRadius: "6px",
-                    fontWeight: 600,
-                    fontSize: "0.82rem",
-                    height: 38,
-                    px: 1.5,
-                    minWidth: 55,
-                    textTransform: "none",
-                    "&:hover": {
-                      borderColor: "#98A2B3",
-                      backgroundColor: "#F9FAFB",
-                      color: "#101828",
-                    },
-                  }}
                 >
                   Clear
-                </Button>
+                </ActionButton>
               </Box>
 
               {/* Active Filter Chips & Results Count Bar */}
@@ -2609,7 +2508,7 @@ const ProductionOrderUpload: React.FC = () => {
                 disabled={isHistoryLoading}
               />
             </Box>
-          </Paper>
+          </TableCard>
         </Box>
       )}
 
@@ -2724,33 +2623,23 @@ const ProductionOrderUpload: React.FC = () => {
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button
-            variant="outlined"
-            color="inherit"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="standard"
             onClick={() => setExportDialogOpen(false)}
             disabled={isExporting}
-            sx={{ minWidth: 110, fontWeight: 600, borderRadius: "8px", textTransform: "none" }}
           >
             Cancel
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
+          </ActionButton>
+          <ActionButton
+            variant="primary"
+            size="standard"
             startIcon={isExporting ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
             onClick={handleConfirmExportData}
             disabled={isExporting || (exportMode === "custom" && selectedExportColumns.length === 0)}
-            sx={{
-              minWidth: 110,
-              fontWeight: 600,
-              borderRadius: "8px",
-              textTransform: "none",
-              backgroundColor: "primary.main",
-              "&:hover": { backgroundColor: "primary.dark" },
-            }}
           >
             {isExporting ? "Exporting..." : "Export"}
-          </Button>
+          </ActionButton>
         </DialogActions>
       </Dialog>
 
@@ -2818,20 +2707,12 @@ const ProductionOrderUpload: React.FC = () => {
       </Dialog>
 
       {/* Snackbar Notifications */}
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={snackbar.severity === "error" ? null : 6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%", borderRadius: "8px" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 };

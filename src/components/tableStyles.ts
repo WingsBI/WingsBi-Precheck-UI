@@ -11,7 +11,7 @@ export const COLOUR_ROLES = {
   hairline: "#E5E7EB",
   canvas: "#F4F4F6",
   headerBg: "#F9FAFB",
-  rowHover: "#F9FAFB",
+  rowHover: "transparent",
 };
 
 export const commonTableHeaderStyle = {
@@ -26,7 +26,7 @@ export const commonTableHeaderStyle = {
 
 export const commonTableRowStyle = {
   height: 32,
-  "&:hover": { backgroundColor: `${COLOUR_ROLES.rowHover} !important` },
+  "&:hover": { backgroundColor: "transparent !important" },
   "& td, & th": {
     borderBottom: `1px solid ${COLOUR_ROLES.hairline}`,
     fontSize: "0.775rem",
@@ -79,7 +79,7 @@ export const commonDataGridSx = {
   "& .MuiDataGrid-row": {
     minHeight: "32px !important",
     maxHeight: "32px !important",
-    "&:hover": { backgroundColor: `${COLOUR_ROLES.rowHover} !important` },
+    "&:hover": { backgroundColor: "transparent !important" },
   },
   "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-columnHeader:focus": {
     outline: "none !important",
@@ -175,9 +175,9 @@ export const adminDataGridSx = {
   "& .MuiDataGrid-row": {
     minHeight: "42px !important",
     maxHeight: "42px !important",
-    "&:hover": { backgroundColor: "#F8FAFC !important" },
+    "&:hover": { backgroundColor: "transparent !important" },
     "&.Mui-selected": { backgroundColor: "#F1F5F9 !important" },
-    "&.Mui-selected:hover": { backgroundColor: "#E2E8F0 !important" },
+    "&.Mui-selected:hover": { backgroundColor: "#F1F5F9 !important" },
   },
   "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within": {
     outline: "none !important",

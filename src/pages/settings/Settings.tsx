@@ -13,6 +13,8 @@ import {
 } from '@mui/material';
 import type { RootState } from '../../store/store';
 import { resetPassword, clearError } from '../../store/slices/authSlice';
+import PageHeader from '../../components/ui/PageHeader';
+import ActionButton from '../../components/ui/ActionButton';
 
 interface PasswordForm {
   currentPassword: string;
@@ -95,14 +97,10 @@ export default function Settings() {
 
   return (
     <Box sx={{ flexGrow: 1, p: 3 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: "primary.main" }}>
-          Settings
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-          Manage your user profile details and security credentials.
-        </Typography>
-      </Box>
+      <PageHeader
+        title="Settings"
+        subtitle="Manage your user profile details and security credentials."
+      />
 
       <Grid container spacing={3}>
         {/* User Profile Section */}
@@ -212,14 +210,15 @@ export default function Settings() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <Button
+                  <ActionButton
                     type="submit"
-                    variant="contained"
-                    fullWidth
+                    variant="primary"
+                    size="standard"
                     disabled={isLoading}
+                    startIcon={isLoading ? <CircularProgress size={16} color="inherit" /> : null}
                   >
-                    {isLoading ? <CircularProgress size={24} /> : 'Change Password'}
-                  </Button>
+                    {isLoading ? 'Updating...' : 'Change Password'}
+                  </ActionButton>
                 </Grid>
               </Grid>
             </form>

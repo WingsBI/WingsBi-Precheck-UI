@@ -5,7 +5,6 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   Card,
   CardContent,
   Grid,
@@ -15,6 +14,7 @@ import {
   Alert,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import ActionButton from "../../components/ui/ActionButton";
 import { useSecurityQuestions } from "../../hooks/useMasterData";
 import { forgetPassword } from "../../store/slices/authSlice";
 import { CustomMessageBox } from "../../utils/notifications";
@@ -450,45 +450,23 @@ const ForgetPassword: React.FC = () => {
             <Box
               sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, gap: 2 }}
             >
-              <Button
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 component={RouterLink}
                 to="/login"
-                variant="outlined"
-                sx={{
-                  height: 40,
-                  px: 2.5,
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  borderColor: "#D0D5DD",
-                  color: "#344054",
-                  "&:hover": { backgroundColor: "#F9FAFB", borderColor: "#98A2B3", color: "#101828" },
-                }}
               >
                 Back to Login
-              </Button>
+              </ActionButton>
 
-              <Button
+              <ActionButton
+                variant="primary"
+                size="standard"
                 type="submit"
-                variant="contained"
                 disabled={isLoading}
-                sx={{
-                  height: 40,
-                  px: 3,
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  backgroundColor: "#6D2A8F",
-                  color: "#ffffff",
-                  boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                  "&:hover": { backgroundColor: "#582075" },
-                  "&.Mui-disabled": { backgroundColor: "#EAECF0", color: "#98A2B3" },
-                }}
               >
                 {isLoading ? "Resetting..." : "Reset Password"}
-              </Button>
+              </ActionButton>
             </Box>
           </form>
         </CardContent>

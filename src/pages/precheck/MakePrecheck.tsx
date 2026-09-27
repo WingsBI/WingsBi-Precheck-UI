@@ -26,9 +26,10 @@ import {
   Typography,
   IconButton,
   Button,
-  Snackbar,
 } from "@mui/material";
 import { Close as CloseIcon, FileDownload as FileDownloadIcon } from "@mui/icons-material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips, { type FilterChip } from "../../components/ui/ActiveFilterChips";
 import {
   viewPrecheckDetails,
   makePrecheck,
@@ -61,6 +62,7 @@ import type { RootState, AppDispatch } from "../../store/store";
 import debounce from "lodash.debounce";
 import { getErrorMessage } from "../../utils/errorUtils";
 import { createMaterialRequisition } from "../../store/slices/materialRequisitionSlice";
+import ActionButton from "../../components/ui/ActionButton";
 
 // Sub-component imports
 import type { GridItem } from "./make-precheck/types";
@@ -1693,21 +1695,13 @@ const MakePrecheck: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      {/* Top Center Snackbar Alert */}
-      <Snackbar
+      {/* Top Center Toast Alert */}
+      <ToastSnackbar
         open={showAlert}
-        autoHideDuration={4000}
+        message={alertMessage}
+        severity={alertSeverity}
         onClose={() => setShowAlert(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={alertSeverity}
-          onClose={() => setShowAlert(false)}
-          sx={{ width: "100%", borderRadius: "8px", boxShadow: 3 }}
-        >
-          {alertMessage}
-        </Alert>
-      </Snackbar>
+      />
 
       {/* Page Title & More Action Button at Top Header */}
       <PrecheckHeaderBar
@@ -2158,32 +2152,22 @@ const MakePrecheck: React.FC = () => {
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button
-            variant="outlined"
-            color="inherit"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="compact"
             onClick={() => setExportDialogOpen(false)}
-            sx={{ minWidth: 110, fontWeight: 600, borderRadius: "8px", textTransform: "none" }}
           >
             Cancel
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
+          </ActionButton>
+          <ActionButton
+            variant="primary"
+            size="compact"
             startIcon={<FileDownloadIcon fontSize="small" />}
             onClick={handleConfirmExportData}
             disabled={exportMode === "custom" && selectedExportColumns.length === 0}
-            sx={{
-              minWidth: 110,
-              fontWeight: 600,
-              borderRadius: "8px",
-              textTransform: "none",
-              backgroundColor: "primary.main",
-              "&:hover": { backgroundColor: "primary.dark" },
-            }}
           >
             Export
-          </Button>
+          </ActionButton>
         </DialogActions>
       </Dialog>
     </Box>

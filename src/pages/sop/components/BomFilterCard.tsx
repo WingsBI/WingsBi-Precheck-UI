@@ -3,13 +3,12 @@ import {
   Paper,
   Grid,
   Box,
-  Button,
   Autocomplete,
   TextField,
   Typography,
   CircularProgress,
 } from "@mui/material";
-
+import ActionButton from "../../../components/ui/ActionButton";
 
 interface AssemblyOption {
   id: number;
@@ -148,60 +147,22 @@ export const BomFilterCard: React.FC<BomFilterCardProps> = ({
         {/* Action Buttons */}
         <Grid item xs={12} sm={5} md={4}>
           <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end", alignItems: "center" }}>
-            <Button
-              variant="contained"
-              size="small"
+            <ActionButton
+              variant="primary"
+              size="standard"
               onClick={handleSearch}
               disabled={isBomLoading || !selectedAssembly}
-              sx={{
-                height: 38,
-                minWidth: 65,
-                px: 2,
-                borderRadius: "6px",
-                backgroundColor: "primary.main",
-                color: "#FFFFFF",
-                fontWeight: 600,
-                fontSize: "0.82rem",
-                textTransform: "none",
-                boxShadow: "none",
-                "&:hover": {
-                  backgroundColor: "primary.dark",
-                  boxShadow: "none",
-                },
-                "&.Mui-disabled": {
-                  backgroundColor: "#EAECF0",
-                  color: "#98A2B3",
-                },
-              }}
             >
               {isBomLoading ? "Applying..." : "Apply"}
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
+            </ActionButton>
+            <ActionButton
+              variant="secondary"
+              size="standard"
               onClick={handleReset}
               disabled={!selectedAssembly && !hasBomData && !assemblyInputValue}
-              sx={{
-                height: 38,
-                minWidth: 55,
-                px: 1.5,
-                borderRadius: "6px",
-                borderColor: "#D0D5DD",
-                backgroundColor: "#ffffff",
-                color: "#667085",
-                fontWeight: 600,
-                fontSize: "0.82rem",
-                textTransform: "none",
-                boxShadow: "none",
-                "&:hover": {
-                  borderColor: "#98A2B3",
-                  backgroundColor: "#F9FAFB",
-                  color: "#101828",
-                },
-              }}
             >
               Clear
-            </Button>
+            </ActionButton>
           </Box>
         </Grid>
       </Grid>

@@ -17,8 +17,8 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Snackbar,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 
 import {
   QrCode as QrCodeIcon,
@@ -62,6 +62,7 @@ import {
 } from "../../hooks/usePONumbers";
 import debounce from "lodash/debounce";
 import QRCodeErrorDisplay from "../../components/QRCodeErrorDisplay";
+import PageHeader from "../../components/ui/PageHeader";
 import { useDebounce } from "../../hooks/useDebounce";
 import {
   DrawingDetailsStep,
@@ -1805,22 +1806,11 @@ export default function BarcodeGeneration() {
           </Box>
         </Backdrop>
 
-        {/* Header Section */}
-        <Box sx={{ mb: 1.5 }}>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-            }}
-          >
-            New QR Code
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-            Generate, preview, and print QR codes and barcodes for components and materials.
-          </Typography>
-        </Box>
+        {/* Page Header */}
+        <PageHeader
+          title="New QR Code"
+          subtitle="Generate, preview, and print QR codes and barcodes for components and materials."
+        />
 
         <>
           {/* Success/Error Messages */}
@@ -2155,16 +2145,12 @@ export default function BarcodeGeneration() {
         </>
       </Box>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%", borderRadius: "8px", boxShadow: 3 }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </LocalizationProvider>
   );
 }

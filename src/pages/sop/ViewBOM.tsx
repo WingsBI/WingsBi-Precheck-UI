@@ -14,8 +14,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Chip,
   CircularProgress,
   Alert,
   IconButton,
@@ -24,7 +22,6 @@ import {
   Stack,
 } from "@mui/material";
 import {
-  TableChart as TableIcon,
   KeyboardArrowDown,
   KeyboardArrowRight,
   Edit as EditIcon,
@@ -32,7 +29,6 @@ import {
 import {
   getBomDetails,
   searchAssemblyNumbers,
-  exportBomDetails,
   clearBomData,
   clearAssemblySearchResults,
   setSelectedAssemblyNumber,
@@ -43,6 +39,10 @@ import { ComponentTypeChip } from "../../components/ComponentTypeChip";
 import { useHierarchicalTable } from "../../hooks/useHierarchicalTable";
 import { BomFilterCard } from "./components/BomFilterCard";
 import { EmptyState } from "../../components/EmptyState";
+import ActionButton from "../../components/ui/ActionButton";
+import PageHeader from "../../components/ui/PageHeader";
+import SortableTableHeader from "../../components/ui/SortableTableHeader";
+import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
 
 interface AssemblyOption {
   id: number;
@@ -76,6 +76,31 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
     data: bomData || [],
     defaultExpanded: false,
   });
+
+  // Sorting State
+  const [sortColumn, setSortColumn] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedVisibleRows = React.useMemo(() => {
+    if (!visibleRows || !sortColumn) return visibleRows;
+    return [...visibleRows].sort((a: any, b: any) => {
+      let valA = a[sortColumn] ?? "";
+      let valB = b[sortColumn] ?? "";
+      if (typeof valA === "string") valA = valA.toLowerCase();
+      if (typeof valB === "string") valB = valB.toLowerCase();
+      const cmp = String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [visibleRows, sortColumn, sortDirection]);
 
   // Form
   const { reset, setValue } = useForm({
@@ -308,6 +333,12 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
 
   return (
     <Box sx={{ width: "100%" }}>
+      {!hideHeader && (
+        <PageHeader
+          title="Bill of Materials (BOM)"
+          subtitle="View hierarchical breakdown of assembly components"
+        />
+      )}
       {/* Error Alert */}
       {!hideHeader && error && (
         <Alert severity="error" sx={{ mb: 1.5, borderRadius: "8px" }} onClose={() => dispatch(clearError())}>
@@ -330,135 +361,92 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       />
 
       {/* Results Table Card */}
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: "10px",
-          border: "1px solid #EAECF0",
-          backgroundColor: "#ffffff",
-          overflow: "hidden",
-        }}
-      >
-        <Box
-          sx={{
-            p: 1.5,
-            px: 2,
-            borderBottom: "1px solid #EAECF0",
-            backgroundColor: "#F9FAFB",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <TableIcon sx={{ color: "primary.main", fontSize: 20 }} />
-            <Typography variant="h6" sx={{ fontSize: "0.95rem", fontWeight: 700, color: "#101828" }}>
-              BOM Details
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            {bomData && bomData.length > 0 && (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Chip
-                  label={`${bomData.length} items`}
-                  size="small"
-                  sx={{
-                    backgroundColor: "#ECFDF3",
-                    color: "#027A48",
-                    fontWeight: 600,
-                    fontSize: "0.75rem",
-                    mr: 0.5,
-                  }}
-                />
-                <Button
-                  size="small"
-                  variant="text"
-                  onClick={expandAll}
-                  sx={{
-                    fontSize: "0.775rem",
-                    fontWeight: 600,
-                    color: "primary.main",
-                    textTransform: "none",
-                    p: 0,
-                    minWidth: "auto",
-                    "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                  }}
-                >
-                  Expand all
-                </Button>
-                <Typography variant="caption" sx={{ color: "#D0D5DD" }}>
-                  ·
-                </Typography>
-                <Button
-                  size="small"
-                  variant="text"
-                  onClick={collapseAll}
-                  sx={{
-                    fontSize: "0.775rem",
-                    fontWeight: 600,
-                    color: "#667085",
-                    textTransform: "none",
-                    p: 0,
-                    minWidth: "auto",
-                    "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                  }}
-                >
-                  Collapse
-                </Button>
-              </Stack>
-            )}
-            <Tooltip
-              title={!hasEditBomAccess ? "You do not have access to edit BOM" : ""}
-              arrow
-            >
-              <span>
-                <Button
-                  variant="contained"
-                  size="small"
-                  disabled={!hasEditBomAccess || !bomData || bomData.length === 0}
-                  startIcon={<EditIcon sx={{ fontSize: "0.95rem" }} />}
-                  onClick={() => {
-                    const activeDwg =
-                      selectedAssembly?.drawingNumber ||
-                      selectedAssemblyNumber ||
-                      assemblyInputValue ||
-                      (bomData && bomData.length > 0
-                        ? bomData[0]?.parentDrawingNumber ||
-                        bomData[0]?.assemblyNumber ||
-                        bomData[0]?.childDrawingNumber ||
-                        ""
-                        : "");
-                    const activeLn =
-                      selectedAssembly?.lnItemCode ||
-                      (bomData && bomData.length > 0
-                        ? bomData[0]?.lnItemCode || ""
-                        : "");
-                    navigate("/assembly/editbom", {
-                      state: {
-                        drawingNumber: activeDwg,
-                        lnItemCode: activeLn,
-                      },
-                    });
-                  }}
-                  sx={{
-                    height: 32,
-                    borderRadius: "6px",
-                    backgroundColor: "primary.main",
-                    color: "#ffffff",
-                    textTransform: "none",
-                    fontWeight: 600,
-                    fontSize: "0.8rem",
-                    boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                    "&:hover": { backgroundColor: "primary.dark" },
-                    "&.Mui-disabled": { backgroundColor: "#EAECF0", color: "#98A2B3" },
-                  }}
-                >
-                  Edit BOM
-                </Button>
-              </span>
-            </Tooltip>
-          </Box>
-        </Box>
+      <TableCard>
+        <TableCardHeader
+          title="BOM Details"
+          count={bomData && bomData.length > 0 ? bomData.length : undefined}
+          actions={
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              {bomData && bomData.length > 0 && (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Button
+                    size="small"
+                    variant="text"
+                    onClick={expandAll}
+                    sx={{
+                      fontSize: "0.775rem",
+                      fontWeight: 600,
+                      color: "primary.main",
+                      textTransform: "none",
+                      p: 0,
+                      minWidth: "auto",
+                      "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
+                    }}
+                  >
+                    Expand all
+                  </Button>
+                  <Typography variant="caption" sx={{ color: "#D0D5DD" }}>
+                    ·
+                  </Typography>
+                  <Button
+                    size="small"
+                    variant="text"
+                    onClick={collapseAll}
+                    sx={{
+                      fontSize: "0.775rem",
+                      fontWeight: 600,
+                      color: "#667085",
+                      textTransform: "none",
+                      p: 0,
+                      minWidth: "auto",
+                      "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
+                    }}
+                  >
+                    Collapse
+                  </Button>
+                </Stack>
+              )}
+              <Tooltip
+                title={!hasEditBomAccess ? "You do not have access to edit BOM" : ""}
+                arrow
+              >
+                <span>
+                  <ActionButton
+                    variant="primary"
+                    size="compact"
+                    disabled={!hasEditBomAccess || !bomData || bomData.length === 0}
+                    startIcon={<EditIcon sx={{ fontSize: "0.95rem" }} />}
+                    onClick={() => {
+                      const activeDwg =
+                        selectedAssembly?.drawingNumber ||
+                        selectedAssemblyNumber ||
+                        assemblyInputValue ||
+                        (bomData && bomData.length > 0
+                          ? bomData[0]?.parentDrawingNumber ||
+                          bomData[0]?.assemblyNumber ||
+                          bomData[0]?.childDrawingNumber ||
+                          ""
+                          : "");
+                      const activeLn =
+                        selectedAssembly?.lnItemCode ||
+                        (bomData && bomData.length > 0
+                          ? bomData[0]?.lnItemCode || ""
+                          : "");
+                      navigate("/assembly/editbom", {
+                        state: {
+                          drawingNumber: activeDwg,
+                          lnItemCode: activeLn,
+                        },
+                      });
+                    }}
+                  >
+                    Edit BOM
+                  </ActionButton>
+                </span>
+              </Tooltip>
+            </Box>
+          }
+        />
 
         <Box sx={{ position: "relative" }}>
           <TableContainer
@@ -472,29 +460,27 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
             <Table stickyHeader size="small">
               <TableHead>
                 <TableRow>
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      align={column.align || "left"}
-                      sx={{
-                        fontWeight: 700,
-                        backgroundColor: COLOUR_ROLES.headerBg,
-                        color: COLOUR_ROLES.textSecondary,
-                        fontSize: "0.8rem",
-                        borderBottom: `1px solid ${COLOUR_ROLES.hairline}`,
-                        py: 0.75,
-                        px: 1.25,
-                        minWidth: column.minWidth,
-                      }}
-                    >
-                      {column.label}
-                    </TableCell>
-                  ))}
+                  {columns.map((column) => {
+                    const isSortableCol = column.id === "childDrawingNumber" || column.id === "lnItemCode";
+                    return (
+                      <SortableTableHeader
+                        key={column.id}
+                        label={column.label}
+                        columnKey={column.id}
+                        activeSortColumn={sortColumn}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                        align={column.align || "left"}
+                        minWidth={column.minWidth}
+                        isSortable={isSortableCol}
+                      />
+                    );
+                  })}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {visibleRows && visibleRows.length > 0 ? (
-                  visibleRows.map((item: any, index: number) => (
+                {sortedVisibleRows && sortedVisibleRows.length > 0 ? (
+                  sortedVisibleRows.map((item: any, index: number) => (
                     <TableRow
                       key={`${item.childDrawingId}-${index}`}
                       hover
@@ -540,7 +526,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
             </Box>
           )}
         </Box>
-      </Paper>
+      </TableCard>
     </Box>
   );
 };

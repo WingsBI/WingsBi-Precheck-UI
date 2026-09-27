@@ -37,9 +37,10 @@ import {
   RadioGroup,
   Radio,
   Checkbox,
-  Snackbar,
   Alert,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
 import {
   Visibility as VisibilityIcon,
   FileDownload as FileDownloadIcon,
@@ -57,8 +58,11 @@ import {
 import { CustomPagination } from "../../components/CustomPagination";
 import { EmptyState } from "../../components/EmptyState";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import SearchBar from "../../components/ui/SearchBar";
+import { SortableTableHeader, TableCard } from "../../components/ui";
 import { COLOUR_ROLES, commonTableRowStyle } from "../../components/tableStyles";
-import { SortableTableHeader } from "../../components/SortableTableHeader";
 import { ComponentTypeChip } from "../../components/ComponentTypeChip";
 import { StatusChip } from "../../components/StatusChip";
 
@@ -871,71 +875,35 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
         boxSizing: "border-box",
       }}
     >
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={4000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-          sx={{ width: "100%", borderRadius: "8px", boxShadow: 3 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
       {/* 1. Page Header */}
       {!hideHeader && (
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={1}
-          sx={{ mb: 0.5, mt: 0.5 }}
-        >
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                color: "primary.main",
-                fontSize: { xs: "1.25rem", sm: "1.5rem" },
-                lineHeight: 1.2,
-              }}
-            >
-              Verification History
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-              {activeTab === "consumed"
-                ? "Search, filter, and inspect past precheck inspection records and status reports."
-                : "Search, filter, and inspect precheck inspection records and status reports."}
-            </Typography>
-          </Box>
-
-          {activeTab === "precheck" && (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <FileDownloadIcon fontSize="small" />}
-              onClick={handleOpenExportDialog}
-              disabled={isExporting || !hasAppliedFilters}
-              sx={{
-                height: 32,
-                borderRadius: "6px",
-                borderColor: "grey.300",
-                color: "text.secondary",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.8rem",
-                backgroundColor: "background.paper",
-                "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-              }}
-            >
-              Export
-            </Button>
-          )}
-        </Stack>
+        <PageHeader
+          title="Verification History"
+          subtitle={
+            activeTab === "consumed"
+              ? "Search, filter, and inspect past precheck inspection records and status reports."
+              : "Search, filter, and inspect precheck inspection records and status reports."
+          }
+          actions={
+            activeTab === "precheck" ? (
+              <ActionButton
+                variant="secondary"
+                size="standard"
+                startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <FileDownloadIcon fontSize="small" />}
+                onClick={handleOpenExportDialog}
+                disabled={isExporting || !hasAppliedFilters}
+              >
+                Export
+              </ActionButton>
+            ) : undefined
+          }
+        />
       )}
 
       {/* 2. Tabs Bar */}
@@ -971,17 +939,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
         </Tabs>
       </Box>
 
-      {/* 3. Unified Single Outer Paper Container */}
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: "12px",
-          border: "1px solid #EAECF0",
-          backgroundColor: "#ffffff",
-          overflow: "hidden",
-          mb: 1,
-        }}
-      >
+      {/* 3. Unified Single Outer TableCard Container */}
+      <TableCard sx={{ mb: 1 }}>
         {/* Section 1: Filter Bar & Active Chips */}
         <Box sx={{ pt: 1, px: 1, pb: 0.5, borderBottom: "1px solid #EAECF0" }}>
           {/* ── Precheck Tab Filters ─────────────────────────────────────────── */}
@@ -1002,41 +961,14 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 "&::-webkit-scrollbar": { display: "none" },
               }}
             >
-              {/* Combined Search */}
-              <TextField
-                size="small"
+              <SearchBar
                 placeholder="Search PO No. , Part Number , Item Code…"
                 value={combinedSearch}
                 onChange={(e) => { setCombinedSearch(e.target.value); setPage(0); }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: "#98A2B3", fontSize: 18 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: combinedSearch ? (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={() => { setCombinedSearch(""); setPage(0); }}
-                        edge="end"
-                        sx={{ p: 0.25, color: "#98A2B3", "&:hover": { color: "#344054" } }}
-                      >
-                        <CloseIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null,
-                }}
+                onClear={() => { setCombinedSearch(""); setPage(0); }}
                 sx={{
                   flex: "1 1 340px",
                   minWidth: 260,
-                  "& .MuiOutlinedInput-root": {
-                    fontSize: "0.825rem",
-                    height: 38,
-                    backgroundColor: "background.paper",
-                    borderRadius: "6px",
-                    "& .MuiOutlinedInput-notchedOutline": { borderColor: "#D0D5DD" },
-                  },
                 }}
               />
 
@@ -1243,59 +1175,23 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
               />
 
               {/* Apply Button */}
-              <Button
-                size="small"
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="standard"
                 onClick={handleApplyFilters}
                 disabled={!isPrecheckDropdownSelected || isPrecheckLoading}
-                sx={{
-                  flex: "0 0 auto",
-                  backgroundColor: "primary.main",
-                  color: "#FFFFFF",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  borderRadius: "6px",
-                  px: 2,
-                  height: 38,
-                  textTransform: "none",
-                  boxShadow: "none",
-                  minWidth: 65,
-                  "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#EAECF0",
-                    color: "#98A2B3",
-                  },
-                }}
               >
                 Apply
-              </Button>
+              </ActionButton>
 
               {/* Clear Button */}
-              <Button
-                size="small"
-                variant="outlined"
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleClearAll}
-                sx={{
-                  flex: "0 0 auto",
-                  color: "#667085",
-                  borderColor: "#D0D5DD",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "6px",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  height: 38,
-                  px: 1.5,
-                  minWidth: 55,
-                  textTransform: "none",
-                  "&:hover": {
-                    borderColor: "#98A2B3",
-                    backgroundColor: "#F9FAFB",
-                    color: "#101828",
-                  },
-                }}
               >
                 Clear
-              </Button>
+              </ActionButton>
             </Box>
           )}
 
@@ -1631,59 +1527,23 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
               />
 
               {/* Apply Button */}
-              <Button
-                size="small"
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="standard"
                 onClick={handleApplyFilters}
                 disabled={!isConsumedDropdownSelected || isConsumedLoading}
-                sx={{
-                  flex: "0 0 auto",
-                  backgroundColor: "primary.main",
-                  color: "#FFFFFF",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  borderRadius: "6px",
-                  px: 2,
-                  height: 38,
-                  textTransform: "none",
-                  boxShadow: "none",
-                  minWidth: 65,
-                  "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#EAECF0",
-                    color: "#98A2B3",
-                  },
-                }}
               >
                 Apply
-              </Button>
+              </ActionButton>
 
               {/* Clear Button */}
-              <Button
-                size="small"
-                variant="outlined"
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleClearAll}
-                sx={{
-                  flex: "0 0 auto",
-                  color: "#667085",
-                  borderColor: "#D0D5DD",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "6px",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  height: 38,
-                  px: 1.5,
-                  minWidth: 55,
-                  textTransform: "none",
-                  "&:hover": {
-                    borderColor: "#98A2B3",
-                    backgroundColor: "#F9FAFB",
-                    color: "#101828",
-                  },
-                }}
               >
                 Clear
-              </Button>
+              </ActionButton>
             </Box>
           )}
 
@@ -1700,48 +1560,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
               gap: 1,
             }}
           >
-            {activeChips.length > 0 ? (
-              <Stack direction="row" spacing={0.75} flexWrap="wrap" alignItems="center">
-                {activeChips.map((chip) => (
-                  <Chip
-                    key={chip.id}
-                    label={chip.label}
-                    onDelete={chip.onRemove}
-                    size="small"
-                    sx={{
-                      backgroundColor: "#F2F4F7",
-                      color: "#344054",
-                      fontWeight: 600,
-                      fontSize: "0.775rem",
-                      height: 24,
-                      borderRadius: "14px",
-                      border: "1px solid #E9EAEB",
-                      "& .MuiChip-deleteIcon": {
-                        color: "#667085",
-                        fontSize: 13,
-                        "&:hover": { color: "#344054" },
-                      },
-                    }}
-                  />
-                ))}
-                <Button
-                  variant="text"
-                  size="small"
-                  onClick={handleClearAll}
-                  sx={{
-                    color: "primary.main",
-                    fontWeight: 600,
-                    fontSize: "0.775rem",
-                    textTransform: "none",
-                    p: 0,
-                    minWidth: "auto",
-                    "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                  }}
-                >
-                  Clear all
-                </Button>
-              </Stack>
-            ) : <Box />}
+            <ActiveFilterChips chips={activeChips} onClearAll={handleClearAll} />
 
             {/* Results Count Display */}
             <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.8rem", fontWeight: 500, ml: "auto" }}>
@@ -1773,6 +1592,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                     align={col.align || "center"}
                     minWidth={col.minWidth}
                     isSortable={col.sortable !== false}
+                    sx={col.field === "details" ? { position: "sticky", right: 0, zIndex: 3, backgroundColor: COLOUR_ROLES.headerBg } : undefined}
                   />
                 ))}
               </TableRow>
@@ -1846,7 +1666,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                           opacity: isRej ? 0.7 : 1,
                           transition: "background-color 0.2s ease, opacity 0.4s ease",
                           "&:hover": {
-                            backgroundColor: `${rowHoverBg} !important`,
+                            backgroundColor: `${rowBg} !important`,
                           },
                         }}
                       >
@@ -1861,6 +1681,12 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                               px: 0.75,
                               minWidth: col.minWidth,
                               whiteSpace: "nowrap",
+                              ...(col.field === "details" && {
+                                position: "sticky",
+                                right: 0,
+                                backgroundColor: rowBg,
+                                zIndex: 1,
+                              }),
                             }}
                           >
                             {renderCellContent(col.field, row, idx)}
@@ -2014,7 +1840,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
           }}
         />
 
-      </Paper>
+      </TableCard>
 
 
 

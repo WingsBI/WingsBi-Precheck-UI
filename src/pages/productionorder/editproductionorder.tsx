@@ -10,14 +10,11 @@ import {
   Stack,
   CircularProgress,
   Alert,
-  Snackbar,
 } from "@mui/material";
-import {
-  ArrowBack as ArrowBackIcon,
-  Save as SaveIcon,
-} from "@mui/icons-material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
+import PageHeader from "../../components/ui/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import {
@@ -239,31 +236,11 @@ export default function EditProductionOrder() {
   };
 
   return (
-    <Box sx={{ py: 1.5, px: { xs: 1.5, sm: 2.5 }, bgcolor: 'background.paper', minHeight: '100vh' }}>
-      {/* Header Section */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-        <IconButton
-          onClick={handleBack}
-          sx={{
-            color: "primary.main",
-            p: 0.5,
-            ml: -1,
-            "&:hover": { backgroundColor: "grey.100" },
-          }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            fontSize: { xs: "1.25rem", sm: "1.5rem" },
-          }}
-        >
-          Edit Production Order: {initialData.productionOrderNumber || id}
-        </Typography>
-      </Box>
+    <Box sx={{ py: 1.5, px: { xs: 1.5, sm: 2.5 } }}>
+      <PageHeader
+        title={`Edit Production Order: ${initialData.productionOrderNumber || id}`}
+        onBack={handleBack}
+      />
 
       {apiError && (
         <Alert severity="error" sx={{ mb: 2, borderRadius: "8px" }} onClose={() => dispatch(resetUploadState())}>
@@ -531,16 +508,12 @@ export default function EditProductionOrder() {
         </form>
       </Paper>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbarOpen}
-        autoHideDuration={snackbarSeverity === "error" ? null : 4000}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: "100%", borderRadius: "8px" }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 }

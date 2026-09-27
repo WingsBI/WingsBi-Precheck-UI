@@ -15,9 +15,7 @@ import {
   InputAdornment,
   IconButton,
   Collapse,
-  Chip,
   Alert,
-  Snackbar,
   CircularProgress,
   Button,
   Dialog,
@@ -38,6 +36,13 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import SearchBar from "../../components/ui/SearchBar";
+import SortableTableHeader from "../../components/ui/SortableTableHeader";
+import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
 import {
   QrCodeScanner as QrCodeScannerIcon,
   ExpandMore as ExpandMoreIcon,
@@ -155,6 +160,39 @@ const StoreIn: React.FC = () => {
   const [qrCodeList, setQrCodeList] = useState<QRCodeDetailsResponse[]>([]);
   const [storeInList, setStoreInList] = useState<StoreInResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Sorting state for tables
+  const [sortColumn, setSortColumn] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedQrCodeList = useMemo(() => {
+    if (!sortColumn) return qrCodeList;
+    return [...qrCodeList].sort((a: any, b: any) => {
+      const valA = String(a[sortColumn] || "").toLowerCase();
+      const valB = String(b[sortColumn] || "").toLowerCase();
+      const cmp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [qrCodeList, sortColumn, sortDirection]);
+
+  const sortedStoreInList = useMemo(() => {
+    if (!sortColumn) return storeInList;
+    return [...storeInList].sort((a: any, b: any) => {
+      const valA = String(a[sortColumn] || a.qrCode || "").toLowerCase();
+      const valB = String(b[sortColumn] || b.qrCode || "").toLowerCase();
+      const cmp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [storeInList, sortColumn, sortDirection]);
 
   // Awaiting Precheck Filter States
   const [searchTerm, setSearchTerm] = useState("");
@@ -813,60 +851,39 @@ const StoreIn: React.FC = () => {
       }}
     >
       {/* 1. Page Header */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        spacing={2}
-        sx={{ mb: 2 }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
+      <PageHeader
+        title={storeTab === "store-in" ? "Store In" : "Stored Components"}
+        subtitle={
+          storeTab === "store-in"
+            ? "Scan verified components to receive them into store inventory locations."
+            : "View and filter available components and QR codes in store."
+        }
+        actions={
+          <Tabs
+            value={storeTab}
+            onChange={(_, newValue) => setStoreTab(newValue)}
+            textColor="primary"
+            indicatorColor="primary"
             sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
+              "& .MuiTab-root": {
+                fontWeight: 600,
+                fontSize: "0.875rem",
+                textTransform: "none",
+                minWidth: 120,
+              },
+              "& .MuiTab-root.Mui-selected": { color: "primary.main" },
+              "& .MuiTabs-indicator": {
+                backgroundColor: "primary.main",
+                height: 3,
+                borderRadius: "3px 3px 0 0",
+              },
             }}
           >
-            {storeTab === "store-in"
-              ? "Store In"
-              : "Stored Components"}
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#667085", mt: 0.5 }}
-          >
-            {storeTab === "store-in"
-              ? "Scan verified components to receive them into store inventory locations."
-              : "View and filter available components and QR codes in store."}
-          </Typography>
-        </Box>
-
-        <Tabs
-          value={storeTab}
-          onChange={(_, newValue) => setStoreTab(newValue)}
-          textColor="primary"
-          indicatorColor="primary"
-          sx={{
-            "& .MuiTab-root": {
-              fontWeight: 600,
-              fontSize: "0.875rem",
-              textTransform: "none",
-              minWidth: 120,
-            },
-            "& .MuiTab-root.Mui-selected": { color: "primary.main" },
-            "& .MuiTabs-indicator": {
-              backgroundColor: "primary.main",
-              height: 3,
-              borderRadius: "3px 3px 0 0",
-            },
-          }}
-        >
-          <Tab label="Store In" value="store-in" />
-          <Tab label="Stored Components" value="available" />
-        </Tabs>
-      </Stack>
+            <Tab label="Store In" value="store-in" />
+            <Tab label="Stored Components" value="available" />
+          </Tabs>
+        }
+      />
 
       <Box sx={{ display: storeTab === "available" ? "block" : "none" }}>
         <AvailableInStore hideHeader />
@@ -875,20 +892,12 @@ const StoreIn: React.FC = () => {
       <Box sx={{ display: storeTab === "store-in" ? "block" : "none" }}>
 
         {/* Alert Message Toast */}
-        <Snackbar
+        <ToastSnackbar
           open={Boolean(alertMessage.message)}
-          autoHideDuration={4000}
+          message={alertMessage.message}
+          severity={alertMessage.type}
           onClose={() => setAlertMessage({ message: "", type: "info" })}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        >
-          <Alert
-            severity={alertMessage.type}
-            sx={{ width: "100%", borderRadius: "8px", boxShadow: 3 }}
-            onClose={() => setAlertMessage({ message: "", type: "info" })}
-          >
-            {alertMessage.message}
-          </Alert>
-        </Snackbar>
+        />
 
         {/* 2. Hero Scan QR Panel */}
         <Paper
@@ -964,32 +973,15 @@ const StoreIn: React.FC = () => {
                 />
               </Box>
 
-              {/* Scan QR Button with thick purple border and camera icon */}
-              <Button
-                variant="outlined"
+              {/* Scan QR Button */}
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleOpenScanner}
                 startIcon={<QrCodeScannerIcon />}
-                sx={{
-                  height: 48,
-                  px: 2.5,
-                  borderRadius: "10px",
-                  border: "2px solid",
-                  borderColor: "primary.main",
-                  color: "primary.main",
-                  fontWeight: 700,
-                  fontSize: "0.9375rem",
-                  textTransform: "none",
-                  backgroundColor: "#FFFFFF",
-                  whiteSpace: "nowrap",
-                  "&:hover": {
-                    border: "2px solid",
-                    borderColor: "primary.main",
-                    backgroundColor: "action.hover",
-                  },
-                }}
               >
                 Scan QR
-              </Button>
+              </ActionButton>
             </Stack>
 
             {/* Bulk Store In Menu Button */}
@@ -1001,32 +993,14 @@ const StoreIn: React.FC = () => {
                 borderLeft: { xs: "none", md: "1px solid #EAECF0" },
               }}
             >
-              <Button
-                variant="outlined"
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleBulkMenuOpen}
                 endIcon={<KeyboardArrowDownIcon />}
-
-                sx={{
-                  height: 48,
-                  px: 2.5,
-                  borderRadius: "10px",
-                  border: "2px solid",
-                  borderColor: "primary.main",
-                  color: "primary.main",
-                  fontWeight: 700,
-                  fontSize: "0.9375rem",
-                  textTransform: "none",
-                  backgroundColor: "#FFFFFF",
-                  whiteSpace: "nowrap",
-                  "&:hover": {
-                    border: "2px solid",
-                    borderColor: "primary.main",
-                    backgroundColor: "action.hover",
-                  },
-                }}
               >
                 Bulk Store In
-              </Button>
+              </ActionButton>
 
               <Menu
                 anchorEl={bulkMenuAnchor}
@@ -1106,80 +1080,44 @@ const StoreIn: React.FC = () => {
         </Paper>
 
         {/* 3. "Scanned this session" Table Section */}
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: "12px",
-            border: "1px solid #EAECF0",
-            backgroundColor: "#ffffff",
-            overflow: "hidden",
-            mb: 3,
-            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05)",
-          }}
-        >
-          <Box
-            sx={{
-              p: 2,
-              borderBottom: "1px solid #EAECF0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{ fontSize: "0.875rem", fontWeight: 600, color: "primary.main" }}
-            >
-              Scanned this session
-            </Typography>
-          </Box>
+        <TableCard sx={{ mb: 3 }}>
+          <TableCardHeader
+            title="Scanned this session"
+            count={sortedQrCodeList.length > 0 ? sortedQrCodeList.length : undefined}
+          />
 
           <TableContainer sx={{ overflowX: "auto", maxHeight: 200 }}>
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow sx={{ height: 42 }}>
-                  {[
-                    "QRCode ID",
-                    "PO Number",
-                    "Project Number",
-                    "Prod Series",
-                    "Part Number",
-                    "ID",
-                    "Qty",
-                    "Item Description",
-                    "Details",
-                  ].map((col) => (
-                    <TableCell
-                      key={col}
-                      align={
-                        col === "Qty" || col === "Details"
-                          ? "center"
-                          : "left"
-                      }
-                      sx={{
-                        fontWeight: 700,
-                        backgroundColor: "#F9FAFB",
-                        color: "#475467",
-                        fontSize: "0.8rem",
-                        borderBottom: "1px solid #EAECF0",
-                        py: 1,
-                        px: 1.5,
-                      }}
-                    >
-                      {col === "PO Number" ? (
-                        <Tooltip title="Production Order Number" arrow placement="bottom">
-                          <span>{col}</span>
-                        </Tooltip>
-                      ) : (
-                        col
-                      )}
-                    </TableCell>
-                  ))}
+                  <SortableTableHeader
+                    label="QRCode ID"
+                    columnKey="qrCodeNumber"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    isSortable={true}
+                  />
+                  <SortableTableHeader label="PO Number" isSortable={false} tooltip="Production Order Number" />
+                  <SortableTableHeader label="Project Number" isSortable={false} />
+                  <SortableTableHeader label="Prod Series" isSortable={false} />
+                  <SortableTableHeader
+                    label="Part Number"
+                    columnKey="drawingNumber"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    isSortable={true}
+                  />
+                  <SortableTableHeader label="ID" isSortable={false} />
+                  <SortableTableHeader label="Qty" align="center" isSortable={false} />
+                  <SortableTableHeader label="Item Description" isSortable={false} />
+                  <SortableTableHeader label="Details" align="center" isSortable={false} />
                 </TableRow>
               </TableHead>
               <TableBody>
-                {qrCodeList.length > 0 ? (
-                  qrCodeList.map((row, idx) => (
+                {sortedQrCodeList.length > 0 ? (
+                  sortedQrCodeList.map((row, idx) => (
                     <React.Fragment key={idx}>
                       <TableRow
                         hover
@@ -1308,45 +1246,14 @@ const StoreIn: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-        </Paper>
+        </TableCard>
 
         {/* 4. "Awaiting precheck" Table Section */}
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: "12px",
-            border: "1px solid #EAECF0",
-            backgroundColor: "#ffffff",
-            overflow: "hidden",
-            mb: 2,
-            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05)",
-          }}
-        >
-          {/* Card Header */}
-          <Box
-            sx={{
-              p: 2,
-              borderBottom: "1px solid #EAECF0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-              <Typography
-                variant="h6"
-                sx={{ fontSize: "0.875rem", fontWeight: 600, color: "primary.main" }}
-              >
-                Awaiting precheck
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ color: "#667085", fontSize: "0.8rem", fontWeight: 500 }}
-              >
-                {storeInList.length} orders
-              </Typography>
-            </Box>
-          </Box>
+        <TableCard sx={{ mb: 2 }}>
+          <TableCardHeader
+            title="Awaiting precheck"
+            count={storeInList.length}
+          />
 
           {/* Filter Controls Bar */}
           <Box
@@ -1373,35 +1280,16 @@ const StoreIn: React.FC = () => {
                 "&::-webkit-scrollbar": { display: "none" },
               }}
             >
-              <TextField
-                size="small"
+              <SearchBar
                 placeholder="Search PO, Part Number, ID Number..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setPage(0);
                 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: "#98A2B3", fontSize: 18 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: searchTerm ? (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setSearchTerm("");
-                          setPage(0);
-                        }}
-                        edge="end"
-                        sx={{ p: 0.25, color: "#98A2B3", "&:hover": { color: "#344054" } }}
-                      >
-                        <ClearIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null,
+                onClear={() => {
+                  setSearchTerm("");
+                  setPage(0);
                 }}
                 sx={{
                   flex: "1 1 340px",
@@ -1635,109 +1523,28 @@ const StoreIn: React.FC = () => {
                 }}
               />
 
-              <Button
-                size="small"
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="standard"
                 onClick={() => {
                   setPage(0);
                   fetchStoreInData({ pageNumber: 0 });
                 }}
                 disabled={!isDropdownFilterSelected || isLoading}
-                sx={{
-                  flex: "0 0 auto",
-                  backgroundColor: "primary.main",
-                  color: "#ffffff",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  borderRadius: "6px",
-                  px: 2,
-                  height: 38,
-                  textTransform: "none",
-                  boxShadow: "none",
-                  minWidth: 65,
-                  "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#EAECF0",
-                    color: "#98A2B3",
-                  },
-                }}
               >
                 Apply
-              </Button>
+              </ActionButton>
 
-              <Button
-                size="small"
-                variant="outlined"
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleClearFilters}
-                sx={{
-                  flex: "0 0 auto",
-                  color: "#667085",
-                  borderColor: "#D0D5DD",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "6px",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  height: 38,
-                  px: 1.5,
-                  minWidth: 55,
-                  textTransform: "none",
-                  "&:hover": {
-                    borderColor: "#98A2B3",
-                    backgroundColor: "#F9FAFB",
-                    color: "#101828",
-                  },
-                }}
               >
                 Clear
-              </Button>
+              </ActionButton>
             </Box>
 
-            {/* Active Chips Row */}
-            {activeChips.length > 0 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mt: 1,
-                  pt: 0.75,
-                  borderTop: "1px solid #F2F4F7",
-                  flexWrap: "wrap",
-                  gap: 0.75,
-                }}
-              >
-                {activeChips.map((chip) => (
-                  <Chip
-                    key={chip.id}
-                    label={chip.label}
-                    onDelete={chip.onRemove}
-                    size="small"
-                    sx={{
-                      backgroundColor: "#F2F4F7",
-                      color: "#344054",
-                      fontWeight: 600,
-                      fontSize: "0.775rem",
-                      height: 24,
-                      borderRadius: "14px",
-                      border: "1px solid #E9EAEB",
-                    }}
-                  />
-                ))}
-                <Button
-                  variant="text"
-                  size="small"
-                  onClick={handleClearFilters}
-                  sx={{
-                    color: "#6D2A8F",
-                    fontWeight: 600,
-                    fontSize: "0.775rem",
-                    textTransform: "none",
-                    p: 0,
-                  }}
-                >
-                  Clear all
-                </Button>
-              </Box>
-            )}
+            <ActiveFilterChips chips={activeChips} onClearAll={handleClearFilters} />
           </Box>
 
           {/* Table */}
@@ -1745,48 +1552,24 @@ const StoreIn: React.FC = () => {
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow sx={{ height: 42 }}>
-                  {[
-                    "S.No.",
-                    "Part Number",
-                    "PO Number",
-                    "Prod Series",
-                    "ID Number",
-                    "Quantity",
-                    "Project Number",
-                    "Created By",
-                    "Created Date",
-                    "Precheck Status",
-                    "Action",
-                  ].map((col) => (
-                    <TableCell
-                      key={col}
-                      align={
-                        col === "S.No." ||
-                          col === "Quantity" ||
-                          col === "Precheck Status" ||
-                          col === "Action"
-                          ? "center"
-                          : "left"
-                      }
-                      sx={{
-                        fontWeight: 700,
-                        backgroundColor: "#F9FAFB",
-                        color: "#475467",
-                        fontSize: "0.8rem",
-                        borderBottom: "1px solid #EAECF0",
-                        py: 1,
-                        px: 1.5,
-                      }}
-                    >
-                      {col === "PO Number" ? (
-                        <Tooltip title="Production Order Number" arrow placement="bottom">
-                          <span>{col}</span>
-                        </Tooltip>
-                      ) : (
-                        col
-                      )}
-                    </TableCell>
-                  ))}
+                  <SortableTableHeader label="S.No." align="center" isSortable={false} />
+                  <SortableTableHeader
+                    label="Part Number"
+                    columnKey="drawingNumber"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    isSortable={true}
+                  />
+                  <SortableTableHeader label="PO Number" isSortable={false} tooltip="Production Order Number" />
+                  <SortableTableHeader label="Prod Series" isSortable={false} />
+                  <SortableTableHeader label="ID Number" isSortable={false} />
+                  <SortableTableHeader label="Quantity" align="center" isSortable={false} />
+                  <SortableTableHeader label="Project Number" isSortable={false} />
+                  <SortableTableHeader label="Created By" isSortable={false} />
+                  <SortableTableHeader label="Created Date" isSortable={false} />
+                  <SortableTableHeader label="Precheck Status" align="center" isSortable={false} />
+                  <SortableTableHeader label="Action" align="center" isSortable={false} />
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1796,8 +1579,8 @@ const StoreIn: React.FC = () => {
                       <CircularProgress size={32} />
                     </TableCell>
                   </TableRow>
-                ) : storeInList.length > 0 ? (
-                  storeInList.map((row, index) => (
+                ) : sortedStoreInList.length > 0 ? (
+                  sortedStoreInList.map((row, index) => (
                     <TableRow
                       key={index}
                       hover
@@ -1844,31 +1627,16 @@ const StoreIn: React.FC = () => {
                           arrow
                         >
                           <span>
-                            <Button
-                              variant="outlined"
-                              size="small"
+                            <ActionButton
+                              variant="secondary"
+                              size="compact"
                               onClick={() =>
                                 navigate("/verification/parts", { state: row })
                               }
                               disabled={!hasMakeAccess}
-                              sx={{
-                                borderColor: "#6D2A8F",
-                                color: "#6D2A8F",
-                                fontWeight: 600,
-                                fontSize: "0.775rem",
-                                borderRadius: "6px",
-                                py: 0.25,
-                                px: 1.5,
-                                height: 28,
-                                textTransform: "none",
-                                "&:hover": {
-                                  borderColor: "#551F6F",
-                                  backgroundColor: "#F5EEF8",
-                                },
-                              }}
                             >
                               Part Verification
-                            </Button>
+                            </ActionButton>
                           </span>
                         </Tooltip>
                       </TableCell>
@@ -1899,7 +1667,7 @@ const StoreIn: React.FC = () => {
             }}
             pageSizeOptions={[10, 25, 50, 100]}
           />
-        </Paper>
+        </TableCard>
       </Box>
 
 
@@ -1926,15 +1694,14 @@ const StoreIn: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-          <Button
+          <ActionButton
             onClick={() => setShowPermissionDialog(false)}
-            variant="outlined"
-            color="inherit"
-            sx={{ borderRadius: 2, textTransform: "none", px: 3 }}
+            variant="secondary"
+            size="compact"
           >
             Deny
-          </Button>
-          <Button
+          </ActionButton>
+          <ActionButton
             onClick={async () => {
               setShowPermissionDialog(false);
               const granted = await handleRequestPermission();
@@ -1944,13 +1711,11 @@ const StoreIn: React.FC = () => {
                 setOpenScanner(true);
               }
             }}
-            color="primary"
-            variant="contained"
-            autoFocus
-            sx={{ borderRadius: 2, textTransform: "none", px: 3, boxShadow: 2 }}
+            variant="primary"
+            size="compact"
           >
             Allow
-          </Button>
+          </ActionButton>
         </DialogActions>
       </Dialog>
 
@@ -2118,13 +1883,13 @@ const StoreIn: React.FC = () => {
               <Alert severity="error" sx={{ mb: 3, maxWidth: 340 }}>
                 {scannerError}
               </Alert>
-              <Button
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="compact"
                 onClick={() => setOpenScanner(false)}
-                sx={{ borderRadius: 6, px: 4, textTransform: "none", fontWeight: 600 }}
               >
                 Close
-              </Button>
+              </ActionButton>
             </Box>
           )}
 

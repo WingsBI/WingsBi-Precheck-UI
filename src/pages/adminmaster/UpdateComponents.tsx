@@ -22,13 +22,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Snackbar,
   debounce,
   IconButton,
   Stack,
 } from "@mui/material";
-import api from "../../services/api";
-
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import PageHeader from "../../components/ui/PageHeader";
 import { Save as SaveIcon, Refresh as RefreshIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -42,6 +41,7 @@ import {
   clearError,
 } from "../../store/slices/qrcodeSlice";
 import { useFetchAllDrawingNumbers, useUnits } from "../../hooks/useMasterData";
+import api from "@/services/api";
 
 // Create typed versions of the hooks
 const useAppDispatch: () => AppDispatch = useDispatch;
@@ -503,41 +503,10 @@ export default function InsertMappings() {
           mx: "auto",
         }}
       >
-        {/* Header Section */}
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={2}
-          sx={{ mb: 1 }}
-        >
-          <Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconButton
-                onClick={() => navigate(-1)}
-                sx={{
-                  color: "primary.main",
-                  p: 0.5,
-                  ml: -1,
-                  "&:hover": { backgroundColor: "grey.100" },
-                }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 700,
-                  color: "primary.main",
-                  fontSize: { xs: "1.25rem", sm: "1.5rem" },
-                }}
-              >
-                {isEditMode ? "Update Component" : "Add Component"}
-              </Typography>
-            </Box>
-           
-          </Box>
-        </Stack>
+        <PageHeader
+          title={isEditMode ? "Update Component" : "Add Component"}
+          onBack={() => navigate(-1)}
+        />
 
         {/* Success/Error Messages */}
         {successMessage && (
@@ -1362,22 +1331,13 @@ export default function InsertMappings() {
         </DialogActions>
       </Dialog>
 
-      {/* Precheck Snackbar */}
-      <Snackbar
+      {/* Precheck ToastSnackbar */}
+      <ToastSnackbar
         open={precheckSnackbar.open}
-        autoHideDuration={4000}
+        message={precheckSnackbar.message}
+        severity={precheckSnackbar.severity}
         onClose={() => setPrecheckSnackbar({ ...precheckSnackbar, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={() => setPrecheckSnackbar({ ...precheckSnackbar, open: false })}
-          severity={precheckSnackbar.severity}
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {precheckSnackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </LocalizationProvider>
   );
 }

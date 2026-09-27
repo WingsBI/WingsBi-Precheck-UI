@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, Card, CardContent, Typography, Chip } from "@mui/material";
+import { Box } from "@mui/material";
 import { InsertDriveFile as FileIcon } from "@mui/icons-material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { commonDataGridSx } from "../../../components/tableStyles";
+import { TableCard, TableCardHeader } from "../../../components/ui/TableCard";
 
 interface DataGridPreviewProps {
   validFilesToPreview: File[];
@@ -92,52 +93,35 @@ export const DataGridPreview: React.FC<DataGridPreviewProps> = ({
         const columns = getGridColumnsForFile(status.columns, fileRows);
 
         return (
-          <Card
-            key={file.name}
-            elevation={0}
-            sx={{
-              border: "1px solid",
-              borderColor: "neutral.border",
-              borderRadius: 2.5,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-              overflow: "hidden",
-              bgcolor: "background.paper",
-              mb: 2,
-            }}
-          >
-            <CardContent sx={{ p: 1.5 }}>
-              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.25, flexWrap: "wrap", gap: 1.5 }}>
-                <Typography variant="h6" color="text.heading" sx={{ fontWeight: 700, display: "flex", alignItems: "center", gap: 1, fontSize: "0.95rem" }}>
+          <TableCard key={file.name} sx={{ mb: 2 }}>
+            <TableCardHeader
+              title={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <FileIcon sx={{ color: "primary.main", fontSize: 20 }} />
-                  {file.name} Preview
-                </Typography>
-                <Chip
-                  label={`Total Rows: ${fileRows.length}`}
-                  size="small"
-                  color="primary"
-                  sx={{ fontWeight: 700, borderRadius: 1.5, fontSize: "0.75rem" }}
-                />
-              </Box>
+                  <span>{file.name} Preview</span>
+                </Box>
+              }
+              count={fileRows.length}
+            />
 
-              <Box sx={{ height: 320, width: "100%" }}>
-                <DataGrid
-                  rows={fileRows}
-                  columns={columns}
-                  rowHeight={34}
-                  columnHeaderHeight={40}
-                  disableRowSelectionOnClick
-                  density="compact"
-                  initialState={{
-                    pagination: {
-                      paginationModel: { pageSize: 10 },
-                    },
-                  }}
-                  pageSizeOptions={[10, 25, 50, 100]}
-                  sx={commonDataGridSx}
-                />
-              </Box>
-            </CardContent>
-          </Card>
+            <Box sx={{ height: 320, width: "100%", p: 1 }}>
+              <DataGrid
+                rows={fileRows}
+                columns={columns}
+                rowHeight={34}
+                columnHeaderHeight={40}
+                disableRowSelectionOnClick
+                density="compact"
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize: 10 },
+                  },
+                }}
+                pageSizeOptions={[10, 25, 50, 100]}
+                sx={commonDataGridSx}
+              />
+            </Box>
+          </TableCard>
         );
       })}
     </>
