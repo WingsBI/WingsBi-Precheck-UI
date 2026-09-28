@@ -54,6 +54,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from '../../store/store';
 import { getStoredComponentsByDate, exportStoredComponents, clearStoredComponents } from '../../store/slices/qrcodeSlice';
 import { format } from 'date-fns';
+import { ExpandedDetailsTable } from "../../components/ui/ExpandedDetailsTable";
 import api from '../../services/api';
 import debounce from 'lodash/debounce';
 import PageHeader from '../../components/ui/PageHeader';
@@ -275,32 +276,18 @@ const Row = ({ component, sr }: { component: StoredComponent; sr: number }) => {
                   Additional Details
                 </Typography>
               </Box>
-              <Table size="small" sx={{ width: '100%' }}>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: 'grey.100' }}>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>Consumed in Drawing</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>IR Number</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>MSN Number</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>MRIR Number</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>Disposition</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>Username</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.consumedInDrawing || '-'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', py: 0.5 }}>
-                      {renderStatusBadge(component?.qrCodeStatus)}
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.irNumber || 'N/A'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.msnNumber || 'N/A'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.mrirNumber || 'N/A'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.desposition || 'N/A'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.users || 'N/A'}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+              <ExpandedDetailsTable
+                columns={[
+                  { key: "consumedInDrawing", label: "Consumed in Drawing", render: (r) => r.consumedInDrawing || '-' },
+                  { key: "qrCodeStatus", label: "Status", render: (r) => renderStatusBadge(r.qrCodeStatus) },
+                  { key: "irNumber", label: "IR Number", render: (r) => r.irNumber || 'N/A' },
+                  { key: "msnNumber", label: "MSN Number", render: (r) => r.msnNumber || 'N/A' },
+                  { key: "mrirNumber", label: "MRIR Number", render: (r) => r.mrirNumber || 'N/A' },
+                  { key: "desposition", label: "Disposition", render: (r) => r.desposition || 'N/A' },
+                  { key: "users", label: "Username", render: (r) => r.users || 'N/A' },
+                ]}
+                rows={component ? [component] : []}
+              />
             </Box>
           </Collapse>
         </TableCell>

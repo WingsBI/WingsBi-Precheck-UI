@@ -30,6 +30,7 @@ import PageHeader from "../../components/ui/PageHeader";
 import ActionButton from "../../components/ui/ActionButton";
 import SortableTableHeader from "../../components/ui/SortableTableHeader";
 import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
+import { commonTableRowStyle } from "../../components/tableStyles";
 import type { RootState, AppDispatch } from "../../store/store";
 import {
   getAvailableComponentsForBOM,
@@ -459,19 +460,9 @@ const ViewOrder: React.FC = () => {
                     hover
                     onClick={() => handleBomRowClick(item, index)}
                     sx={{
+                      ...commonTableRowStyle,
                       cursor: "pointer",
-                      height: 40,
                       backgroundColor: isSelected ? "rgba(107, 40, 138, 0.06)" : "inherit",
-                      "&:hover": {
-                        backgroundColor: "#f9fafb",
-                      },
-                      "& td": {
-                        borderBottom: "1px solid #F2F4F7",
-                        fontSize: "0.775rem",
-                        color: "#344054",
-                        py: 0.75,
-                        px: 1.5,
-                      },
                     }}
                   >
                     <TableCell align="center">{item.sr}</TableCell>
@@ -826,17 +817,7 @@ const ViewOrder: React.FC = () => {
                           <TableRow
                             key={index}
                             hover
-                            sx={{
-                              height: 40,
-                              "&:hover": { backgroundColor: "#F9FAFB" },
-                              "& td": {
-                                borderBottom: "1px solid #F2F4F7",
-                                fontSize: "0.775rem",
-                                color: "#344054",
-                                py: 0.75,
-                                px: 1.5,
-                              },
-                            }}
+                            sx={commonTableRowStyle}
                           >
                             <TableCell sx={{ fontWeight: 600, color: "#101828" }} align="center">
                               {item.qrCodeNumber || "N/A"}

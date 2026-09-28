@@ -1173,24 +1173,13 @@ const ViewIRMSN: React.FC = () => {
                   sortedDisplayList.map((item, index) => (
                     <TableRow
                       key={`${item.recordType}-${item.id}`}
-                      hover
-                      sx={{
-                        height: 28,
-                        "&:hover": { backgroundColor: "#F9FAFB" },
-                        "& td": {
-                          borderBottom: "1px solid #F2F4F7",
-                          fontSize: "0.775rem",
-                          color: "#344054",
-                          py: 0.15,
-                          px: 0.75,
-                        },
-                      }}
+                      sx={commonTableRowStyle}
                     >
                       <TableCell align="center">{page * rowsPerPage + index + 1}</TableCell>
                       <TableCell align="center">
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: 700, color: "#101828", fontSize: "0.85rem" }}
+                          sx={{ fontWeight: 700, color: "#101828", fontSize: "inherit" }}
                         >
                           {item.displayNumber || "-"}
                         </Typography>
@@ -1249,6 +1238,7 @@ const ViewIRMSN: React.FC = () => {
                             })
                           }
                           sx={{
+                            p: 0.25,
                             color: "#667085",
                             "&:hover": {
                               backgroundColor: "#F2F4F7",

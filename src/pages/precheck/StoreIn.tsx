@@ -65,6 +65,7 @@ import {
 } from "@mui/icons-material";
 import { getStoreInData } from "../../store/slices/precheckSlice";
 import { format } from "date-fns";
+import { ExpandedDetailsTable } from "../../components/ui/ExpandedDetailsTable";
 import {
   updateQrCodeDetails,
   bulkStoreInFromExcel,
@@ -963,12 +964,15 @@ const StoreIn: React.FC = () => {
                     ),
                     sx: {
                       fontSize: "0.9375rem",
+                      fontFamily: "'Nunito Sans', sans-serif !important",
                       color: "#1E293B",
                       "& input": {
+                        fontFamily: "'Nunito Sans', sans-serif !important",
                         py: "0 !important",
                         height: "auto",
                       },
                       "& input::placeholder": {
+                        fontFamily: "'Nunito Sans', sans-serif !important",
                         color: "#94A3B8",
                         opacity: 1,
                       },
@@ -1193,85 +1197,44 @@ const StoreIn: React.FC = () => {
                       <TableRow sx={{ height: "auto" }}>
                         <TableCell style={{ padding: 0 }} colSpan={9}>
                           <Collapse in={expandedRow === row.qrCodeNumber} timeout="auto" unmountOnExit>
-                            <Box
-                              sx={{
-                                width: "100%",
-                                backgroundColor: "#F8FAFC",
-                                borderTop: "1px solid #EAECF0",
-                                borderBottom: "1px solid #EAECF0",
-                              }}
-                            >
-                              <Table size="small" sx={{ width: "100%" }}>
-                                <TableHead>
-                                  <TableRow sx={{ backgroundColor: "#F2F4F7" }}>
-                                    {[
-                                      "Consumed in Part",
-                                      "Status",
-                                      "IR Number",
-                                      "MSN Number",
-                                      "MRIR Number",
-                                      "Disposition",
-                                      "Username",
-                                      "Created Date",
-                                    ].map((subCol) => (
-                                      <TableCell
-                                        key={subCol}
-                                        align={subCol === "Consumed in Part" ? "left" : "center"}
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        {subCol}
-                                      </TableCell>
-                                    ))}
-                                  </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                  <TableRow sx={{ backgroundColor: "#FFFFFF" }}>
-                                    <TableCell sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.consumedInDrawing || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ py: 1, px: 1 }}>
-                                      <Chip
-                                        label={row.qrCodeStatus || "N/A"}
-                                        size="small"
-                                        color={
-                                          row.qrCodeStatus?.toLowerCase() === "available"
-                                            ? "success"
-                                            : "default"
-                                        }
-                                        variant="outlined"
-                                        sx={{ height: 20, fontSize: "0.7rem", fontWeight: 600 }}
-                                      />
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.irNumber || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.msnNumber || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.mrirNumber || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.desposition || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.users || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.createdDate ? formatDate(row.createdDate) : "-"}
-                                    </TableCell>
-                                  </TableRow>
-                                </TableBody>
-                              </Table>
-                            </Box>
+                            <ExpandedDetailsTable
+                              columns={[
+                                { key: "consumedInDrawing", label: "Consumed in Part", align: "left", render: (r) => r.consumedInDrawing || "-" },
+                                {
+                                  key: "qrCodeStatus",
+                                  label: "Status",
+                                  align: "center",
+                                  render: (r) => (
+                                    <Chip
+                                      label={r.qrCodeStatus || "N/A"}
+                                      size="small"
+                                      color={r.qrCodeStatus?.toLowerCase() === "available" ? "success" : "default"}
+                                      variant="outlined"
+                                      sx={{ height: 20, fontSize: "0.7rem", fontWeight: 600 }}
+                                    />
+                                  ),
+                                },
+                                { key: "irNumber", label: "IR Number", align: "center", render: (r) => r.irNumber || "-" },
+                                { key: "msnNumber", label: "MSN Number", align: "center", render: (r) => r.msnNumber || "-" },
+                                { key: "mrirNumber", label: "MRIR Number", align: "center", render: (r) => r.mrirNumber || "-" },
+                                { key: "desposition", label: "Disposition", align: "center", render: (r) => r.desposition || "-" },
+                                { key: "users", label: "Username", align: "center", render: (r) => r.users || "-" },
+                                {
+                                  key: "createdDate",
+                                  label: "Created Date",
+                                  align: "center",
+                                  render: (r) =>
+                                    r.createdDate
+                                      ? new Date(r.createdDate).toLocaleDateString("en-GB", {
+                                          day: "2-digit",
+                                          month: "2-digit",
+                                          year: "numeric",
+                                        })
+                                      : "-",
+                                },
+                              ]}
+                              rows={[row]}
+                            />
                           </Collapse>
                         </TableCell>
                       </TableRow>

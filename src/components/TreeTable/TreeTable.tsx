@@ -20,6 +20,7 @@ import {
 } from "@mui/icons-material";
 import { FixedSizeList as List } from "react-window";
 import { useTreeData } from "../../hooks/useTreeData";
+import { TABLE_TOKENS, commonTableHeaderStyle, commonTableRowStyle } from "../tableStyles";
 
 interface TreeTableColumn {
   id: string;
@@ -93,7 +94,7 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
             ? `rgba(37, 99, 235, 0.02)`
             : "inherit",
         transition: "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
-        height: 42,
+        height: TABLE_TOKENS.rowHeight,
         display: "table-row",
         verticalAlign: "middle",
         outline: 0,
@@ -109,20 +110,20 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
               width: column.minWidth,
               minWidth: column.minWidth,
               maxWidth: column.minWidth,
-              paddingLeft: isExpander ? "24px" : "16px",
-              paddingRight: "16px",
-              paddingTop: "6px",
-              paddingBottom: "6px",
+              paddingLeft: isExpander ? "24px" : `${TABLE_TOKENS.cellPx * 8}px`,
+              paddingRight: `${TABLE_TOKENS.cellPx * 8}px`,
+              paddingTop: `${TABLE_TOKENS.cellPy * 8}px`,
+              paddingBottom: `${TABLE_TOKENS.cellPy * 8}px`,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               boxSizing: "border-box",
-              borderBottom: isVirtualized ? "none" : "1px solid #e2e8f0",
-              fontSize: '0.8rem',
-              color: '#334155',
+              borderBottom: isVirtualized ? "none" : `1px solid ${TABLE_TOKENS.rowBorderColor}`,
+              fontSize: TABLE_TOKENS.bodyFontSize,
+              color: TABLE_TOKENS.bodyTextColor,
               textAlign: column.align || "left",
               verticalAlign: "middle",
-              height: 42,
+              height: TABLE_TOKENS.rowHeight,
             }}
           >
             {isExpander && (
@@ -448,42 +449,25 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
                       align={column.align || "left"}
                       onMouseDown={(e) => handleResizeStart(e, column.id)}
                       sx={{
+                        ...commonTableHeaderStyle,
                         width: colWidth,
                         minWidth: colWidth,
-                        fontWeight: 700,
-                        background: "linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)",
-                        borderBottom: "2px solid #cbd5e1",
-                        boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                        borderRadius: "0 !important",
-                        borderTopLeftRadius: "0 !important",
-                        borderTopRightRadius: "0 !important",
-                        borderBottomLeftRadius: "0 !important",
-                        borderBottomRightRadius: "0 !important",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                         boxSizing: "border-box",
                         paddingLeft: isExpanderCol ? "28px" : "16px",
-                        paddingRight: "16px",
-                        paddingTop: "11px",
-                        paddingBottom: "11px",
                         position: "relative",
                         cursor: "col-resize",
                         userSelect: "none",
                         zIndex: 3,
                         transition: "background-color 0.15s ease",
                         "&:hover": {
-                          background: "#e2e8f0",
+                          backgroundColor: "#f2f4f7",
                         },
                         "&:hover .col-resizer-line": {
-                          backgroundColor: "#6D2A8F",
+                          backgroundColor: TABLE_TOKENS.headerColor,
                           width: 3,
-                        },
-                        "&:first-of-type": {
-                          borderRadius: "0 !important",
-                        },
-                        "&:last-of-type": {
-                          borderRadius: "0 !important",
                         },
                       }}
                     >

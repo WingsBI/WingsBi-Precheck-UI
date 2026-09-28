@@ -964,7 +964,6 @@ const ViewSOP: React.FC = () => {
                       idField="id"
                       parentIdField="parentId"
                       height={600}
-                      rowHeight={42}
                       enableVirtualization={assemblyData.length > 80}
                       onRowClick={(row) => {
                         setSelectedNode(row);

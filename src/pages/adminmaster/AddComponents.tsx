@@ -30,16 +30,17 @@ import {
   FormControlLabel,
   FormControl,
 } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
 import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import PageHeader from "../../components/ui/PageHeader";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Check as CheckIcon, Close as CloseIcon, Search as SearchIcon, MoreVert as MoreVertIcon } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
 import ActionButton from "../../components/ui/ActionButton";
-import PageHeader from "../../components/ui/PageHeader";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../store/store";
-import { useQueryClient } from "@tanstack/react-query";
-import { adminDataGridSx } from "../../components/tableStyles";
+import { adminDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../components/tableStyles";
+import { TableCard } from "../../components/ui";
 import { DataGridCustomPagination } from "../../components/CustomPagination";
 import {
   useUsers,
@@ -179,31 +180,32 @@ function GenericTable<T extends { id: number }>({
   loading,
 }: GenericTableProps<T>) {
   return (
-    <Box sx={{ width: "100%" }}>
-      <DataGrid
-        autoHeight
-        rowHeight={42}
-        columnHeaderHeight={40}
-        rows={rows}
-        columns={columns}
-        loading={loading}
-        initialState={{
-          pagination: { paginationModel: { pageSize: 10 } },
-          sorting: {
-            sortModel: [{ field: "srNo", sort: "asc" }],
-          },
-        }}
-        pageSizeOptions={[10, 20, 50]}
-        disableRowSelectionOnClick
-        disableColumnMenu
-        disableColumnFilter
-        disableColumnSelector
-        slots={{
-          pagination: DataGridCustomPagination,
-        }}
-        sx={adminDataGridSx}
-      />
-    </Box>
+    <TableCard>
+      <Box sx={{ width: "100%" }}>
+        <DataGrid
+          {...DATAGRID_DEFAULT_PROPS}
+          autoHeight
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 10 } },
+            sorting: {
+              sortModel: [{ field: "srNo", sort: "asc" }],
+            },
+          }}
+          pageSizeOptions={[10, 20, 50]}
+          disableRowSelectionOnClick
+          disableColumnMenu
+          disableColumnFilter
+          disableColumnSelector
+          slots={{
+            pagination: DataGridCustomPagination,
+          }}
+          sx={adminDataGridSx}
+        />
+      </Box>
+    </TableCard>
   );
 }
 

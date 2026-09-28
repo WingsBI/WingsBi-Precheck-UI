@@ -68,6 +68,8 @@ import PageHeader from '../../components/ui/PageHeader';
 import ActionButton from '../../components/ui/ActionButton';
 import ConfirmationDialog from '../../components/ui/ConfirmationDialog';
 import { TableCard } from '../../components/ui/TableCard';
+import { ExpandedDetailsTable, type ExpandedTableColumn } from '../../components/ui';
+import { commonExpandedRowStyle, commonTableHeaderStyle, commonTableRowStyle, commonTableCellCompactCheckbox } from '../../components/tableStyles';
 import ToastSnackbar from '../../components/ui/ToastSnackbar';
 import ActiveFilterChips, { type FilterChip } from '../../components/ui/ActiveFilterChips';
 
@@ -290,13 +292,12 @@ const Row = ({ sr, barcodeDetails, isSelected, onSelect, onSplit, showBatchId, o
     <>
       <TableRow
         sx={{
-          '& > *': { borderBottom: '1px solid #f1f5f9' },
+          ...commonTableRowStyle,
           backgroundColor: barcodeDetails.isSplitRow ? '#f8fafc' : 'inherit',
-          height: 32,
           '&:hover': { backgroundColor: barcodeDetails.isSplitRow ? '#f8fafc' : 'inherit' }
         }}
       >
-        <TableCell padding="checkbox" sx={{ textAlign: 'center', py: '4px', px: '8px' }}>
+        <TableCell padding="checkbox" sx={commonTableCellCompactCheckbox}>
           <Checkbox
             checked={isSelected}
             onChange={(e) => onSelect(e.target.checked)}
@@ -304,47 +305,47 @@ const Row = ({ sr, barcodeDetails, isSelected, onSelect, onSplit, showBatchId, o
             sx={{ color: '#d0d5dd', '&.Mui-checked': { color: 'primary.main' } }}
           />
         </TableCell>
-        <TableCell sx={{ textAlign: 'center', minWidth: '55px', py: '4px', px: '8px', whiteSpace: 'nowrap', fontSize: '0.775rem', color: '#475467' }}>
+        <TableCell sx={{ textAlign: 'center', minWidth: '55px', whiteSpace: 'nowrap' }}>
           {sr !== undefined ? sr : '-'}
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '140px', py: '4px', px: '12px', whiteSpace: 'nowrap', fontSize: '0.775rem', fontWeight: 600, color: '#101828' }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '140px', whiteSpace: 'nowrap', fontWeight: 600 }}>
           {barcodeDetails?.qrCodeNumber || 'N/A'}
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '120px', py: '4px', px: '12px', whiteSpace: 'nowrap', fontSize: '0.775rem', color: '#344054' }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '120px', whiteSpace: 'nowrap' }}>
           {barcodeDetails?.productionSeries || 'N/A'}
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '120px', py: '4px', px: '12px', whiteSpace: 'nowrap', fontSize: '0.775rem', color: '#344054' }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '120px', whiteSpace: 'nowrap' }}>
           {barcodeDetails?.lnItemCode || 'N/A'}
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '150px', py: '4px', px: '12px', whiteSpace: 'nowrap', fontSize: '0.775rem', color: '#344054' }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '150px', whiteSpace: 'nowrap' }}>
           {barcodeDetails?.drawingNumber || 'N/A'}
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '160px', py: '4px', px: '12px', whiteSpace: 'nowrap', fontSize: '0.775rem', color: '#344054' }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '160px', whiteSpace: 'nowrap' }}>
           {barcodeDetails?.nomenclature || 'N/A'}
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '130px', py: '2px', px: '12px', whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '130px', whiteSpace: 'nowrap' }}>
           <ComponentTypeChip type={barcodeDetails?.componentType} />
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '150px', py: '4px', px: '12px', whiteSpace: 'nowrap', fontSize: '0.775rem', color: '#344054' }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '150px', whiteSpace: 'nowrap' }}>
           {barcodeDetails?.consumedInDrawing || 'N/A'}
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '130px', py: '4px', px: '12px', whiteSpace: 'nowrap', fontSize: '0.775rem', color: '#344054' }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '130px', whiteSpace: 'nowrap' }}>
           {barcodeDetails?.idNumber || 'N/A'}
         </TableCell>
 
         {showBatchId && (
-          <TableCell sx={{ textAlign: 'left', minWidth: '110px', py: '4px', px: '12px', whiteSpace: 'nowrap', fontSize: '0.775rem', color: '#344054' }}>
+          <TableCell sx={{ textAlign: 'left', minWidth: '110px', whiteSpace: 'nowrap' }}>
             {barcodeDetails?.batchId || barcodeDetails?.batchID || 'N/A'}
           </TableCell>
         )}
 
-        <TableCell sx={{ textAlign: 'center', minWidth: '80px', py: '4px', px: '8px', whiteSpace: 'nowrap', position: "sticky", right: 0, backgroundColor: barcodeDetails.isSplitRow ? '#f8fafc' : '#ffffff', zIndex: 1 }}>
+        <TableCell sx={{ textAlign: 'center', minWidth: '80px', whiteSpace: 'nowrap', position: "sticky", right: 0, backgroundColor: barcodeDetails.isSplitRow ? '#f8fafc' : '#ffffff', zIndex: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <IconButton
               aria-label="actions menu"
               size="small"
               onClick={handleMenuClick}
-              sx={{ padding: '2px !important', color: '#667085' }}
+              sx={{ p: 0.25, color: '#667085' }}
               title="Actions"
             >
               <MoreVertIcon fontSize="small" />
@@ -354,7 +355,7 @@ const Row = ({ sr, barcodeDetails, isSelected, onSelect, onSplit, showBatchId, o
               aria-label="expand row"
               size="small"
               onClick={() => setOpen((prev) => !prev)}
-              sx={{ padding: '2px !important', color: open ? 'primary.main' : '#667085' }}
+              sx={{ p: 0.25, color: open ? 'primary.main' : '#667085' }}
               title={open ? "Hide Additional Details" : "Additional Details"}
             >
               {open ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
@@ -429,56 +430,37 @@ const Row = ({ sr, barcodeDetails, isSelected, onSelect, onSplit, showBatchId, o
         </TableCell>
       </TableRow>
 
-      <TableRow sx={{ height: 'auto' }}>
-        <TableCell style={{ padding: 0 }} colSpan={showBatchId ? 12 : 11}>
+      <TableRow sx={commonExpandedRowStyle}>
+        <TableCell colSpan={showBatchId ? 12 : 11}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ width: "100%", backgroundColor: "#F8FAFC", borderTop: "1px solid #EAECF0", borderBottom: "1px solid #EAECF0" }}>
-              <Table size="small" sx={{ width: "100%" }}>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: "#F2F4F7" }}>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Status</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>IR Number</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>MSN Number</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>MRIR Number</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Build No</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Quantity</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Remaining Qty</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
-                      <Tooltip title="Production Order Number" arrow placement="bottom">
-                        <span>PO Number</span>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Unit</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>FAN/MAN No</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Disposition</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Username</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Created Date</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Assembly Number</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Remarks</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow sx={{ backgroundColor: "#FFFFFF", height: 36 }}>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{renderStatusBadge(barcodeDetails?.qrCodeStatus)}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.irNumber || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.msnNumber || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.mrirNumber || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.buildNumber || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{formatQuantity(barcodeDetails?.quantity)}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.remainingQuantity ?? '-'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.productionOrderNumber || barcodeDetails?.poNumber || barcodeDetails?.purchaseOrderNumber || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.unitName || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.fan || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.department || barcodeDetails?.desposition || barcodeDetails?.disposition || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.users || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{formatDate(barcodeDetails?.createdDate)}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.assemblyNumber || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{barcodeDetails?.remark || barcodeDetails?.remarks || 'N/A'}</TableCell>
-                    <TableCell align="center" sx={{ width: 32, py: 0.5, px: 0.5, borderBottom: "none" }} />
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Box>
+            <ExpandedDetailsTable
+              columns={[
+                { label: "Status", key: "qrCodeStatus", render: (d) => renderStatusBadge(d?.qrCodeStatus) },
+                { label: "IR Number", key: "irNumber", render: (d) => d?.irNumber || 'N/A' },
+                { label: "MSN Number", key: "msnNumber", render: (d) => d?.msnNumber || 'N/A' },
+                { label: "MRIR Number", key: "mrirNumber", render: (d) => d?.mrirNumber || 'N/A' },
+                { label: "Build No", key: "buildNumber", render: (d) => d?.buildNumber || 'N/A' },
+                { label: "Quantity", key: "quantity", render: (d) => formatQuantity(d?.quantity) },
+                { label: "Remaining Qty", key: "remainingQuantity", render: (d) => d?.remainingQuantity ?? '-' },
+                {
+                  label: (
+                    <Tooltip title="Production Order Number" arrow placement="bottom">
+                      <span>PO Number</span>
+                    </Tooltip>
+                  ),
+                  key: "poNumber",
+                  render: (d) => d?.productionOrderNumber || d?.poNumber || d?.purchaseOrderNumber || 'N/A',
+                },
+                { label: "Unit", key: "unitName", render: (d) => d?.unitName || 'N/A' },
+                { label: "FAN/MAN No", key: "fan", render: (d) => d?.fan || 'N/A' },
+                { label: "Disposition", key: "disposition", render: (d) => d?.department || d?.desposition || d?.disposition || 'N/A' },
+                { label: "Username", key: "users", render: (d) => d?.users || 'N/A' },
+                { label: "Created Date", key: "createdDate", render: (d) => formatDate(d?.createdDate) },
+                { label: "Assembly Number", key: "assemblyNumber", render: (d) => d?.assemblyNumber || 'N/A' },
+                { label: "Remarks", key: "remarks", render: (d) => d?.remark || d?.remarks || 'N/A' },
+              ]}
+              rows={barcodeDetails ? [barcodeDetails] : []}
+            />
           </Collapse>
         </TableCell>
       </TableRow>
@@ -1268,7 +1250,7 @@ const ViewBarcode: React.FC = () => {
       chips.push({
         id: "search",
         label: `Search: "${searchQuery.trim()}"`,
-        onDelete: () => {
+        onRemove: () => {
           setSearchQuery('');
           if (error) dispatch(clearError());
           const params = buildApiParams('', appliedProductionSeries, appliedGeneratedBy, appliedFromDate, appliedToDate, 1, rowsPerPage);
@@ -1282,7 +1264,7 @@ const ViewBarcode: React.FC = () => {
       chips.push({
         id: `series-${s}`,
         label: `Series: ${s}`,
-        onDelete: () => {
+        onRemove: () => {
           const nextSel = selectedProductionSeries.filter((v) => v !== s);
           const nextApp = appliedProductionSeries.filter((v) => v !== s);
           setSelectedProductionSeries(nextSel);
@@ -1298,7 +1280,7 @@ const ViewBarcode: React.FC = () => {
       chips.push({
         id: `status-${st}`,
         label: `Status: ${st}`,
-        onDelete: () => {
+        onRemove: () => {
           const nextSel = selectedStatus.filter((v) => v !== st);
           const nextApp = appliedStatus.filter((v) => v !== st);
           setSelectedStatus(nextSel);
@@ -1316,7 +1298,7 @@ const ViewBarcode: React.FC = () => {
       chips.push({
         id: `genBy-${userId}`,
         label: `Generated By: ${userLabel}`,
-        onDelete: () => {
+        onRemove: () => {
           const nextSelUsers = selectedGeneratedBy.filter((id) => String(id) !== String(userId));
           const nextAppUsers = appliedGeneratedBy.filter((id) => String(id) !== String(userId));
           setSelectedGeneratedBy(nextSelUsers);
@@ -1332,7 +1314,7 @@ const ViewBarcode: React.FC = () => {
       chips.push({
         id: "from-date",
         label: `From: ${format(displayFromDate, 'dd/MM/yyyy')}`,
-        onDelete: () => {
+        onRemove: () => {
           setFromDate(null);
           setAppliedFromDate(null);
           const params = buildApiParams(searchQuery, appliedProductionSeries, appliedGeneratedBy, null, appliedToDate, 1, rowsPerPage);
@@ -1346,7 +1328,7 @@ const ViewBarcode: React.FC = () => {
       chips.push({
         id: "to-date",
         label: `To: ${format(displayToDate, 'dd/MM/yyyy')}`,
-        onDelete: () => {
+        onRemove: () => {
           setToDate(null);
           setAppliedToDate(null);
           const params = buildApiParams(searchQuery, appliedProductionSeries, appliedGeneratedBy, appliedFromDate, null, 1, rowsPerPage);
@@ -1735,10 +1717,10 @@ const ViewBarcode: React.FC = () => {
 
           {/* Section 3: Data Table */}
           <TableContainer className="scroll-hover" sx={{ width: '100%', maxHeight: 'calc(100vh - 290px)', minHeight: '380px', overflowX: 'auto', overflowY: 'auto' }}>
-            <Table sx={{ width: '100%', minWidth: '1300px', tableLayout: 'auto' }} stickyHeader aria-label="QR codes table">
+            <Table size="small" sx={{ width: '100%', minWidth: '1300px', tableLayout: 'auto' }} stickyHeader aria-label="QR codes table">
               <TableHead>
                 <TableRow sx={{ height: 40 }}>
-                  <TableCell padding="checkbox" sx={{ textAlign: 'center', py: '8px', px: '8px', borderBottom: '1px solid #eaecf0', bgcolor: '#f9fafb !important' }}>
+                  <TableCell padding="checkbox" sx={{ ...commonTableHeaderStyle, ...commonTableCellCompactCheckbox }}>
                     <Checkbox
                       checked={selectedQRCodes.length === displayedData.length && displayedData.length > 0}
                       indeterminate={selectedQRCodes.length > 0 && selectedQRCodes.length < displayedData.length}
@@ -1762,7 +1744,7 @@ const ViewBarcode: React.FC = () => {
                     <TableHeaderSortable label="Batch ID" columnKey="batchId" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="110px" />
                   )}
 
-                  <TableCell sx={{ fontWeight: 600, minWidth: '110px', textAlign: 'center', py: '8px', px: '8px', whiteSpace: 'nowrap', color: '#475467', fontSize: '0.8rem', borderBottom: '1px solid #eaecf0', bgcolor: '#f9fafb !important' }}>
+                  <TableCell sx={{ ...commonTableHeaderStyle, minWidth: '110px', textAlign: 'center' }}>
                     Actions
                   </TableCell>
                 </TableRow>

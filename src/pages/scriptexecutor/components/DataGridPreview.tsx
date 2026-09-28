@@ -2,7 +2,7 @@ import React from "react";
 import { Box } from "@mui/material";
 import { InsertDriveFile as FileIcon } from "@mui/icons-material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import { commonDataGridSx } from "../../../components/tableStyles";
+import { commonDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../../components/tableStyles";
 import { TableCard, TableCardHeader } from "../../../components/ui/TableCard";
 
 interface DataGridPreviewProps {
@@ -106,12 +106,10 @@ export const DataGridPreview: React.FC<DataGridPreviewProps> = ({
 
             <Box sx={{ height: 320, width: "100%", p: 1 }}>
               <DataGrid
+                {...DATAGRID_DEFAULT_PROPS}
                 rows={fileRows}
                 columns={columns}
-                rowHeight={34}
-                columnHeaderHeight={40}
                 disableRowSelectionOnClick
-                density="compact"
                 initialState={{
                   pagination: {
                     paginationModel: { pageSize: 10 },

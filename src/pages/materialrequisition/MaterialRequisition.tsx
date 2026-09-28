@@ -34,6 +34,7 @@ import {
 } from "@mui/material";
 import { CustomPagination } from "../../components/CustomPagination";
 import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
+import { commonTableCellCompactCheckbox, commonTableRowStyle } from "../../components/tableStyles";
 
 import {
 
@@ -1275,7 +1276,7 @@ const MaterialRequisition: React.FC = () => {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell padding="checkbox" sx={{ backgroundColor: "#F9FAFB !important", borderBottom: "1px solid #EAECF0", py: 0.6, px: 1 }}>
+                    <TableCell padding="checkbox" sx={commonTableCellCompactCheckbox}>
                       <Checkbox
                         size="small"
                         checked={isAllRowsSelected}
@@ -1353,27 +1354,15 @@ const MaterialRequisition: React.FC = () => {
                         hover={isPendingPlanner}
                         onClick={() => handleRowClick(item)}
                         sx={{
+                          ...commonTableRowStyle,
                           cursor: isPendingPlanner ? "pointer" : "default",
-                          height: 34,
                           backgroundColor:
                             selectedRow === item.id
                               ? "rgba(107, 40, 138, 0.06)"
                               : "inherit",
-                          "&:hover": isPendingPlanner
-                            ? {
-                              backgroundColor: "#f9fafb",
-                            }
-                            : {},
-                          "& td": {
-                            borderBottom: "1px solid #F2F4F7",
-                            fontSize: "0.775rem",
-                            color: "#344054",
-                            py: 0.4,
-                            px: 1,
-                          },
                         }}
                       >
-                        <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                        <TableCell padding="checkbox" sx={commonTableCellCompactCheckbox} onClick={(e) => e.stopPropagation()}>
                           <Checkbox
                             size="small"
                             checked={selectedRowIds.includes(item.id)}

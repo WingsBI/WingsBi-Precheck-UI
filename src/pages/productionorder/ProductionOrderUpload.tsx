@@ -61,6 +61,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import * as XLSX from "xlsx";
+import { commonDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../components/tableStyles";
+import { CustomPagination } from "../../components/CustomPagination";
 import api from "../../services/api";
 import { useDebounce } from "../../hooks/useDebounce";
 import { usePageAccess, useProductionSeries } from "../../hooks/useMasterData";
@@ -1513,7 +1515,7 @@ const ProductionOrderUpload: React.FC = () => {
       renderCell: (params) => (
         <Typography
           variant="body2"
-          sx={{ fontWeight: 700, color: "#101828", fontSize: "0.85rem" }}
+          sx={{ fontWeight: 700 }}
         >
           {params.value}
         </Typography>
@@ -1967,93 +1969,19 @@ const ProductionOrderUpload: React.FC = () => {
 
             <Box sx={{ flex: 1, minHeight: 380, width: "100%", position: "relative" }}>
               <DataGrid
+                {...DATAGRID_DEFAULT_PROPS}
                 rows={uploadTableRows}
                 columns={autosizedPreviewColumns}
                 paginationModel={previewPaginationModel}
                 onPaginationModelChange={setPreviewPaginationModel}
                 pageSizeOptions={[10, 25, 50, 100]}
-                rowHeight={32}
-                disableColumnFilter
-                disableColumnMenu
                 disableColumnSelector
                 disableRowSelectionOnClick
                 hideFooter
                 slots={{ noRowsOverlay: CustomNoRowsOverlay }}
-                sx={{
-                  height: "100%",
-                  width: "100%",
-                  border: "none",
-                  "& .MuiDataGrid-virtualScroller": {
-                    overflowX: "auto !important",
-                    overflowY: "auto !important",
-                  },
-                  "& ::-webkit-scrollbar": {
-                    height: "12px !important",
-                    width: "10px !important",
-                  },
-                  "& ::-webkit-scrollbar-track": {
-                    backgroundColor: "#F2F4F7 !important",
-                    borderRadius: "6px !important",
-                  },
-                  "& ::-webkit-scrollbar-thumb": {
-                    backgroundColor: "#98A2B3 !important",
-                    borderRadius: "6px !important",
-                    border: "2px solid #F2F4F7 !important",
-                    "&:hover": { backgroundColor: "#667085 !important" },
-                  },
-                  "& .MuiDataGrid-row": {
-                    minHeight: "32px !important",
-                    maxHeight: "32px !important",
-                  },
-                  "& .MuiDataGrid-columnHeader--sortable .MuiDataGrid-iconButtonContainer": {
-                    visibility: "visible !important",
-                    width: "auto !important",
-                    opacity: "1 !important",
-                  },
-                  "& .MuiDataGrid-sortIcon": {
-                    opacity: "0.5 !important",
-                    color: "#98A2B3 !important",
-                  },
-                  "& .MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon": {
-                    opacity: "1 !important",
-                    color: "primary.main !important",
-                  },
-                  "& .MuiDataGrid-columnHeader:hover .MuiDataGrid-sortIcon": {
-                    opacity: "1 !important",
-                    color: "#344054 !important",
-                  },
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#F9FAFB",
-                    color: "#475467",
-                    fontWeight: 700,
-                    fontSize: "0.8rem",
-                    borderBottom: "1px solid #EAECF0",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 2,
-                  },
-                  "& .MuiDataGrid-columnHeader": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-columnHeaderTitleContainer": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cell": {
-                    fontSize: "0.775rem",
-                    color: "#344054",
-                    borderBottom: "1px solid #F2F4F7",
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cellContent": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                }}
+                sx={commonDataGridSx}
               />
-              <CustomPaginationBar
+              <CustomPagination
                 page={previewPaginationModel.page}
                 pageSize={previewPaginationModel.pageSize}
                 totalCount={uploadTableRows.length}
@@ -2401,6 +2329,7 @@ const ProductionOrderUpload: React.FC = () => {
               }}
             >
               <DataGrid
+                {...DATAGRID_DEFAULT_PROPS}
                 rows={historyTableRows}
                 columns={autosizedHistoryColumns}
                 loading={isHistoryLoading}
@@ -2414,91 +2343,14 @@ const ProductionOrderUpload: React.FC = () => {
                 disableColumnFilter
                 disableColumnMenu
                 disableColumnSelector
-                rowHeight={32}
                 disableRowSelectionOnClick
                 getRowId={(row) => row.id || row.sr}
                 hideFooter
                 slots={{ noRowsOverlay: CustomNoRowsOverlay }}
                 slotProps={{ noRowsOverlay: { isLoading: isHistoryLoading } as any }}
-                sx={{
-                  flex: 1,
-                  height: "100%",
-                  width: "100%",
-                  border: "none",
-                  "& .MuiDataGrid-virtualScroller": {
-                    overflowX: "auto !important",
-                    overflowY: "auto !important",
-                  },
-                  "& ::-webkit-scrollbar": {
-                    height: "12px !important",
-                    width: "10px !important",
-                  },
-                  "& ::-webkit-scrollbar-track": {
-                    backgroundColor: "#F2F4F7 !important",
-                    borderRadius: "6px !important",
-                  },
-                  "& ::-webkit-scrollbar-thumb": {
-                    backgroundColor: "#98A2B3 !important",
-                    borderRadius: "6px !important",
-                    border: "2px solid #F2F4F7 !important",
-                    "&:hover": { backgroundColor: "#667085 !important" },
-                  },
-                  "& .MuiDataGrid-row": {
-                    minHeight: "32px !important",
-                    maxHeight: "32px !important",
-                  },
-                  "& .MuiDataGrid-columnHeader--sortable .MuiDataGrid-iconButtonContainer": {
-                    visibility: "visible !important",
-                    width: "auto !important",
-                    opacity: "1 !important",
-                  },
-                  "& .MuiDataGrid-sortIcon": {
-                    opacity: "0.5 !important",
-                    color: "#98A2B3 !important",
-                  },
-                  "& .MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon": {
-                    opacity: "1 !important",
-                    color: "primary.main !important",
-                  },
-                  "& .MuiDataGrid-columnHeader:hover .MuiDataGrid-sortIcon": {
-                    opacity: "1 !important",
-                    color: "#344054 !important",
-                  },
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#F9FAFB",
-                    color: "#475467",
-                    fontWeight: 700,
-                    fontSize: "0.8rem",
-                    borderBottom: "1px solid #EAECF0",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 2,
-                  },
-                  "& .MuiDataGrid-columnHeader": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-columnHeaderTitleContainer": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cell": {
-                    fontSize: "0.775rem",
-                    color: "#344054",
-                    borderBottom: "1px solid #F2F4F7",
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cellContent": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cell:focus": { outline: "none !important" },
-                  "& .MuiDataGrid-cell:focus-within": { outline: "none !important" },
-                  "& .MuiDataGrid-columnHeader:focus": { outline: "none !important" },
-                }}
+                sx={commonDataGridSx}
               />
-              <CustomPaginationBar
+              <CustomPagination
                 page={paginationModel.page}
                 pageSize={paginationModel.pageSize}
                 totalCount={totalRowCount}

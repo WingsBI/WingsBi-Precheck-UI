@@ -18,6 +18,8 @@ export { TableCard, TableCardHeader } from './TableCard';
 export { default as TableCardDefault } from './TableCard';
 export { SortableTableHeader } from './SortableTableHeader';
 export type { SortableTableHeaderProps } from './SortableTableHeader';
+export { ExpandedDetailsTable } from './ExpandedDetailsTable';
+export type { ExpandedTableColumn, ExpandedDetailsTableProps } from './ExpandedDetailsTable';
 
 // Search & Filters
 export { default as SearchBar } from './SearchBar';

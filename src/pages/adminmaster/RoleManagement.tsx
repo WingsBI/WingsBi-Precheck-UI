@@ -31,7 +31,7 @@ import {
   MoreVert as MoreVertIcon,
 
 } from "@mui/icons-material";
-import { adminDataGridSx } from "../../components/tableStyles";
+import { adminDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../components/tableStyles";
 import { DataGridCustomPagination } from "../../components/CustomPagination";
 import {
   useUserRoles,
@@ -388,9 +388,8 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
     <>
       <Box sx={{ width: "100%" }}>
         <DataGrid
+          {...DATAGRID_DEFAULT_PROPS}
           autoHeight
-          rowHeight={42}
-          columnHeaderHeight={40}
           rows={rows}
           columns={columns}
           initialState={{
@@ -659,9 +658,8 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
 
       <Box sx={{ width: "100%" }}>
         <DataGrid
+          {...DATAGRID_DEFAULT_PROPS}
           autoHeight
-          rowHeight={42}
-          columnHeaderHeight={40}
           rows={activeDepartments}
           columns={columns}
           initialState={{

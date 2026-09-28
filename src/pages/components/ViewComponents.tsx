@@ -38,6 +38,7 @@ import api from "../../services/api";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
 import { CustomPagination } from "../../components/CustomPagination";
 import { EmptyState } from "../../components/EmptyState";
+import { ExpandedDetailsTable } from "../../components/ui/ExpandedDetailsTable";
 import { ComponentTypeChip } from "../../components/ComponentTypeChip";
 import PageHeader from "../../components/ui/PageHeader";
 import ActionButton from "../../components/ui/ActionButton";
@@ -215,31 +216,17 @@ const DrawingNumberRowComponent = ({
       <TableRow sx={{ height: 'auto' }}>
         <TableCell style={{ padding: 0 }} colSpan={8}>
           <Collapse in={openDetails} timeout="auto" unmountOnExit>
-            <Box sx={{ width: "100%", backgroundColor: "#F8FAFC", borderTop: "1px solid #EAECF0", borderBottom: "1px solid #EAECF0" }}>
-              <Table size="small" sx={{ width: "100%" }}>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: "#F2F4F7" }}>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Assembly Number</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Component Code</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Rack Location</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Has Expiry</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Created Date</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>Updated On</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow sx={{ backgroundColor: "#FFFFFF" }}>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{drawingData?.parentDrawingNumbers?.join(", ") || drawingData?.assemblyNumber || "N/A"}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{drawingData?.componentCode || "N/A"}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{drawingData?.location || "N/A"}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{drawingData?.isExpiry ? "Yes" : "No"}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{formatDate(drawingData?.createdDate)}</TableCell>
-                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>{formatDate(drawingData?.modifiedDate || drawingData?.createdDate)}</TableCell>
-                    <TableCell align="center" sx={{ width: 32, py: 0.5, px: 0.5, borderBottom: "none" }} />
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Box>
+            <ExpandedDetailsTable
+              columns={[
+                { key: "assemblyNumber", label: "Assembly Number", render: (r) => r.parentDrawingNumbers?.join(", ") || r.assemblyNumber || "N/A" },
+                { key: "componentCode", label: "Component Code", render: (r) => r.componentCode || "N/A" },
+                { key: "location", label: "Rack Location", render: (r) => r.location || "N/A" },
+                { key: "isExpiry", label: "Has Expiry", render: (r) => r.isExpiry ? "Yes" : "No" },
+                { key: "createdDate", label: "Created Date", render: (r) => formatDate(r.createdDate) },
+                { key: "modifiedDate", label: "Updated On", render: (r) => formatDate(r.modifiedDate || r.createdDate) },
+              ]}
+              rows={drawingData ? [drawingData] : []}
+            />
           </Collapse>
         </TableCell>
       </TableRow>

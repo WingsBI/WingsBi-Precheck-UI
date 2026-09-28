@@ -61,8 +61,8 @@ import { MultiSelectFilter } from "../../components/MultiSelectFilter";
 import PageHeader from "../../components/ui/PageHeader";
 import ActionButton from "../../components/ui/ActionButton";
 import SearchBar from "../../components/ui/SearchBar";
-import { SortableTableHeader, TableCard } from "../../components/ui";
-import { COLOUR_ROLES, commonTableRowStyle } from "../../components/tableStyles";
+import { SortableTableHeader, TableCard, ExpandedDetailsTable, type ExpandedTableColumn } from "../../components/ui";
+import { COLOUR_ROLES, commonTableRowStyle, STATUS_ROW_TOKENS } from "../../components/tableStyles";
 import { ComponentTypeChip } from "../../components/ComponentTypeChip";
 import { StatusChip } from "../../components/StatusChip";
 
@@ -1642,17 +1642,17 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                     !isUpdated &&
                     (statusLower === "short" || statusLower === "partial");
 
-                  let rowBg = "#FFFFFF";
+                  let rowBg = STATUS_ROW_TOKENS.default;
                   let rowHoverBg = "#F8FAFC";
                   if (isRej) {
-                    rowBg = "#FDE8E8";
-                    rowHoverBg = "#FDE8E8";
+                    rowBg = STATUS_ROW_TOKENS.rejected;
+                    rowHoverBg = STATUS_ROW_TOKENS.rejected;
                   } else if (isUpdated) {
-                    rowBg = "#FFF7ED";
-                    rowHoverBg = "#FFF7ED";
+                    rowBg = STATUS_ROW_TOKENS.updated;
+                    rowHoverBg = STATUS_ROW_TOKENS.updated;
                   } else if (isShort) {
-                    rowBg = "#FFFBEB";
-                    rowHoverBg = "#FFFBEB";
+                    rowBg = STATUS_ROW_TOKENS.short;
+                    rowHoverBg = STATUS_ROW_TOKENS.short;
                   }
 
                   return (
@@ -1702,110 +1702,25 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                             style={{ padding: 0 }}
                           >
                             <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                              <Box
-                                sx={{
-                                  width: "100%",
-                                  backgroundColor: "#F8FAFC",
-                                  borderTop: "1px solid #EAECF0",
-                                  borderBottom: "1px solid #EAECF0",
-                                }}
-                              >
-                                <Table size="small" sx={{ width: "100%" }}>
-                                  <TableHead>
-                                    <TableRow sx={{ backgroundColor: "#F2F4F7" }}>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        MRIR Number
-                                      </TableCell>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        Item Description
-                                      </TableCell>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        Remarks
-                                      </TableCell>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        User
-                                      </TableCell>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        Date
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    <TableRow sx={{ backgroundColor: "#FFFFFF" }}>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.mrirNumber || "-"}
-                                      </TableCell>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.nomenclature || "-"}
-                                      </TableCell>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.remarks || <Typography component="span" sx={{ color: "#98A2B3", fontStyle: "italic", fontSize: "0.75rem" }}>No remarks</Typography>}
-                                      </TableCell>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.username || "-"}
-                                      </TableCell>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.modifiedDate || "-"}
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableBody>
-                                </Table>
-                              </Box>
+                              <ExpandedDetailsTable
+                                columns={[
+                                  { key: "mrirNumber", label: "MRIR Number" },
+                                  { key: "nomenclature", label: "Item Description" },
+                                  {
+                                    key: "remarks",
+                                    label: "Remarks",
+                                    render: (r) =>
+                                      r.remarks || (
+                                        <Typography component="span" sx={{ color: "text.secondary", fontStyle: "italic", fontSize: "0.75rem" }}>
+                                          No remarks
+                                        </Typography>
+                                      ),
+                                  },
+                                  { key: "username", label: "User" },
+                                  { key: "modifiedDate", label: "Date" },
+                                ]}
+                                rows={[row]}
+                              />
                             </Collapse>
                           </TableCell>
                         </TableRow>

@@ -31,7 +31,7 @@ import {
   Search as SearchIcon,
   MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
-import { adminDataGridSx } from "../../components/tableStyles";
+import { adminDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../components/tableStyles";
 import { DataGridCustomPagination } from "../../components/CustomPagination";
 import {
   useUserRoles,
@@ -758,9 +758,8 @@ export default function UserManagement() {
         {/* DataGrid Container */}
         <Box sx={{ width: "100%" }}>
           <DataGrid
+            {...DATAGRID_DEFAULT_PROPS}
             autoHeight
-            rowHeight={42}
-            columnHeaderHeight={40}
             rows={displayedUsers}
             columns={mainTab === 0 ? userColumns : pendingColumns}
             loading={mainTab === 0 ? isUsersLoading : isPendingUsersLoading}

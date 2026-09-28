@@ -478,44 +478,44 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
                               sx={{ width: "100%" }}
                             >
                               <TableHead>
-                                <TableRow sx={{ backgroundColor: "#F2F4F7" }}>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                <TableRow sx={{ backgroundColor: "#F9FAFB" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Status
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     IR Number
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     MSN Number
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     MRIR Number
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Build No
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Quantity
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Remaining Qty
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     PO Number
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Unit
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     FAN/MAN No
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Disposition
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Username
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Created Date
                                   </TableCell>
 

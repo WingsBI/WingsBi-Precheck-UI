@@ -32,6 +32,7 @@ import {
 import { CustomPagination } from "../../../components/CustomPagination";
 import SortableTableHeader from "../../../components/ui/SortableTableHeader";
 import { TableCard, TableCardHeader } from "../../../components/ui/TableCard";
+import { commonTableCellCompactCheckbox, commonTableHeaderStyle, commonTableRowStyle } from "../../../components/tableStyles";
 
 interface QRCodesTableProps {
   displayedQRCodes: any[];
@@ -170,10 +171,9 @@ const QRCodesTable = ({
       <TableContainer>
           <Table stickyHeader size="small">
             <TableHead>
-              <TableRow sx={{ height: 40 }}>
+              <TableRow>
                 <TableCell
-                  padding="checkbox"
-                  sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 0.75, px: 1.25 }}
+                  sx={{ ...commonTableHeaderStyle, ...commonTableCellCompactCheckbox }}
                 >
                   <Checkbox
                     checked={
@@ -239,9 +239,8 @@ const QRCodesTable = ({
                     }
                     hover
                     sx={{
-                      height: 36,
+                      ...commonTableRowStyle,
                       backgroundColor: item.isSplitRow ? "#f5f5f5" : "inherit",
-                      "& td": { borderBottom: "1px solid #F2F4F7", fontSize: "0.775rem", color: "#344054", py: 0.5, px: 1.25 },
                     }}
                   >
                     <TableCell padding="checkbox">
