@@ -21,9 +21,7 @@ import {
   CloudUpload as UploadIcon,
   Cancel as CancelIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
-  Refresh as RefreshIcon,
-  FilterList as FilterListIcon,
-  CropFree as CropFreeIcon,
+  
 } from "@mui/icons-material";
 import PageHeader from "../../../components/ui/PageHeader";
 import ActionButton from "../../../components/ui/ActionButton";
@@ -353,7 +351,7 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                 }}
               >
-                <CropFreeIcon sx={{ color: "primary.main", mr: 1.25, fontSize: 20 }} />
+                
                 <TextField
                   fullWidth
                   variant="standard"
@@ -367,7 +365,6 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                     sx: {
                       fontSize: "0.9rem",
                       color: "#1E293B",
-                      fontFamily: "monospace, Courier, monospace",
                       "& input": {
                         py: "0 !important",
                         height: "auto",

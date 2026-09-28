@@ -364,7 +364,7 @@ export const PostUploadSummaryCard: React.FC<PostUploadSummaryCardProps> = ({
 
       <Grid container spacing={2} sx={{ mb: 1.5 }}>
         <Grid item xs={4}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: "success.main", fontSize: "1.65rem" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: "success.main", fontSize: "1.65rem" }}>
             {executionStats.success.toLocaleString()}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.75rem" }}>
@@ -372,7 +372,7 @@ export const PostUploadSummaryCard: React.FC<PostUploadSummaryCardProps> = ({
           </Typography>
         </Grid>
         <Grid item xs={4}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: executionStats.errors > 0 ? "error.main" : "text.secondary", fontSize: "1.65rem" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: executionStats.errors > 0 ? "error.main" : "text.secondary", fontSize: "1.65rem" }}>
             {executionStats.errors.toLocaleString()}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.75rem" }}>
@@ -380,7 +380,7 @@ export const PostUploadSummaryCard: React.FC<PostUploadSummaryCardProps> = ({
           </Typography>
         </Grid>
         <Grid item xs={4}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: "grey.500", fontSize: "1.65rem" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: "grey.500", fontSize: "1.65rem" }}>
             {executionStats.warnings.toLocaleString()}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.75rem" }}>

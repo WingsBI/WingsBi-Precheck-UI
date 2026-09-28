@@ -319,7 +319,6 @@ const ViewSOP: React.FC = () => {
           variant="body2"
           sx={{
             fontSize: "0.8rem",
-            fontFamily: "monospace",
             fontWeight: row.level === 0 ? 600 : 400,
           }}
         >
@@ -333,7 +332,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 140,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem", fontFamily: "monospace" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
           {value || "-"}
         </Typography>
       ),
@@ -344,7 +343,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 140,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem", fontFamily: "monospace" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
           {value || "-"}
         </Typography>
       ),
@@ -366,7 +365,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 160,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem", fontFamily: "monospace" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
           {value || "-"}
         </Typography>
       ),

@@ -54,7 +54,7 @@ const ExistingQRCodesDialog = ({
               {existingItems.map((item, index) => (
                 <TableRow key={index}>
                   <TableCell>{item.idNumber}</TableCell>
-                  <TableCell sx={{ fontFamily: "monospace" }}>
+                  <TableCell>
                     {item.qrCodeNumber || item.serialNumber}
                   </TableCell>
                 </TableRow>

@@ -265,7 +265,7 @@ const QRCodesTable = ({
                     <TableCell>
                       <Typography
                         variant="body2"
-                        sx={{ fontFamily: "monospace", fontSize: "0.775rem", fontWeight: 600, color: "#101828" }}
+                        sx={{ fontSize: "0.775rem", fontWeight: 600, color: "#101828" }}
                       >
                         {item.qrCodeNumber || item.serialNumber}
                       </Typography>

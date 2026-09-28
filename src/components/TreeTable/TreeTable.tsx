@@ -118,7 +118,6 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
               whiteSpace: "nowrap",
               boxSizing: "border-box",
               borderBottom: isVirtualized ? "none" : "1px solid #e2e8f0",
-              fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
               fontSize: '0.8rem',
               color: '#334155',
               textAlign: column.align || "left",

@@ -35,6 +35,7 @@ import {
   Menu,
   ListItemIcon,
   ListItemText,
+  Chip,
 } from "@mui/material";
 import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
@@ -54,7 +55,6 @@ import {
   UploadFile as UploadFileIcon,
   FlashOn as FlashOnIcon,
   FlashOff as FlashOffIcon,
-  CropFree as CropFreeIcon,
   Search as SearchIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
   CalendarToday as CalendarTodayIcon,
@@ -931,6 +931,10 @@ const StoreIn: React.FC = () => {
               <Box
                 sx={{
                   flexGrow: 1,
+                  height: "44px !important",
+                  minHeight: "44px !important",
+                  maxHeight: "44px !important",
+                  boxSizing: "border-box !important",
                   display: "flex",
                   alignItems: "center",
                   borderRadius: "10px",
@@ -938,11 +942,11 @@ const StoreIn: React.FC = () => {
                   borderColor: "primary.main",
                   backgroundColor: "#FFFFFF",
                   px: 1.5,
-                  py: 0.75,
+                  py: "0 !important",
                   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                 }}
               >
-                <CropFreeIcon sx={{ color: "primary.main", mr: 1.25, fontSize: 22 }} />
+               
                 <TextField
                   inputRef={scanInputRef}
                   fullWidth
@@ -960,7 +964,10 @@ const StoreIn: React.FC = () => {
                     sx: {
                       fontSize: "0.9375rem",
                       color: "#1E293B",
-                      fontFamily: "monospace, Courier, monospace",
+                      "& input": {
+                        py: "0 !important",
+                        height: "auto",
+                      },
                       "& input::placeholder": {
                         color: "#94A3B8",
                         opacity: 1,
@@ -976,9 +983,23 @@ const StoreIn: React.FC = () => {
               {/* Scan QR Button */}
               <ActionButton
                 variant="secondary"
-                size="standard"
+                size="hero"
                 onClick={handleOpenScanner}
-                startIcon={<QrCodeScannerIcon />}
+                startIcon={<QrCodeScannerIcon sx={{ color: "primary.main" }} />}
+                sx={{
+                  borderRadius: "10px",
+                  minWidth: "120px",
+                  height: "44px !important",
+                  border: "2px solid",
+                  borderColor: "primary.main",
+                  color: "primary.main",
+                  fontWeight: 700,
+                  "&:hover": {
+                    border: "2px solid",
+                    borderColor: "primary.dark",
+                    backgroundColor: "#F3E8F8",
+                  },
+                }}
               >
                 Scan QR
               </ActionButton>
@@ -995,9 +1016,25 @@ const StoreIn: React.FC = () => {
             >
               <ActionButton
                 variant="secondary"
-                size="standard"
+                size="hero"
                 onClick={handleBulkMenuOpen}
-                endIcon={<KeyboardArrowDownIcon />}
+                endIcon={<KeyboardArrowDownIcon sx={{ color: "primary.main" }} />}
+                sx={{
+                  borderRadius: "10px",
+                  whiteSpace: "nowrap",
+                  minWidth: "175px",
+                  height: "44px !important",
+                  px: 2,
+                  border: "2px solid",
+                  borderColor: "primary.main",
+                  color: "primary.main",
+                  fontWeight: 700,
+                  "&:hover": {
+                    border: "2px solid",
+                    borderColor: "primary.dark",
+                    backgroundColor: "#F3E8F8",
+                  },
+                }}
               >
                 Bulk Store In
               </ActionButton>

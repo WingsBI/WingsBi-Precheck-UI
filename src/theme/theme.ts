@@ -341,6 +341,12 @@ let theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        'html, body, input, textarea, select, button, pre, code': {
+          fontFamily: 'inherit',
+        },
+        '.Toastify, .Toastify__toast': {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        },
         'html, body': {
           scrollbarWidth: 'thin',
           scrollbarColor: '#D1D5DB transparent',
@@ -492,6 +498,16 @@ let theme = createTheme({
           '@media (min-width:2560px)': {
             borderRadius: 20,
           },
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        },
+        input: {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         },
       },
     },

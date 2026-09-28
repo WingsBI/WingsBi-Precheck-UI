@@ -96,7 +96,7 @@ const ALL_IRMSN_EXPORT_COLUMNS = [
 
 const ViewIRMSN: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { irmsnList, totalCount: reduxTotalCount, loading, lastSearchParams } = useSelector(
+  const { irmsnList, totalCount, loading, lastSearchParams } = useSelector(
     (state: RootState) => state.irmsn
   );
   const navigate = useNavigate();
@@ -532,7 +532,7 @@ const ViewIRMSN: React.FC = () => {
       chips.push({
         id: "search",
         label: `Search: "${drawingOrLnSearch.trim()}"`,
-        onDelete: () => {
+        onRemove: () => {
           setDrawingOrLnSearch("");
           setPage(0);
           executeFetch(0, rowsPerPage, { search: "" });
@@ -544,7 +544,7 @@ const ViewIRMSN: React.FC = () => {
       chips.push({
         id: `series-${item.id || label}`,
         label: `Series: ${label}`,
-        onDelete: () => {
+        onRemove: () => {
           const nextSeries = selectedProductionSeries.filter(
             (s: any) => (s.id || s) !== (item.id || item)
           );
@@ -568,7 +568,7 @@ const ViewIRMSN: React.FC = () => {
       chips.push({
         id: `dept-${itemId}`,
         label: `Dept: ${label}`,
-        onDelete: () => {
+        onRemove: () => {
           const nextDepts = selectedDepartments.filter((d: any) => {
             const dId = typeof d === "object" && d !== null ? d.id : d;
             return String(dId) !== String(itemId);
@@ -583,7 +583,7 @@ const ViewIRMSN: React.FC = () => {
       chips.push({
         id: "type",
         label: `Type: ${typeFilter}`,
-        onDelete: () => {
+        onRemove: () => {
           setTypeFilter("All");
           setPage(0);
           executeFetch(0, rowsPerPage, { type: "All" });
@@ -594,7 +594,7 @@ const ViewIRMSN: React.FC = () => {
       chips.push({
         id: "fromDate",
         label: `From: ${format(fromDate, "dd/MM/yyyy")}`,
-        onDelete: () => {
+        onRemove: () => {
           setFromDate(null);
           setPage(0);
           executeFetch(0, rowsPerPage, { fDate: null });
@@ -605,7 +605,7 @@ const ViewIRMSN: React.FC = () => {
       chips.push({
         id: "toDate",
         label: `To: ${format(toDate, "dd/MM/yyyy")}`,
-        onDelete: () => {
+        onRemove: () => {
           setToDate(null);
           setPage(0);
           executeFetch(0, rowsPerPage, { tDate: null });

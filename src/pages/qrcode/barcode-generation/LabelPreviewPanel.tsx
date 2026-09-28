@@ -583,7 +583,6 @@ const LabelPreviewPanel = ({
           >
             <Typography
               sx={{
-                fontFamily: "monospace",
                 color: "#64748B",
                 fontSize: "0.9rem",
                 letterSpacing: "0.5px",
