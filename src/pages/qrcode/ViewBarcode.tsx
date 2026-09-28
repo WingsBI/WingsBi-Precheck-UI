@@ -339,7 +339,7 @@ const Row = ({ sr, barcodeDetails, isSelected, onSelect, onSplit, showBatchId, o
           </TableCell>
         )}
 
-        <TableCell sx={{ textAlign: 'center', minWidth: '80px', whiteSpace: 'nowrap', position: "sticky", right: 0, backgroundColor: barcodeDetails.isSplitRow ? '#f8fafc' : '#ffffff', zIndex: 1 }}>
+        <TableCell sx={{ textAlign: 'center', minWidth: '80px', whiteSpace: 'nowrap' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <IconButton
               aria-label="actions menu"

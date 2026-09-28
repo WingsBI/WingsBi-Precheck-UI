@@ -828,12 +828,22 @@ const ViewSOP: React.FC = () => {
             },
           }}
         >
-          <Tooltip title="Standard Operating Procedure" arrow placement="top">
-            <Tab label="View SOP" value="sop" />
-          </Tooltip>
-          <Tooltip title="Bill Of Material" arrow placement="top">
-            <Tab label="View BOM" value="bom" />
-          </Tooltip>
+          <Tab
+            value="sop"
+            label={
+              <Tooltip title="Standard Operating Procedure" arrow placement="top">
+                <Box component="span">View SOP</Box>
+              </Tooltip>
+            }
+          />
+          <Tab
+            value="bom"
+            label={
+              <Tooltip title="Bill Of Material" arrow placement="top">
+                <Box component="span">View BOM</Box>
+              </Tooltip>
+            }
+          />
         </Tabs>
       </Box>
 
@@ -995,7 +1005,7 @@ const ViewSOP: React.FC = () => {
                   ) : (
                     <EmptyState
                       title="Apply filters to search"
-                      subtitle="Search for Series and Part Number to explore the tree."
+                      
                       height={260}
                     />
                   )}
@@ -1033,7 +1043,7 @@ const ViewSOP: React.FC = () => {
             justifyContent: "space-between",
             alignItems: "center",
             fontWeight: 700,
-            color: "#101828",
+            color: "primary.main",
             fontSize: "1.1rem",
             pb: 1,
           }}

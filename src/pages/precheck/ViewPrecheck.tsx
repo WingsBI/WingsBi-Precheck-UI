@@ -1594,7 +1594,6 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                     align={col.align || "center"}
                     minWidth={col.minWidth}
                     isSortable={col.sortable !== false}
-                    sx={col.field === "details" ? { position: "sticky", right: 0, zIndex: 3, backgroundColor: COLOUR_ROLES.headerBg } : undefined}
                   />
                 ))}
               </TableRow>
@@ -1682,12 +1681,6 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                               px: 0.75,
                               minWidth: col.minWidth,
                               whiteSpace: "nowrap",
-                              ...(col.field === "details" && {
-                                position: "sticky",
-                                right: 0,
-                                backgroundColor: "#FFFFFF",
-                                zIndex: 1,
-                              }),
                             }}
                           >
                             {renderCellContent(col.field, row, idx)}

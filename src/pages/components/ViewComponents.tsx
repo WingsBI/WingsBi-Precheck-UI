@@ -156,7 +156,7 @@ const DrawingNumberRowComponent = ({
           {drawingData?.productionSeries || drawingData?.availableFor || "N/A"}
         </TableCell>
 
-        <TableCell sx={{ textAlign: "center", minWidth: 75, position: "sticky", right: 0, backgroundColor: "#ffffff", zIndex: 1 }}>
+        <TableCell sx={{ textAlign: "center", minWidth: 75 }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.25 }}>
             <IconButton
               size="small"

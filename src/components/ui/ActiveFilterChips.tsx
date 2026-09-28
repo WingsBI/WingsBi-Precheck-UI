@@ -11,9 +11,8 @@
  *   />
  */
 import React from 'react';
-import { Box, Chip } from '@mui/material';
+import { Box, Chip, Button } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
-import ActionButton from './ActionButton';
 
 const FONT_FAMILY = '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 
@@ -64,15 +63,30 @@ const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({ chips, onClearAll
           }}
         />
       ))}
-      {onClearAll && chips.length > 1 && (
-        <ActionButton
-          variant="secondary"
-          size="compact"
+      {onClearAll && chips.length > 0 && (
+        <Button
+          variant="text"
+          size="small"
           onClick={onClearAll}
-          sx={{ height: 26, minWidth: 'auto', px: 1.5, fontSize: '0.75rem' }}
+          sx={{
+            fontFamily: FONT_FAMILY,
+            fontSize: '0.775rem',
+            fontWeight: 600,
+            color: '#6D2A8F',
+            textTransform: 'none',
+            minWidth: 'auto',
+            p: 0,
+            ml: 0.5,
+            lineHeight: 1,
+            '&:hover': {
+              backgroundColor: 'transparent',
+              textDecoration: 'underline',
+              color: '#571F73',
+            },
+          }}
         >
           Clear All
-        </ActionButton>
+        </Button>
       )}
     </Box>
   );

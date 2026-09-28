@@ -206,7 +206,7 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
               <SortableTableHeader label="MSN" columnKey="msn" sortColumn={orderBy} sortDirection={order} onSort={onRequestSort} align="center" minWidth={55} />
               <SortableTableHeader label="MRIR Number" columnKey="mrirNumber" sortColumn={orderBy} sortDirection={order} onSort={onRequestSort} align="center" minWidth={75} />
               <SortableTableHeader label="Type" columnKey="componentType" sortColumn={orderBy} sortDirection={order} onSort={onRequestSort} align="center" minWidth={75} />
-              <TableCell align="center" sx={{ fontWeight: 700, backgroundColor: COLOUR_ROLES.headerBg, color: COLOUR_ROLES.textSecondary, fontSize: "0.75rem", borderBottom: `1px solid ${COLOUR_ROLES.hairline}`, py: 0.5, px: 1, minWidth: 90, position: "sticky", right: 0, zIndex: 2 }}>Actions</TableCell>
+              <TableCell align="center" sx={{ fontWeight: 700, backgroundColor: COLOUR_ROLES.headerBg, color: COLOUR_ROLES.textSecondary, fontSize: "0.75rem", borderBottom: `1px solid ${COLOUR_ROLES.hairline}`, py: 0.5, px: 1, minWidth: 90 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -408,7 +408,7 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
                       </TableCell>
                       <TableCell
                         align="center"
-                        sx={{ py: 0.1, px: 0.5, fontSize: "0.72rem", position: "sticky", right: 0, backgroundColor: rowBg, zIndex: 1 }}
+                        sx={{ py: 0.1, px: 0.5, fontSize: "0.72rem" }}
                       >
                         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.25 }}>
                           {/* 3-Dot Menu */}

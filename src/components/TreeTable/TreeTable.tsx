@@ -14,13 +14,13 @@ import {
   useTheme,
 } from "@mui/material";
 import {
-  ExpandMore as ExpandMoreIcon,
-  ChevronRight as ChevronRightIcon,
+  KeyboardArrowDown,
+  KeyboardArrowRight,
   AccountTree as TreeIcon,
 } from "@mui/icons-material";
 import { FixedSizeList as List } from "react-window";
 import { useTreeData } from "../../hooks/useTreeData";
-import { TABLE_TOKENS, commonTableHeaderStyle, commonTableRowStyle } from "../tableStyles";
+import { TABLE_TOKENS, COLOUR_ROLES, commonTableHeaderStyle } from "../tableStyles";
 
 interface TreeTableColumn {
   id: string;
@@ -108,8 +108,8 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
               width: column.minWidth,
               minWidth: column.minWidth,
               maxWidth: column.minWidth,
-              paddingLeft: isExpander ? "24px" : `${TABLE_TOKENS.cellPx * 8}px`,
-              paddingRight: `${TABLE_TOKENS.cellPx * 8}px`,
+              paddingLeft: "12px",
+              paddingRight: "12px",
               paddingTop: `${TABLE_TOKENS.cellPy * 8}px`,
               paddingBottom: `${TABLE_TOKENS.cellPy * 8}px`,
               overflow: "hidden",
@@ -125,29 +125,46 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
             }}
           >
             {isExpander && (
-              <Stack direction="row" alignItems="center" spacing={1} sx={{ width: "100%", overflow: "hidden" }}>
-                {node.hasChildren ? (
-                  <IconButton
-                    size="small"
-                    onClick={handleToggleClick}
-                    sx={{
-                      p: 0,
-                      width: 24,
-                      height: 24,
-                      color: theme.palette.primary.main,
-                      flexShrink: 0,
-                      "& .MuiSvgIcon-root": { fontSize: 20 },
-                    }}
-                  >
-                    {node.isExpanded ? (
-                      <ExpandMoreIcon />
-                    ) : (
-                      <ChevronRightIcon />
-                    )}
-                  </IconButton>
-                ) : (
-                  <Box sx={{ width: 24, height: 24, flexShrink: 0 }} />
-                )}
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={0.75}
+                sx={{
+                  width: "100%",
+                  overflow: "hidden",
+                  pl: (node.level || 0) * 2.5,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 20,
+                    height: 20,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {node.hasChildren && (
+                    <IconButton
+                      size="small"
+                      onClick={handleToggleClick}
+                      sx={{
+                        p: 0,
+                        width: 18,
+                        height: 18,
+                        color: COLOUR_ROLES.textSecondary,
+                        "&:hover": { color: COLOUR_ROLES.textMain },
+                      }}
+                    >
+                      {node.isExpanded ? (
+                        <KeyboardArrowDown sx={{ fontSize: 18 }} />
+                      ) : (
+                        <KeyboardArrowRight sx={{ fontSize: 18 }} />
+                      )}
+                    </IconButton>
+                  )}
+                </Box>
                 <Box
                   sx={{
                     flex: 1,
@@ -454,7 +471,8 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                         boxSizing: "border-box",
-                        paddingLeft: isExpanderCol ? "28px" : "16px",
+                        paddingLeft: isExpanderCol ? "32px" : "12px",
+                        paddingRight: "12px",
                         position: "relative",
                         cursor: "col-resize",
                         userSelect: "none",

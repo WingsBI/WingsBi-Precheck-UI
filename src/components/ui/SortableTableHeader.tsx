@@ -62,7 +62,7 @@ export const SortableTableHeader: React.FC<SortableTableHeaderProps> = ({
         fontSize: "0.8rem",
         borderBottom: `1px solid ${COLOUR_ROLES.hairline}`,
         py: 0.75,
-        px: 1.25,
+        px: 1,
         width,
         minWidth,
         cursor: isSortable && onSort ? "pointer" : "default",

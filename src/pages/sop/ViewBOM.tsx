@@ -27,6 +27,10 @@ import {
   TextField,
   Autocomplete,
   Snackbar,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import {
   KeyboardArrowDown,
@@ -34,6 +38,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Add as AddIcon,
+  MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
 import {
   getBomDetails,
@@ -115,6 +120,21 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [deleteRow, setDeleteRow] = useState<any | null>(null);
   const [isSubmittingDelete, setIsSubmittingDelete] = useState(false);
+
+  // 4. Action Menu (Three-dot) state
+  const [actionMenuAnchor, setActionMenuAnchor] = useState<{
+    anchorEl: HTMLElement;
+    row: any;
+  } | null>(null);
+
+  const handleOpenActionMenu = (e: React.MouseEvent<HTMLElement>, row: any) => {
+    e.stopPropagation();
+    setActionMenuAnchor({ anchorEl: e.currentTarget, row });
+  };
+
+  const handleCloseActionMenu = () => {
+    setActionMenuAnchor(null);
+  };
 
   // Hierarchical Table Hook
   const { visibleRows, toggleRow, expandedRowIds, expandAll, collapseAll } = useHierarchicalTable({
@@ -367,45 +387,68 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       id: "childDrawingNumber",
       label: "Part Number",
       minWidth: 160,
-      format: (value: any, row: any) => (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 0.5,
-            pl: row.level * 3,
-          }}
-        >
-          {row.hasChildren ? (
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleRow(row.id);
-              }}
-              sx={{ padding: 0.25, marginRight: 0.5 }}
-            >
-              {expandedRowIds.has(row.id) ? (
-                <KeyboardArrowDown fontSize="small" />
-              ) : (
-                <KeyboardArrowRight fontSize="small" />
-              )}
-            </IconButton>
-          ) : (
-            <Box sx={{ width: 24, display: "inline-block" }} />
-          )}
-          <Typography
-            variant="body2"
+      align: "left" as const,
+      format: (value: any, row: any) => {
+        const level = row.level || 0;
+        const hasChildren = Boolean(row.hasChildren);
+        const indent = level * 2.5;
+
+        return (
+          <Box
             sx={{
-              fontWeight: row.level === 0 ? 600 : 500,
-              color: COLOUR_ROLES.textMain,
-              fontSize: "0.775rem",
+              display: "flex",
+              alignItems: "center",
+              pl: indent,
             }}
           >
-            {value}
-          </Typography>
-        </Box>
-      ),
+            <Box
+              sx={{
+                width: 20,
+                height: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mr: 0.5,
+                flexShrink: 0,
+              }}
+            >
+              {hasChildren && (
+                <IconButton
+                  size="small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleRow(row.id);
+                  }}
+                  sx={{
+                    padding: 0,
+                    width: 18,
+                    height: 18,
+                    color: COLOUR_ROLES.textSecondary,
+                    "&:hover": { color: COLOUR_ROLES.textMain },
+                  }}
+                >
+                  {expandedRowIds.has(row.id) ? (
+                    <KeyboardArrowDown sx={{ fontSize: 18 }} />
+                  ) : (
+                    <KeyboardArrowRight sx={{ fontSize: 18 }} />
+                  )}
+                </IconButton>
+              )}
+            </Box>
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: level === 0 ? 600 : 500,
+                color: COLOUR_ROLES.textMain,
+                fontSize: "0.775rem",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {value}
+            </Typography>
+          </Box>
+        );
+      },
     },
     {
       id: "nomenclature",
@@ -474,45 +517,20 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
     {
       id: "actions",
       label: "Actions",
-      minWidth: 90,
+      minWidth: 70,
       align: "center" as const,
       format: (_: any, row: any) => (
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.25 }}>
-          <Tooltip title="Edit Part Number" arrow>
-            <span>
-              <IconButton
-                size="small"
-                disabled={!hasEditBomAccess}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setEditRow(row);
-                  setEditFindNo(row.findNo || "");
-                  setEditQuantity(row.quantity ?? 0);
-                  setOpenEditDialog(true);
-                }}
-                sx={{ color: "#6D2A8F", p: 0.25, "&:hover": { backgroundColor: "rgba(109, 42, 143, 0.08)" } }}
-              >
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title="Delete Parent Assembly Mapping" arrow>
-            <span>
-              <IconButton
-                size="small"
-                disabled={!hasEditBomAccess}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDeleteRow(row);
-                  setOpenDeleteDialog(true);
-                }}
-                sx={{ color: "#DC2626", p: 0.25, "&:hover": { backgroundColor: "rgba(220, 38, 38, 0.08)" } }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-        </Box>
+        <IconButton
+          size="small"
+          onClick={(e) => handleOpenActionMenu(e, row)}
+          sx={{
+            color: "text.secondary",
+            p: 0.5,
+            "&:hover": { backgroundColor: "grey.100", color: "text.primary" },
+          }}
+        >
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
       ),
     },
   ];
@@ -597,7 +615,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       <TableCard>
         <TableCardHeader
           title="BOM Details"
-          count={bomData && bomData.length > 0 ? bomData.length : undefined}
+          
           actions={
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               {bomData && bomData.length > 0 && (
@@ -690,6 +708,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
                 <TableRow>
                   {columns.map((column) => {
                     const isSortableCol = column.id === "childDrawingNumber" || column.id === "lnItemCode";
+                    const isPartNoCol = column.id === "childDrawingNumber";
                     return (
                       <SortableTableHeader
                         key={column.id}
@@ -701,13 +720,20 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
                         align={column.align || "left"}
                         minWidth={column.minWidth}
                         isSortable={isSortableCol}
+                        sx={isPartNoCol ? { pl: "32px !important" } : undefined}
                       />
                     );
                   })}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sortedVisibleRows && sortedVisibleRows.length > 0 ? (
+                {isBomLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} align="center" sx={{ height: 280, borderBottom: "none" }}>
+                      <CircularProgress color="primary" />
+                    </TableCell>
+                  </TableRow>
+                ) : sortedVisibleRows && sortedVisibleRows.length > 0 ? (
                   sortedVisibleRows.map((item: any, index: number) => (
                     <TableRow
                       key={`${item.childDrawingId}-${index}`}
@@ -715,7 +741,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
                       sx={commonTableRowStyle}
                     >
                       {columns.map((column) => (
-                        <TableCell key={column.id} align={column.align || "left"} sx={{ py: 0.15, px: 0.75, fontSize: "0.775rem" }}>
+                        <TableCell key={column.id} align={column.align || "left"} sx={{ py: 0.15, px: 1, fontSize: "0.775rem" }}>
                           {column.format
                             ? column.format(item[column.id], item, index)
                             : item[column.id]}
@@ -727,7 +753,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
                   <EmptyState
                     colSpan={columns.length}
                     title="Apply filters to search"
-                    subtitle="Search for an assembly to view BOM details."
+                    
                     height={260}
                   />
                 )}
@@ -735,24 +761,6 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
             </Table>
           </TableContainer>
 
-          {isBomLoading && (
-            <Box
-              sx={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "rgba(255, 255, 255, 0.7)",
-                zIndex: 20,
-              }}
-            >
-              <CircularProgress color="primary" />
-            </Box>
-          )}
         </Box>
       </TableCard>
 
@@ -818,6 +826,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
           <Button
+            size="small"
             onClick={() => setOpenAddDialog(false)}
             sx={{ color: "#344054", textTransform: "none", fontWeight: 600 }}
           >
@@ -825,6 +834,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
           </Button>
           <Button
             variant="contained"
+            size="small"
             disabled={!addParentNumber || !selectedChildOption || isSubmittingAdd}
             onClick={handleSaveAddMapping}
             sx={{
@@ -885,6 +895,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
           <Button
+            size="small"
             onClick={() => setOpenEditDialog(false)}
             sx={{ color: "#344054", textTransform: "none", fontWeight: 600 }}
           >
@@ -892,6 +903,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
           </Button>
           <Button
             variant="contained"
+            size="small"
             disabled={isSubmittingEdit}
             onClick={handleSaveEditMapping}
             sx={{
@@ -933,6 +945,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
           <Button
+          size="small"
             onClick={() => setOpenDeleteDialog(false)}
             sx={{ color: "#344054", textTransform: "none", fontWeight: 600 }}
           >
@@ -940,6 +953,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
           </Button>
           <Button
             variant="contained"
+            size="small"
             color="error"
             disabled={isSubmittingDelete}
             onClick={handleConfirmDeleteMapping}
@@ -973,6 +987,64 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
           {snackbar.message}
         </Alert>
       </Snackbar>
+      {/* Three-dot Actions Menu */}
+      <Menu
+        anchorEl={actionMenuAnchor?.anchorEl}
+        open={Boolean(actionMenuAnchor)}
+        onClose={handleCloseActionMenu}
+        transitionDuration={0}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+        PaperProps={{
+          elevation: 3,
+          sx: {
+            minWidth: 140,
+            borderRadius: "8px",
+            border: "1px solid #EAECF0",
+            py: 0.5,
+          },
+        }}
+      >
+        <MenuItem
+          disabled={!hasEditBomAccess}
+          onClick={() => {
+            if (actionMenuAnchor?.row) {
+              const row = actionMenuAnchor.row;
+              setEditRow(row);
+              setEditFindNo(row.findNo || "");
+              setEditQuantity(row.quantity ?? 0);
+              setOpenEditDialog(true);
+            }
+            handleCloseActionMenu();
+          }}
+          sx={{ py: 0.75, px: 1.5, fontSize: "0.825rem" }}
+        >
+          <ListItemIcon sx={{ minWidth: 28, color: "#6D2A8F" }}>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primaryTypographyProps={{ fontSize: "0.825rem", fontWeight: 500 }}>
+            Edit
+          </ListItemText>
+        </MenuItem>
+        <MenuItem
+          disabled={!hasEditBomAccess}
+          onClick={() => {
+            if (actionMenuAnchor?.row) {
+              setDeleteRow(actionMenuAnchor.row);
+              setOpenDeleteDialog(true);
+            }
+            handleCloseActionMenu();
+          }}
+          sx={{ py: 0.75, px: 1.5, fontSize: "0.825rem", color: "#DC2626" }}
+        >
+          <ListItemIcon sx={{ minWidth: 28, color: "#DC2626" }}>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primaryTypographyProps={{ fontSize: "0.825rem", fontWeight: 500, color: "#DC2626" }}>
+            Delete
+          </ListItemText>
+        </MenuItem>
+      </Menu>
     </Box>
   );
 };

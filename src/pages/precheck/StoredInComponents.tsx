@@ -228,7 +228,7 @@ const Row = ({ component, sr }: { component: StoredComponent; sr: number }) => {
         <TableCell sx={{ textAlign: 'center' }}>{component?.idNumber || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.quantity || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.nomenclature || 'N/A'}</TableCell>
-        <TableCell sx={{ textAlign: 'center', width: '70px', position: "sticky", right: 0, backgroundColor: "#ffffff", zIndex: 1 }}>
+        <TableCell sx={{ textAlign: 'center', width: '70px' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.25 }}>
             <IconButton
               size="small"

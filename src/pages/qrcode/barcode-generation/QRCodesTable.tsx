@@ -223,7 +223,7 @@ const QRCodesTable = ({
                   onSort={handleSort}
                   isSortable={true}
                 />
-                <SortableTableHeader label="Actions" align="center" isSortable={false} sx={{ position: "sticky", right: 0, zIndex: 3 }} />
+                <SortableTableHeader label="Actions" align="center" isSortable={false} />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -281,7 +281,7 @@ const QRCodesTable = ({
                         sx={{ height: 22, fontSize: "0.75rem" }}
                       />
                     </TableCell>
-                    <TableCell align="center" sx={{ position: "sticky", right: 0, backgroundColor: item.isSplitRow ? "#f5f5f5" : "#ffffff", zIndex: 1 }}>
+                    <TableCell align="center">
                       <IconButton
                         size="small"
                         onClick={(e) =>
