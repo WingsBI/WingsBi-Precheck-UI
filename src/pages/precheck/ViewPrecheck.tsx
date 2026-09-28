@@ -1662,11 +1662,10 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                         hover
                         sx={{
                           ...commonTableRowStyle,
-                          backgroundColor: rowBg,
-                          opacity: isRej ? 0.7 : 1,
+                          backgroundColor: "transparent",
                           transition: "background-color 0.2s ease, opacity 0.4s ease",
                           "&:hover": {
-                            backgroundColor: `${rowBg} !important`,
+                            backgroundColor: "transparent !important",
                           },
                         }}
                       >
@@ -1684,7 +1683,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                               ...(col.field === "details" && {
                                 position: "sticky",
                                 right: 0,
-                                backgroundColor: rowBg,
+                                backgroundColor: "#FFFFFF",
                                 zIndex: 1,
                               }),
                             }}

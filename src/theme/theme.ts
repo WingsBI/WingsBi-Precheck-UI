@@ -725,7 +725,7 @@ let theme = createTheme({
     MuiTableRow: {
       styleOverrides: {
         root: {
-          height: 32,
+          height: 40,
           fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           '&:hover': {
             backgroundColor: 'transparent !important',
@@ -843,8 +843,8 @@ let theme = createTheme({
             py: '2px',
           },
           '& .MuiDataGrid-row': {
-            minHeight: '32px !important',
-            maxHeight: '32px !important',
+            minHeight: '40px !important',
+            maxHeight: '40px !important',
             '&:hover': { backgroundColor: 'transparent !important' },
           },
           '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-columnHeader:focus': {

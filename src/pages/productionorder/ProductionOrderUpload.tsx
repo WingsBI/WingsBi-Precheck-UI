@@ -2005,7 +2005,7 @@ const ProductionOrderUpload: React.FC = () => {
               title="Total Orders"
               count={totalOrdersCount}
               indicatorColor="#6D2A8F"
-              subtext="All Orders"
+              subtext="Total Orders"
             />
             <HistoryStatCard
               title="Pending"

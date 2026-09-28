@@ -1049,23 +1049,7 @@ const MaterialRequisition: React.FC = () => {
     >
       {/* Page Header */}
       <PageHeader
-        title={
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton
-              onClick={() => navigate("/verification/parts")}
-              sx={{
-                color: "primary.main",
-                p: 0.5,
-                ml: -1,
-                "&:hover": { backgroundColor: "grey.100" },
-              }}
-              title="Back to Part Verification"
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <Box component="span">Material Requisition</Box>
-          </Box>
-        }
+        title="Material Requisition"
         subtitle="Create, track, swap, and manage material requisition requests."
         actions={
           <Stack direction="row" spacing={1}>

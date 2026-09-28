@@ -12,7 +12,7 @@ export const TABLE_TOKENS = {
   // Body Tokens
   bodyFontSize: "0.775rem",
   bodyTextColor: "#1F2937",
-  rowHeight: 32,
+  rowHeight: 40,
   cellPy: 0.15,
   cellPx: 0.75,
   rowBorderColor: "#E5E7EB",
@@ -34,9 +34,9 @@ export const TABLE_TOKENS = {
   footerTextColor: "#475467",
 
   // Status Row Highlight Tokens
-  statusRowRejected: "#FDE8E8",
-  statusRowUpdated: "#FFF7ED",
-  statusRowShort: "#FFFBEB",
+  statusRowRejected: "transparent",
+  statusRowUpdated: "transparent",
+  statusRowShort: "transparent",
 };
 
 export const DATAGRID_DEFAULT_PROPS = {
@@ -45,10 +45,10 @@ export const DATAGRID_DEFAULT_PROPS = {
 };
 
 export const STATUS_ROW_TOKENS = {
-  rejected: TABLE_TOKENS.statusRowRejected,
-  updated: TABLE_TOKENS.statusRowUpdated,
-  short: TABLE_TOKENS.statusRowShort,
-  default: "#FFFFFF",
+  rejected: "transparent",
+  updated: "transparent",
+  short: "transparent",
+  default: "transparent",
 };
 
 export const COLOUR_ROLES = {

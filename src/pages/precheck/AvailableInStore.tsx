@@ -39,6 +39,7 @@ import api from "../../services/api";
 import { useProductionSeries } from "../../hooks/useMasterData";
 import { useDebounce } from "../../hooks/useDebounce";
 import { SortableTableHeader, TableCard, TableCardHeader } from "../../components/ui";
+import { commonTableRowStyle } from "../../components/tableStyles";
 
 
 // Helper function to format date
@@ -945,19 +946,9 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                                 hover
                                 onClick={() => handleBomRowClick(row, globalIndex)}
                                 sx={{
+                                  ...commonTableRowStyle,
                                   cursor: "pointer",
-                                  height: 40,
-                                  backgroundColor: isSelected ? "rgba(107, 40, 138, 0.06)" : "inherit",
-                                  "&:hover": {
-                                    backgroundColor: "#f9fafb",
-                                  },
-                                  "& td": {
-                                    borderBottom: "1px solid #F2F4F7",
-                                    fontSize: "0.775rem",
-                                    color: "#344054",
-                                    py: 0.75,
-                                    px: 1.5,
-                                  },
+                                  backgroundColor: isSelected ? "rgba(107, 40, 138, 0.06)" : "transparent",
                                 }}
                               >
                                 <TableCell align="center">{row._srNo ?? (globalIndex + 1)}</TableCell>
@@ -1054,17 +1045,7 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                               <TableRow
                                 key={index}
                                 hover
-                                sx={{
-                                  height: 40,
-                                  "&:hover": { backgroundColor: "#F9FAFB" },
-                                  "& td": {
-                                    borderBottom: "1px solid #F2F4F7",
-                                    fontSize: "0.775rem",
-                                    color: "#344054",
-                                    py: 0.75,
-                                    px: 1.5,
-                                  },
-                                }}
+                                sx={commonTableRowStyle}
                               >
                                 <TableCell sx={{ fontWeight: 600, color: "#101828" }} align="center">
                                   {row.qrCodeNumber || "-"}
