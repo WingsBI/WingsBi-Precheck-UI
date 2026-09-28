@@ -20,6 +20,8 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Select,
+  FormControl,
 } from "@mui/material";
 import ConfirmationDialog from "../../../components/ui/ConfirmationDialog";
 import { CustomPagination } from "../../../components/CustomPagination";
@@ -66,8 +68,8 @@ interface PrecheckTableProps {
   onRequestSort: (property: string) => void;
   onExportBom?: () => void;
   isExportEnabled?: boolean;
-  filterRemainingOnly?: boolean;
-  onToggleFilter?: () => void;
+  selectedStatus?: string;
+  onStatusChange?: (status: string) => void;
 }
 
 const isItemPrecheckCompleted = (item: GridItem): boolean => {
@@ -114,61 +116,54 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
   onRequestSort,
   onExportBom,
   isExportEnabled,
-  filterRemainingOnly = false,
-  onToggleFilter,
+  selectedStatus = "All",
+  onStatusChange,
 }) => {
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<HTMLElement | null>(null);
   const [activeMenuRow, setActiveMenuRow] = React.useState<{ item: GridItem; index: number } | null>(null);
   const [confirmUndoItem, setConfirmUndoItem] = React.useState<GridItem | null>(null);
   const [confirmDeleteItem, setConfirmDeleteItem] = React.useState<GridItem | null>(null);
 
-  const remainingCount = React.useMemo(() => {
-    if (!searchResults || searchResults.length === 0) return 0;
-    return searchResults.filter((item) => {
-      const status = (item.precheckStatus || "").toLowerCase();
-      const isRej = item.isRejected || status === "rejected";
-      const isComplete =
-        !isRej &&
-        (item.isPrecheckComplete ||
-          status === "verified" ||
-          status === "completed" ||
-          (item.remainingQuantity === 0 || item.remainingQuantity === null || item.remainingQuantity === undefined));
-      return !isRej && !isComplete;
-    }).length;
-  }, [searchResults]);
-
   const isEditDeleteEnabled = true;
   return (
     <TableCard sx={{ mt: 0.25, mb: 0.5, display: "flex", flexDirection: "column" }}>
       <TableCardHeader
         title="Parts to be verified"
-        count={searchResults.length > 0 ? searchResults.length : undefined}
+        
         actions={
-          onToggleFilter && (
-            <Button
-              variant={filterRemainingOnly ? "contained" : "outlined"}
-              size="small"
-              onClick={onToggleFilter}
-              disabled={!searchResults || searchResults.length === 0}
-              startIcon={<FilterListIcon fontSize="small" />}
-              sx={{
-                height: 28,
-                borderRadius: "6px",
-                borderColor: filterRemainingOnly ? "primary.main" : "#D0D5DD",
-                backgroundColor: filterRemainingOnly ? "primary.main" : "#FFFFFF",
-                color: filterRemainingOnly ? "#FFFFFF" : "#344054",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.75rem",
-                px: 1.25,
-                "&:hover": {
-                  borderColor: filterRemainingOnly ? "primary.dark" : "#98A2B3",
-                  backgroundColor: filterRemainingOnly ? "primary.dark" : "#F9FAFB",
-                },
-              }}
-            >
-              {filterRemainingOnly ? "All Parts" : `Pending Parts${remainingCount > 0 ? ` (${remainingCount})` : ""}`}
-            </Button>
+          onStatusChange && (
+            <FormControl size="small" sx={{ minWidth: 130 }}>
+              <Select
+                disabled={!showResults || searchResults.length === 0}
+                value={selectedStatus || "All"}
+                onChange={(e) => onStatusChange(e.target.value as string)}
+                displayEmpty
+                size="small"
+                sx={{
+                  height: 32,
+                  fontSize: "0.8rem",
+                  fontWeight: 600,
+                  borderRadius: "6px",
+                  backgroundColor: "#FFFFFF",
+                  color: "#344054",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#D0D5DD",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#98A2B3",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#6D2A8F",
+                  },
+                }}
+              >
+                <MenuItem value="All" sx={{ fontSize: "0.8rem" }}>All Status</MenuItem>
+                <MenuItem value="Pending" sx={{ fontSize: "0.8rem" }}>Pending</MenuItem>
+                <MenuItem value="Partial" sx={{ fontSize: "0.8rem" }}>Partial</MenuItem>
+                <MenuItem value="Rejected" sx={{ fontSize: "0.8rem" }}>Rejected</MenuItem>
+                <MenuItem value="Complete" sx={{ fontSize: "0.8rem" }}>Complete</MenuItem>
+              </Select>
+            </FormControl>
           )
         }
       />

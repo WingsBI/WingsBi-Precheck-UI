@@ -44,7 +44,6 @@ interface PrecheckActionBarProps {
   selectedLnItemCode?: string;
 
   searchResults?: GridItem[];
-  filterRemainingOnly?: boolean;
 
   onBarcodeChange: (value: string) => void;
   onBarcodeKeyDown: (e: React.KeyboardEvent) => void;
@@ -53,7 +52,6 @@ interface PrecheckActionBarProps {
   onDownloadTemplate: () => void;
   onMakePrecheck: () => void;
   onSubmitPrecheck: () => void;
-  onToggleFilter?: () => void;
   onExport?: () => void;
   onReset?: () => void;
   onChangeOrder?: () => void;
@@ -69,8 +67,6 @@ interface PrecheckActionBarProps {
 }
 
 export interface PrecheckHeaderBarProps {
-  filterRemainingOnly?: boolean;
-  onToggleFilter?: () => void;
   onExport?: () => void;
   onReset?: () => void;
   onUploadExcel: () => void;
@@ -83,8 +79,6 @@ export interface PrecheckHeaderBarProps {
 }
 
 export const PrecheckHeaderBar: React.FC<PrecheckHeaderBarProps> = ({
-  filterRemainingOnly = false,
-  onToggleFilter,
   onExport,
   onReset,
   onUploadExcel,
@@ -206,13 +200,12 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
   uploadInProgress = false,
   downloadTemplateInProgress = false,
   searchResults = [],
-  filterRemainingOnly = false,
+
   onBarcodeChange,
   onBarcodeKeyDown,
   onOpenScanner,
   onUploadExcel,
   onDownloadTemplate,
-  onToggleFilter,
   onExport,
   onReset,
   onReject,

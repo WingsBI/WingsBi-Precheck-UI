@@ -1,4 +1,5 @@
 export interface GridItem {
+  status?: string;
   sr: number;
   drawingNumber: string;
   nomenclature: string;

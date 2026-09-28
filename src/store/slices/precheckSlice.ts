@@ -82,6 +82,7 @@ export const viewPrecheckDetails = createAsyncThunk(
   "precheck/viewPrecheckDetails",
   async (request: any, { rejectWithValue }) => {
     try {
+      console.log("Calling ViewPrecheck API with params:", request);
       const response = await api.get("/api/precheck/ViewPrecheck", {
         params: request,
       });

@@ -234,7 +234,7 @@ const MakePrecheck: React.FC = () => {
   // Search results
   const [searchResults, setSearchResults] = useState<GridItem[]>([]);
   const [showResults, setShowResults] = useState(false);
-  const [filterRemainingOnly, setFilterRemainingOnly] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>("All");
 
   // Add QR Code dialog state
   const [addQrDialogOpen, setAddQrDialogOpen] = useState(false);
@@ -441,14 +441,27 @@ const MakePrecheck: React.FC = () => {
     setOrderBy(property);
   };
 
-  // Filtered results for remaining precheck only (updated and pending statuses)
+  // Filtered results for selected status
   const filteredResults = useMemo(() => {
-    if (!filterRemainingOnly) return searchResults;
+    if (!selectedStatus || selectedStatus === "All") return searchResults;
+    const targetStatus = selectedStatus.toLowerCase();
     return searchResults.filter((item) => {
-      const status = (item.precheckStatus || "").toLowerCase();
-      return status === "updated" || status === "pending";
+      const statusLower = (item.precheckStatus || item.status || "").toLowerCase();
+      if (targetStatus === "pending") {
+        return statusLower === "pending" || (!item.isPrecheckComplete && !item.isRejected);
+      }
+      if (targetStatus === "partial") {
+        return statusLower === "partial" || statusLower === "updated" || Boolean(item.isUpdated);
+      }
+      if (targetStatus === "rejected") {
+        return statusLower === "rejected" || Boolean(item.isRejected);
+      }
+      if (targetStatus === "complete") {
+        return statusLower === "complete" || statusLower === "completed" || statusLower === "verified" || Boolean(item.isPrecheckComplete);
+      }
+      return statusLower === targetStatus;
     });
-  }, [searchResults, filterRemainingOnly]);
+  }, [searchResults, selectedStatus]);
 
   const sortedResults = useMemo(() => {
     if (!orderBy) return filteredResults;
@@ -704,14 +717,22 @@ const MakePrecheck: React.FC = () => {
     setIsMakePrecheckEnabled(Boolean(mandatoryFieldsFilled && isIdWithinRange));
   };
 
+  const handleStatusChange = (newStatus: string) => {
+    setSelectedStatus(newStatus);
+    if (selectedPO || selectedDrawing || idNumber || hasLoadedData) {
+      executeMakePrecheck(undefined, newStatus);
+    }
+  };
+
   const handleMakePrecheck = async () => {
     if (!validateInputs()) return;
 
     await executeMakePrecheck();
   };
 
-  const executeMakePrecheck = async (overrideId?: string) => {
+  const executeMakePrecheck = async (overrideId?: string, overrideStatus?: string) => {
     const activeIdNumber = overrideId !== undefined ? overrideId : idNumber;
+    const activeStatus = overrideStatus !== undefined ? overrideStatus : selectedStatus;
     // Check if ID Number exceeds endIdNumber for the selected PO
     if (
       selectedPO?.endIdNumber &&
@@ -743,13 +764,19 @@ const MakePrecheck: React.FC = () => {
         selectedProductionSeries?.prodSeriesId ??
         selectedProductionSeries?.productionSeriesId;
 
-      const payload = {
+      const payload: any = {
         DrawingNumberId: drawingIdVal,
         ProductionSeriesId: prodSeriesIdVal,
         Id: activeIdNumber ? parseInt(activeIdNumber) : undefined,
         ProductionOrderNumber: selectedPO?.productionOrderNumber,
       };
 
+      if (activeStatus && activeStatus !== "All") {
+        payload.Status = activeStatus;
+        payload.status = activeStatus;
+      }
+
+      console.log("Executing viewPrecheckDetails with payload:", payload);
       const response = await dispatch(viewPrecheckDetails(payload)).unwrap();
       await updateGridItems(response);
 
@@ -920,7 +947,7 @@ const MakePrecheck: React.FC = () => {
     // Clear grid data
     setSearchResults([]);
     setShowResults(false);
-    setFilterRemainingOnly(false);
+   
 
     // Reset button states
     setIsMakePrecheckEnabled(false);
@@ -1536,7 +1563,6 @@ const MakePrecheck: React.FC = () => {
       return;
     }
 
-    exportParams.remainingPrecheck = filterRemainingOnly;
     exportParams.selectedColumns = selectedCols;
 
     dispatch(exportPrecheckDetails(exportParams))
@@ -1643,6 +1669,7 @@ const MakePrecheck: React.FC = () => {
 
     // Map the response to objects and assign sequential SRs based on sorted order
     const finalItems = sortedRawList.map((item: any, index: number) => ({
+      status: item.status || item.precheckStatus,
       drawingNumber: item.drawingNumber,
       nomenclature: item.nomenclature,
       quantity: item.quantity,
@@ -1705,8 +1732,8 @@ const MakePrecheck: React.FC = () => {
 
       {/* Page Title & More Action Button at Top Header */}
       <PrecheckHeaderBar
-        filterRemainingOnly={filterRemainingOnly}
-        onToggleFilter={() => setFilterRemainingOnly(!filterRemainingOnly)}
+     
+       
         onExport={handleExport}
         onReset={handleReset}
         onUploadExcel={() => excelFileInputRef.current?.click()}
@@ -1797,8 +1824,6 @@ const MakePrecheck: React.FC = () => {
         selectedPOStartIdNumber={selectedPO?.startIdNumber}
         selectedPOQuantity={selectedPO?.quantity}
         isSubmitEnabled={isSubmitEnabled}
-        filterRemainingOnly={filterRemainingOnly}
-        onToggleFilter={() => setFilterRemainingOnly(!filterRemainingOnly)}
         onExport={handleExport}
         isSidebarOpen={isSidebarOpen}
       />
@@ -1821,8 +1846,6 @@ const MakePrecheck: React.FC = () => {
         selectedPONumber={selectedPO?.productionOrderNumber || ""}
         selectedLnItemCode={selectedDrawing?.lnItemCode || ""}
         searchResults={searchResults}
-        filterRemainingOnly={filterRemainingOnly}
-        onToggleFilter={() => setFilterRemainingOnly(!filterRemainingOnly)}
         onExport={handleExport}
         onReset={handleReset}
         onBarcodeChange={handleBarcodeChange}
@@ -1869,8 +1892,8 @@ const MakePrecheck: React.FC = () => {
         onRequestSort={handleRequestSort}
         onExportBom={handleExport}
         isExportEnabled={isSubmitEnabled}
-        filterRemainingOnly={filterRemainingOnly}
-        onToggleFilter={() => setFilterRemainingOnly(!filterRemainingOnly)}
+        selectedStatus={selectedStatus}
+        onStatusChange={handleStatusChange}
       />
 
       {/* Quantity Dialog */}

@@ -61,9 +61,6 @@ interface PrecheckFormControlsProps {
   selectedPOStartIdNumber?: number;
   selectedPOQuantity?: number;
 
-  // Remaining Precheck and Export props (optional)
-  filterRemainingOnly?: boolean;
-  onToggleFilter?: () => void;
   onExport?: () => void;
   isSubmitEnabled?: boolean;
   isSidebarOpen?: boolean;
@@ -101,8 +98,6 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
   selectedPOStartIdNumber,
   selectedPOQuantity,
   isSubmitEnabled,
-  filterRemainingOnly,
-  onToggleFilter,
   onExport,
   isSidebarOpen = false,
 }) => {
