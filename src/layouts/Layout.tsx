@@ -205,12 +205,7 @@ export default function Layout() {
       icon: <DashboardIcon />,
       path: "/dashboard",
     },
-    {
-      text: "Bulk Import",
-      pageName: "Bulk Import",
-      icon: <CloudUploadIcon />,
-      path: "/bulk-import",
-    },
+
     {
       text: "Production Order",
       pageName: "Production Order",
@@ -324,6 +319,12 @@ export default function Layout() {
       icon: <AdminPanelSettingsIcon />,
       path: "/adminmaster",
       subItems: [
+         {
+          text: "Bulk Import",
+          pageName: "Bulk Import",
+          icon: <CloudUploadIcon />,
+          path: "/adminmaster//bulk-import",
+        },
         {
           text: "User Management",
           pageName: "User Management",
@@ -342,6 +343,7 @@ export default function Layout() {
           icon: <StorageIcon />,
           path: "/adminmaster/master-data",
         },
+       
       ],
     },
   ];

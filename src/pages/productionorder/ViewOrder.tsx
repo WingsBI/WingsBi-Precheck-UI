@@ -466,7 +466,7 @@ const ViewOrder: React.FC = () => {
                     }}
                   >
                     <TableCell align="center">{item.sr}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: "#101828" }} align="center">{item.lnitemcode}</TableCell>
+                    <TableCell sx={{ color: "#101828" }} align="center">{item.lnitemcode}</TableCell>
                     <TableCell align="center">{item.drawingNumber}</TableCell>
                     <TableCell align="center">{item.unit || "-"}</TableCell>
                     <TableCell align="center">{item.qty}</TableCell>
@@ -819,7 +819,7 @@ const ViewOrder: React.FC = () => {
                             hover
                             sx={commonTableRowStyle}
                           >
-                            <TableCell sx={{ fontWeight: 600, color: "#101828" }} align="center">
+                            <TableCell sx={{ color: "#101828" }} align="center">
                               {item.qrCodeNumber || "N/A"}
                             </TableCell>
                             <TableCell align="center">{item.id || "N/A"}</TableCell>

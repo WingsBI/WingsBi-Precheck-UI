@@ -37,6 +37,7 @@ import {
   Chip,
   Grid,
   FormControl,
+  Tooltip,
 } from '@mui/material';
 import { CustomPagination } from '../../components/CustomPagination';
 
@@ -219,7 +220,7 @@ const Row = ({ component, sr }: { component: StoredComponent; sr: number }) => {
         }}
       >
         <TableCell sx={{ textAlign: 'center', width: '45px', color: 'text.muted', fontSize: '0.775rem' }}>{sr}</TableCell>
-        <TableCell sx={{ textAlign: 'center', fontWeight: 600, color: '#101828' }}>{component?.qrCodeNumber || 'N/A'}</TableCell>
+        <TableCell sx={{ textAlign: 'center', color: '#101828' }}>{component?.qrCodeNumber || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.productionOrderNumber || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.projectNumber || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.productionSeries || 'N/A'}</TableCell>
@@ -280,8 +281,8 @@ const Row = ({ component, sr }: { component: StoredComponent; sr: number }) => {
                 columns={[
                   { key: "consumedInDrawing", label: "Consumed in Drawing", render: (r) => r.consumedInDrawing || '-' },
                   { key: "qrCodeStatus", label: "Status", render: (r) => renderStatusBadge(r.qrCodeStatus) },
-                  { key: "irNumber", label: "IR Number", render: (r) => r.irNumber || 'N/A' },
-                  { key: "msnNumber", label: "MSN Number", render: (r) => r.msnNumber || 'N/A' },
+                  { key: "irNumber", label: (<Tooltip title="Inspection Report Number" arrow placement="bottom"><span>IR Number</span></Tooltip>), render: (r) => r.irNumber || 'N/A' },
+                  { key: "msnNumber", label: (<Tooltip title="Memo Stage Number" arrow placement="bottom"><span>MSN Number</span></Tooltip>), render: (r) => r.msnNumber || 'N/A' },
                   { key: "mrirNumber", label: "MRIR Number", render: (r) => r.mrirNumber || 'N/A' },
                   { key: "desposition", label: "Disposition", render: (r) => r.desposition || 'N/A' },
                   { key: "users", label: "Username", render: (r) => r.users || 'N/A' },

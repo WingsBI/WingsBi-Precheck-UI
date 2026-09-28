@@ -885,7 +885,7 @@ const ViewAssembly: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }
                     <TableCell sx={{ textAlign: "center" }}>
                       {idx + 1}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>
+                    <TableCell>
                       {parent.drawingNumber}
                     </TableCell>
                     <TableCell>

@@ -112,7 +112,7 @@ export const PrecheckHeaderBar: React.FC<PrecheckHeaderBarProps> = ({
             onClick={handleMoreMenuOpen}
             endIcon={<KeyboardArrowDownIcon sx={{ fontSize: "1.125rem", color: "text.secondary" }} />}
           >
-            More
+            Bulk Verification
           </ActionButton>
 
           {onExport && (

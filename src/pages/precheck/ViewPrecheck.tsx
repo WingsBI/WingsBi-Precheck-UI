@@ -95,6 +95,7 @@ interface ColumnDef {
   minWidth?: number;
   align?: "left" | "center" | "right";
   sortable?: boolean;
+  tooltip?: string;
 }
 
 const PRECHECK_COLUMNS: ColumnDef[] = [
@@ -105,8 +106,8 @@ const PRECHECK_COLUMNS: ColumnDef[] = [
   { field: "productionSeries", headerName: "Prod Series", minWidth: 110, align: "center", sortable: true },
   { field: "quantity", headerName: "Qty", minWidth: 70, align: "center", sortable: true },
   { field: "idNumber", headerName: "ID Number", minWidth: 110, align: "center", sortable: true },
-  { field: "irNumber", headerName: "IR", minWidth: 100, align: "center", sortable: false },
-  { field: "msnNumber", headerName: "MSN", minWidth: 100, align: "center", sortable: false },
+  { field: "irNumber", headerName: "IR", minWidth: 100, align: "center", sortable: false, tooltip: "Inspection Report" },
+  { field: "msnNumber", headerName: "MSN", minWidth: 100, align: "center", sortable: false, tooltip: "Memo Stage Number" },
   { field: "componentType", headerName: "Type", minWidth: 95, align: "center", sortable: false },
   { field: "status", headerName: "Status", minWidth: 110, align: "center", sortable: false },
   { field: "details", headerName: "Details", minWidth: 80, align: "center", sortable: false },
@@ -118,8 +119,8 @@ const CONSUMED_IN_COLUMNS: ColumnDef[] = [
   { field: "consumedInDrawingNumber", headerName: "Consumed IN Part Number", minWidth: 220, align: "left", sortable: true },
   { field: "quantity", headerName: "Quantity", minWidth: 80, align: "center", sortable: true },
   { field: "poNumber", headerName: "PO Number", minWidth: 140, align: "left", sortable: true },
-  { field: "irNumber", headerName: "IR Number", minWidth: 100, align: "center", sortable: false },
-  { field: "msnNumber", headerName: "MSN Number", minWidth: 110, align: "center", sortable: false },
+  { field: "irNumber", headerName: "IR Number", minWidth: 100, align: "center", sortable: false, tooltip: "Inspection Report Number" },
+  { field: "msnNumber", headerName: "MSN Number", minWidth: 110, align: "center", sortable: false, tooltip: "Memo Stage Number" },
   { field: "date", headerName: "Date", minWidth: 140, align: "center", sortable: true },
   { field: "username", headerName: "Username", minWidth: 120, align: "center", sortable: true },
   { field: "isRejected", headerName: "Is Rejected", minWidth: 100, align: "center", sortable: false },
@@ -1585,6 +1586,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                   <SortableTableHeader
                     key={col.field}
                     label={col.headerName}
+                    tooltip={col.tooltip}
                     columnKey={col.field}
                     sortColumn={orderBy}
                     sortDirection={order}

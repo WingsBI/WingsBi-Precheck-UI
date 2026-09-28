@@ -1089,6 +1089,7 @@ const ViewIRMSN: React.FC = () => {
                   />
                   <SortableTableHeader
                     label="IR/MSN No."
+                    tooltip="Inspection Report / Memo Stage Number"
                     sortKey="displayNumber"
                     activeSortColumn={sortColumn}
                     sortDirection={sortDirection}
@@ -1179,7 +1180,7 @@ const ViewIRMSN: React.FC = () => {
                       <TableCell align="center">
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: 700, color: "#101828", fontSize: "inherit" }}
+                          sx={{ color: "#101828", fontSize: "inherit" }}
                         >
                           {item.displayNumber || "-"}
                         </Typography>

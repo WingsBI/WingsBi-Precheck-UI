@@ -1168,7 +1168,7 @@ const StoreIn: React.FC = () => {
                           "& td": { borderBottom: "1px solid #F2F4F7", fontSize: "0.825rem" },
                         }}
                       >
-                        <TableCell sx={{ fontWeight: 600, color: "#101828" }}>
+                        <TableCell sx={{ color: "#101828" }}>
                           {row.qrCodeNumber}
                         </TableCell>
                         <TableCell>{row.productionOrderNumber || "-"}</TableCell>
@@ -1214,8 +1214,8 @@ const StoreIn: React.FC = () => {
                                     />
                                   ),
                                 },
-                                { key: "irNumber", label: "IR Number", align: "center", render: (r) => r.irNumber || "-" },
-                                { key: "msnNumber", label: "MSN Number", align: "center", render: (r) => r.msnNumber || "-" },
+                                { key: "irNumber", label: (<Tooltip title="Inspection Report Number" arrow placement="bottom"><span>IR Number</span></Tooltip>), align: "center", render: (r) => r.irNumber || "-" },
+                                { key: "msnNumber", label: (<Tooltip title="Memo Stage Number" arrow placement="bottom"><span>MSN Number</span></Tooltip>), align: "center", render: (r) => r.msnNumber || "-" },
                                 { key: "mrirNumber", label: "MRIR Number", align: "center", render: (r) => r.mrirNumber || "-" },
                                 { key: "desposition", label: "Disposition", align: "center", render: (r) => r.desposition || "-" },
                                 { key: "users", label: "Username", align: "center", render: (r) => r.users || "-" },
@@ -1593,7 +1593,7 @@ const StoreIn: React.FC = () => {
                       <TableCell align="center">
                         {page * rowsPerPage + index + 1}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600, color: "#101828" }}>
+                      <TableCell sx={{ color: "#101828" }}>
                         {row.drawingNumber}
                       </TableCell>
                       <TableCell sx={{ fontWeight: 500 }}>

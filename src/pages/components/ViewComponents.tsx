@@ -137,7 +137,7 @@ const DrawingNumberRowComponent = ({
         <TableCell sx={{ textAlign: "center", minWidth: 55, color: "text.muted", fontSize: "0.775rem" }}>
           {(drawingData as any)._srNo ?? (index + 1)}
         </TableCell>
-        <TableCell sx={{ color: "text.primary", fontSize: "0.775rem", fontWeight: 600, minWidth: 160, whiteSpace: "nowrap" }}>
+        <TableCell sx={{ color: "text.primary", fontSize: "0.775rem", minWidth: 160, whiteSpace: "nowrap" }}>
           {drawingData?.drawingNumber || "N/A"}
         </TableCell>
         <TableCell sx={{ color: "text.secondary", fontSize: "0.775rem", minWidth: 150, whiteSpace: "nowrap" }}>

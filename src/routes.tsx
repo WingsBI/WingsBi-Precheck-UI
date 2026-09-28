@@ -159,10 +159,11 @@ export default function AppRoutes() {
               <Route path="user-management" element={<UserManagement />} />
               <Route path="role-management" element={<RoleManagement />} />
               <Route path="master-data" element={<AddComponents />} />
+              <Route path="bulk-import" element={<ScriptExecutor />} />
             </Route>
 
             {/* Bulk Import Module */}
-            <Route path="bulk-import" element={<ScriptExecutor />} />
+            
           </Route>
         </Route>
 

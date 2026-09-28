@@ -7,7 +7,7 @@ import { isPageAccessible } from '../utils/accessUtils';
 
 const routeToPageMap: Record<string, string> = {
   '/dashboard': 'Dashboard',
-  '/bulk-import': 'Bulk Import',
+  
 
   '/irmsn/new': 'New IR/MSN',
   '/irmsn/list': 'IR/MSN List',
@@ -29,6 +29,7 @@ const routeToPageMap: Record<string, string> = {
   '/adminmaster/master-data': 'Master Data',
   '/adminmaster/user-management': 'User Management',
   '/adminmaster/role-management': 'Role Management',
+  '/adminmaster/bulk-import': 'Bulk Import',
 
   '/assembly/explorer': 'Assembly Explorer',
   '/assembly/components': 'Components',

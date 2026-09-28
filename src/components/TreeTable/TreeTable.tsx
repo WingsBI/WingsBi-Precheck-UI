@@ -25,6 +25,7 @@ import { TABLE_TOKENS, commonTableHeaderStyle, commonTableRowStyle } from "../ta
 interface TreeTableColumn {
   id: string;
   label: string;
+  tooltip?: string;
   minWidth?: number;
   align?: "left" | "center" | "right";
   format?: (value: any, row: any, index?: number) => React.ReactNode;
@@ -89,10 +90,7 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
       onClick={handleRowClick}
       style={{
         cursor: onRowClick ? "pointer" : "default",
-        backgroundColor:
-          node.level > 0
-            ? `rgba(37, 99, 235, 0.02)`
-            : "inherit",
+        backgroundColor: "inherit",
         transition: "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
         height: TABLE_TOKENS.rowHeight,
         display: "table-row",
@@ -471,7 +469,7 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
                         },
                       }}
                     >
-                      <Tooltip title={`Click and drag to resize column`} arrow placement="top">
+                      <Tooltip title={column.tooltip || `Click and drag to resize column`} arrow placement="top">
                         <Box sx={{ display: "flex", alignItems: "center", justifyContent: column.align === "center" ? "center" : column.align === "right" ? "flex-end" : "flex-start", width: "100%", pr: 0.5 }}>
                           <Typography
                             variant="caption"

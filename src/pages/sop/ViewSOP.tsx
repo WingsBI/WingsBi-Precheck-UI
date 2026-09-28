@@ -10,6 +10,7 @@ import {
   Alert,
   Tabs,
   Tab,
+  Tooltip,
   Stack,
   Chip,
   CircularProgress,
@@ -182,7 +183,7 @@ const ViewSOP: React.FC = () => {
           sx={{
             fontSize: "0.8rem",
             fontWeight: row.level === 0 ? 600 : row.level === 1 ? 500 : 400,
-            color: row.level === 0 ? "primary.main" : row.level === 1 ? "#2e7d32" : "#64748b",
+            color: "#475467",
           }}
         >
           {value !== undefined && value !== null ? value : "0"}
@@ -200,7 +201,7 @@ const ViewSOP: React.FC = () => {
           sx={{
             fontSize: "0.8rem",
             fontWeight: row.level === 0 ? 600 : row.level === 1 ? 500 : 400,
-            color: row.level === 0 ? "primary.main" : row.level === 1 ? "#2e7d32" : "#64748b",
+            color: "#475467",
           }}
         >
           {value || "-"}
@@ -217,7 +218,7 @@ const ViewSOP: React.FC = () => {
           variant="body2"
           sx={{
             fontWeight: row.level === 0 ? 700 : row.level === 1 ? 600 : 500,
-            color: row.level === 0 ? "#101828" : row.level === 1 ? "#344054" : "#475467",
+            color: "#344054",
             fontSize: "0.85rem",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -238,7 +239,7 @@ const ViewSOP: React.FC = () => {
           variant="body2"
           sx={{
             fontSize: "0.825rem",
-            color: row.level === 0 ? "#101828" : "#475467",
+            color: "#475467",
             fontWeight: row.level === 0 ? 600 : 400,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -263,8 +264,8 @@ const ViewSOP: React.FC = () => {
           <Typography
             variant="body2"
             sx={{
-              fontWeight: 700,
-              color: row.level === 0 ? "primary.main" : "#027A48",
+              fontWeight: 600,
+              color: "#344054",
               fontSize: "0.85rem",
             }}
           >
@@ -283,7 +284,7 @@ const ViewSOP: React.FC = () => {
           variant="body2"
           sx={{
             fontSize: "0.8rem",
-            color: !value && !row?.componentType ? "#98A2B3" : row.level === 0 ? "#344054" : "#667085",
+            color: !value && !row?.componentType ? "#98A2B3" : "#475467",
             fontWeight: row.level === 0 ? 600 : 400,
           }}
         >
@@ -301,7 +302,7 @@ const ViewSOP: React.FC = () => {
           variant="body2"
           sx={{
             fontSize: "0.8rem",
-            color: !value ? "#98A2B3" : row.level === 0 ? "#344054" : "#667085",
+            color: !value ? "#98A2B3" : "#475467",
           }}
         >
           {value || "-"}
@@ -329,6 +330,7 @@ const ViewSOP: React.FC = () => {
     {
       id: "irNumber",
       label: "IR Number",
+      tooltip: "Inspection Report Number",
       minWidth: 140,
       align: "center" as const,
       format: (value: any) => (
@@ -340,6 +342,7 @@ const ViewSOP: React.FC = () => {
     {
       id: "msnNumber",
       label: "MSN Number",
+      tooltip: "Memo Stage Number",
       minWidth: 140,
       align: "center" as const,
       format: (value: any) => (
@@ -825,8 +828,12 @@ const ViewSOP: React.FC = () => {
             },
           }}
         >
-          <Tab label="View SOP" value="sop" />
-          <Tab label="View BOM" value="bom" />
+          <Tooltip title="Standard Operating Procedure" arrow placement="top">
+            <Tab label="View SOP" value="sop" />
+          </Tooltip>
+          <Tooltip title="Bill Of Material" arrow placement="top">
+            <Tab label="View BOM" value="bom" />
+          </Tooltip>
         </Tabs>
       </Box>
 

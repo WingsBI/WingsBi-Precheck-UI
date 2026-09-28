@@ -308,7 +308,7 @@ const Row = ({ sr, barcodeDetails, isSelected, onSelect, onSplit, showBatchId, o
         <TableCell sx={{ textAlign: 'center', minWidth: '55px', whiteSpace: 'nowrap' }}>
           {sr !== undefined ? sr : '-'}
         </TableCell>
-        <TableCell sx={{ textAlign: 'left', minWidth: '140px', whiteSpace: 'nowrap', fontWeight: 600 }}>
+        <TableCell sx={{ textAlign: 'left', minWidth: '140px', whiteSpace: 'nowrap' }}>
           {barcodeDetails?.qrCodeNumber || 'N/A'}
         </TableCell>
         <TableCell sx={{ textAlign: 'left', minWidth: '120px', whiteSpace: 'nowrap' }}>
@@ -436,8 +436,8 @@ const Row = ({ sr, barcodeDetails, isSelected, onSelect, onSplit, showBatchId, o
             <ExpandedDetailsTable
               columns={[
                 { label: "Status", key: "qrCodeStatus", render: (d) => renderStatusBadge(d?.qrCodeStatus) },
-                { label: "IR Number", key: "irNumber", render: (d) => d?.irNumber || 'N/A' },
-                { label: "MSN Number", key: "msnNumber", render: (d) => d?.msnNumber || 'N/A' },
+                { label: (<Tooltip title="Inspection Report Number" arrow placement="bottom"><span>IR Number</span></Tooltip>), key: "irNumber", render: (d) => d?.irNumber || 'N/A' },
+                { label: (<Tooltip title="Memo Stage Number" arrow placement="bottom"><span>MSN Number</span></Tooltip>), key: "msnNumber", render: (d) => d?.msnNumber || 'N/A' },
                 { label: "MRIR Number", key: "mrirNumber", render: (d) => d?.mrirNumber || 'N/A' },
                 { label: "Build No", key: "buildNumber", render: (d) => d?.buildNumber || 'N/A' },
                 { label: "Quantity", key: "quantity", render: (d) => formatQuantity(d?.quantity) },
