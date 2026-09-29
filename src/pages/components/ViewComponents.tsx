@@ -43,6 +43,7 @@ import { ComponentTypeChip } from "../../components/ComponentTypeChip";
 import PageHeader from "../../components/ui/PageHeader";
 import ActionButton from "../../components/ui/ActionButton";
 import SearchBar from "../../components/ui/SearchBar";
+import { commonTableRowStyle } from "../../components/tableStyles";
 import { SortableTableHeader, TableCard } from "../../components/ui";
 import ActiveFilterChips, { type FilterChip } from "../../components/ui/ActiveFilterChips";
 
@@ -128,31 +129,27 @@ const DrawingNumberRowComponent = ({
     <>
       <TableRow
         hover
-        sx={{
-          height: 28,
-          "& > *": { borderBottom: "1px solid", borderColor: "grey.100", py: 0.15, px: 0.75 },
-          "&:hover": { backgroundColor: "grey.50" },
-        }}
+        sx={commonTableRowStyle}
       >
-        <TableCell sx={{ textAlign: "center", minWidth: 55, color: "text.muted", fontSize: "0.775rem" }}>
+        <TableCell sx={{ textAlign: "center", minWidth: 55 }}>
           {(drawingData as any)._srNo ?? (index + 1)}
         </TableCell>
-        <TableCell sx={{ color: "text.primary", fontSize: "0.775rem", minWidth: 160, whiteSpace: "nowrap" }}>
+        <TableCell sx={{ minWidth: 160, whiteSpace: "nowrap" }}>
           {drawingData?.drawingNumber || "N/A"}
         </TableCell>
-        <TableCell sx={{ color: "text.secondary", fontSize: "0.775rem", minWidth: 150, whiteSpace: "nowrap" }}>
+        <TableCell sx={{ minWidth: 150, whiteSpace: "nowrap" }}>
           {drawingData?.lnItemCode || "N/A"}
         </TableCell>
-        <TableCell sx={{ color: "text.secondary", fontSize: "0.775rem", minWidth: 220, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <TableCell sx={{ minWidth: 220, maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {drawingData?.nomenclature || "N/A"}
         </TableCell>
         <TableCell sx={{ textAlign: "center", minWidth: 95 }}>
           <ComponentTypeChip type={drawingData?.componentType} />
         </TableCell>
-        <TableCell sx={{ textAlign: "center", color: "text.secondary", fontSize: "0.775rem", minWidth: 100, whiteSpace: "nowrap" }}>
+        <TableCell sx={{ textAlign: "center", minWidth: 100, whiteSpace: "nowrap" }}>
           {drawingData?.unitName || "N/A"}
         </TableCell>
-        <TableCell sx={{ textAlign: "center", color: "text.secondary", fontSize: "0.775rem", minWidth: 110, whiteSpace: "nowrap" }}>
+        <TableCell sx={{ textAlign: "center", minWidth: 110, whiteSpace: "nowrap" }}>
           {drawingData?.productionSeries || drawingData?.availableFor || "N/A"}
         </TableCell>
 

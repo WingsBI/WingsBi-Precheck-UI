@@ -1050,6 +1050,7 @@ const MaterialRequisition: React.FC = () => {
       {/* Page Header */}
       <PageHeader
         title="Material Requisition"
+        mb={0.5}
         subtitle="Create, track, swap, and manage material requisition requests."
         actions={
           <Stack direction="row" spacing={1}>
@@ -1354,14 +1355,7 @@ const MaterialRequisition: React.FC = () => {
                             sx={{ color: "#d0d5dd", "&.Mui-checked": { color: "primary.main" } }}
                           />
                         </TableCell>
-                        <TableCell align="left">
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: 600, color: "#101828", fontSize: "0.775rem" }}
-                          >
-                            {item.requestId}
-                          </Typography>
-                        </TableCell>
+                        <TableCell align="left">{item.requestId}</TableCell>
                         <TableCell align="left">{item.poNumber || "N/A"}</TableCell>
                         <TableCell align="left">{item.drawingNumber || "N/A"}</TableCell>
                         <TableCell align="left">{item.materialCode}</TableCell>
@@ -1908,7 +1902,7 @@ const MaterialRequisition: React.FC = () => {
                         key={col.label}
                         align={(col.align as any) || "left"}
                         sx={{
-                          fontWeight: 700,
+                          fontWeight: 600,
                           backgroundColor: "#F9FAFB !important",
                           color: "#475467",
                           fontSize: "0.78rem",
@@ -2724,7 +2718,12 @@ const MaterialRequisition: React.FC = () => {
             pb: 1,
           }}
         >
-          Export Material Requisition Details
+          <Box display="flex" alignItems="center" gap={1}>
+            <DownloadIcon sx={{ color: "primary.main" }} />
+            <Typography variant="h6" fontWeight="700" color="primary.main">
+              Export Material Requisition Data
+            </Typography>
+          </Box>
           <IconButton size="small" onClick={() => setExportDialogOpen(false)} disabled={isDownloading}>
             <CloseIcon />
           </IconButton>

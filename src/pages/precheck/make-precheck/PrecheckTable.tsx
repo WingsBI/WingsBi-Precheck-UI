@@ -126,7 +126,7 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
 
   const isEditDeleteEnabled = true;
   return (
-    <TableCard sx={{ mt: 0.25, mb: 0.5, display: "flex", flexDirection: "column" }}>
+    <TableCard sx={{ mt: 0, mb: 0, borderRadius: 0, border: "none", boxShadow: "none", display: "flex", flexDirection: "column" }}>
       <TableCardHeader
         title="Parts to be verified"
         

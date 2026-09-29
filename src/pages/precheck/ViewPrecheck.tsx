@@ -868,7 +868,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
   return (
     <Box
       sx={{
-        py: hideHeader ? 0 : 0.5,
+        py: hideHeader ? 0 : 1,
         px: hideHeader ? 0 : { xs: 1, sm: 2 },
         maxWidth: 1600,
         mx: "auto",
@@ -886,6 +886,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
       {!hideHeader && (
         <PageHeader
           title="Verification History"
+          mb={0.5}
           subtitle={
             activeTab === "consumed"
               ? "Search, filter, and inspect past precheck inspection records and status reports."

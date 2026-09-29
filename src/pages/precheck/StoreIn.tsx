@@ -75,15 +75,10 @@ import type { AppDispatch, RootState } from "../../store/store";
 import { Html5Qrcode } from "html5-qrcode";
 import { usePageAccess, useProductionSeries } from "../../hooks/useMasterData";
 import { getErrorMessage } from "../../utils/errorUtils";
-import { isPageAccessible } from "../../utils/accessUtils";
 import { useHasPermission } from "../../hooks/useHasPermission";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { CustomPagination } from "../../components/CustomPagination";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
 import { EmptyState } from "../../components/EmptyState";
-import { ClearIcon } from "@mui/x-date-pickers";
 import AvailableInStore from "./AvailableInStore";
 
 interface QRCodeDetailsResponse {
@@ -843,8 +838,8 @@ const StoreIn: React.FC = () => {
   return (
     <Box
       sx={{
-        py: { xs: 1.5, sm: 2 },
-        px: { xs: 1.5, sm: 2.5 },
+        py: 1,
+        px: { xs: 1, sm: 2 },
         maxWidth: 1600,
         mx: "auto",
         width: "100%",
@@ -853,38 +848,43 @@ const StoreIn: React.FC = () => {
     >
       {/* 1. Page Header */}
       <PageHeader
-        title={storeTab === "store-in" ? "Store In" : "Stored Components"}
+        title="Store In"
+        mb={0.5}
         subtitle={
           storeTab === "store-in"
             ? "Scan verified components to receive them into store inventory locations."
             : "View and filter available components and QR codes in store."
         }
-        actions={
-          <Tabs
-            value={storeTab}
-            onChange={(_, newValue) => setStoreTab(newValue)}
-            textColor="primary"
-            indicatorColor="primary"
-            sx={{
-              "& .MuiTab-root": {
-                fontWeight: 600,
-                fontSize: "0.875rem",
-                textTransform: "none",
-                minWidth: 120,
-              },
-              "& .MuiTab-root.Mui-selected": { color: "primary.main" },
-              "& .MuiTabs-indicator": {
-                backgroundColor: "primary.main",
-                height: 3,
-                borderRadius: "3px 3px 0 0",
-              },
-            }}
-          >
-            <Tab label="Store In" value="store-in" />
-            <Tab label="Stored Components" value="available" />
-          </Tabs>
-        }
       />
+
+      {/* Navigation Tabs Bar */}
+      <Box sx={{ borderBottom: "1px solid #EAECF0", mb: 1 }}>
+        <Tabs
+          value={storeTab}
+          onChange={(_, newValue) => setStoreTab(newValue)}
+          textColor="primary"
+          indicatorColor="primary"
+          sx={{
+            minHeight: 34,
+            "& .MuiTab-root": {
+              fontWeight: 600,
+              fontSize: "0.85rem",
+              textTransform: "none",
+              minWidth: 100,
+              py: 0.5,
+            },
+            "& .MuiTab-root.Mui-selected": { color: "primary.main" },
+            "& .MuiTabs-indicator": {
+              backgroundColor: "primary.main",
+              height: 3,
+              borderRadius: "3px 3px 0 0",
+            },
+          }}
+        >
+          <Tab label="Store In" value="store-in" />
+          <Tab label="Stored Components" value="available" />
+        </Tabs>
+      </Box>
 
       <Box sx={{ display: storeTab === "available" ? "block" : "none" }}>
         <AvailableInStore hideHeader />
@@ -905,7 +905,7 @@ const StoreIn: React.FC = () => {
           elevation={0}
           sx={{
             p: 2,
-            mb: 3,
+            mb: 1.5,
             borderRadius: "12px",
             border: "1px solid #EAECF0",
             backgroundColor: "#ffffff",

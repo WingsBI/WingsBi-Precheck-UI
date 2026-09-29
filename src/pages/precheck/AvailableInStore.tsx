@@ -911,13 +911,13 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
             <>
               {/* Left Side: BOM Details */}
               <Grid item xs={12} md={selectedBomRowIndex !== null ? 6 : 12}>
-                <TableCard sx={{ minHeight: "450px", display: "flex", flexDirection: "column" }}>
+                <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" ,lineHeight: 1.3,pt: 1, pb: 2,}}>
                   <TableCardHeader
                     title="Material available in store"
-                    count={totalRecords}
+
                   />
 
-                  <TableContainer sx={{ overflowX: "auto", flexGrow: 1 }}>
+                  <TableContainer sx={{ overflowX: "auto", overflowY: "auto", flexGrow: 1 }}>
                     <Table stickyHeader size="small" sx={{ width: "100%" }}>
                       <TableHead>
                         <TableRow>
@@ -997,7 +997,7 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
               {/* Right Side: Available QR Codes (Shown only when a row is clicked) */}
               {selectedBomRowIndex !== null && (
                 <Grid item xs={12} md={6}>
-                  <TableCard sx={{ minHeight: "450px", display: "flex", flexDirection: "column" }}>
+                  <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
                     <TableCardHeader
                       title="Available QR Codes"
                       count={totalQrRecords}
@@ -1016,7 +1016,7 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                       }
                     />
 
-                    <TableContainer sx={{ overflowX: "auto", flexGrow: 1 }}>
+                    <TableContainer sx={{ overflowX: "auto", overflowY: "auto", flexGrow: 1 }}>
                       <Table stickyHeader size="small" sx={{ width: "100%" }}>
                         <TableHead>
                           <TableRow>

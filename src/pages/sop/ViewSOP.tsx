@@ -49,6 +49,9 @@ import { SopFilterCard } from "./components/SopFilterCard";
 import { EmptyState } from "../../components/EmptyState";
 import PageHeader from "../../components/ui/PageHeader";
 import ActionButton from "../../components/ui/ActionButton";
+import { ComponentTypeChip } from "../../components/ComponentTypeChip";
+import { TableCard, TableCardHeader } from "../../components/ui";
+import { COLOUR_ROLES } from "../../components/tableStyles";
 
 const ALL_SOP_EXPORT_COLUMNS = [
   { key: "level", label: "Level" },
@@ -167,7 +170,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 70,
       align: "center" as const,
       format: (_: any, __: any, index?: number) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#64748b" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {index !== undefined ? index + 1 : ""}
         </Typography>
       ),
@@ -181,9 +184,9 @@ const ViewSOP: React.FC = () => {
         <Typography
           variant="body2"
           sx={{
-            fontSize: "0.8rem",
+            fontSize: "0.775rem",
             fontWeight: row.level === 0 ? 600 : row.level === 1 ? 500 : 400,
-            color: "#475467",
+            color: COLOUR_ROLES.textSecondary,
           }}
         >
           {value !== undefined && value !== null ? value : "0"}
@@ -199,9 +202,9 @@ const ViewSOP: React.FC = () => {
         <Typography
           variant="body2"
           sx={{
-            fontSize: "0.8rem",
+            fontSize: "0.775rem",
             fontWeight: row.level === 0 ? 600 : row.level === 1 ? 500 : 400,
-            color: "#475467",
+            color: COLOUR_ROLES.textSecondary,
           }}
         >
           {value || "-"}
@@ -217,9 +220,9 @@ const ViewSOP: React.FC = () => {
         <Typography
           variant="body2"
           sx={{
-            fontWeight: row.level === 0 ? 700 : row.level === 1 ? 600 : 500,
-            color: "#344054",
-            fontSize: "0.85rem",
+            fontWeight: row.level === 0 ? 600 : 500,
+            color: COLOUR_ROLES.textSecondary,
+            fontSize: "0.775rem",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -238,8 +241,8 @@ const ViewSOP: React.FC = () => {
         <Typography
           variant="body2"
           sx={{
-            fontSize: "0.825rem",
-            color: "#475467",
+            fontSize: "0.775rem",
+            color: COLOUR_ROLES.textSecondary,
             fontWeight: row.level === 0 ? 600 : 400,
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -255,7 +258,7 @@ const ViewSOP: React.FC = () => {
       label: "Qty/Assy",
       minWidth: 80,
       align: "center" as const,
-      format: (value: any, row: any) => {
+      format: (value: any) => {
         const formattedValue =
           value !== undefined && value !== null && value !== "" && !isNaN(Number(value))
             ? Number(value)
@@ -264,9 +267,9 @@ const ViewSOP: React.FC = () => {
           <Typography
             variant="body2"
             sx={{
-              fontWeight: 600,
-              color: "#344054",
-              fontSize: "0.85rem",
+              fontWeight: 500,
+              color: COLOUR_ROLES.textSecondary,
+              fontSize: "0.775rem",
             }}
           >
             {formattedValue}
@@ -280,16 +283,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 130,
       align: "center" as const,
       format: (value: any, row: any) => (
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: "0.8rem",
-            color: !value && !row?.componentType ? "#98A2B3" : "#475467",
-            fontWeight: row.level === 0 ? 600 : 400,
-          }}
-        >
-          {value || row?.componentType || "-"}
-        </Typography>
+        <ComponentTypeChip type={value || row?.componentType || "Standard"} />
       ),
     },
     {
@@ -297,19 +291,18 @@ const ViewSOP: React.FC = () => {
       label: "Unit",
       minWidth: 70,
       align: "center" as const,
-      format: (value: any, row: any) => (
+      format: (value: any) => (
         <Typography
           variant="body2"
           sx={{
-            fontSize: "0.8rem",
-            color: !value ? "#98A2B3" : "#475467",
+            fontSize: "0.775rem",
+            color: COLOUR_ROLES.textSecondary,
           }}
         >
           {value || "-"}
         </Typography>
       ),
     },
-
     {
       id: "idNumber",
       label: "ID No",
@@ -319,7 +312,8 @@ const ViewSOP: React.FC = () => {
         <Typography
           variant="body2"
           sx={{
-            fontSize: "0.8rem",
+            fontSize: "0.775rem",
+            color: COLOUR_ROLES.textSecondary,
             fontWeight: row.level === 0 ? 600 : 400,
           }}
         >
@@ -334,7 +328,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 140,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -346,7 +340,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 140,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -357,7 +351,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 160,
       align: "left" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem", color: "#667085" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -368,7 +362,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 160,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -379,7 +373,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 110,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -390,7 +384,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 150,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -401,7 +395,7 @@ const ViewSOP: React.FC = () => {
       minWidth: 140,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.8rem" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -780,6 +774,7 @@ const ViewSOP: React.FC = () => {
       {/* Top Header */}
       <PageHeader
         title="Assembly Explorer"
+        mb={0.5}
         subtitle={
           activeTab === "sop"
             ? "Browse the BOM tree of a production order"
@@ -888,131 +883,90 @@ const ViewSOP: React.FC = () => {
             hasAssemblyData={assemblyData && assemblyData.length > 0}
           />
 
-          {/* Assembly Tree Table */}
-          <Grid container spacing={1.5}>
-            <Grid item xs={12}>
-              <Paper
-                elevation={0}
-                sx={{
-                  borderRadius: "10px",
-                  border: "1px solid #EAECF0",
-                  backgroundColor: "#ffffff",
-                  overflow: "hidden",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {/* Tree Summary Bar */}
-                <Box
-                  sx={{
-                    p: 1.5,
-                    px: 2,
-                    borderBottom: "1px solid #EAECF0",
-                    backgroundColor: "#F9FAFB",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: 1,
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: "#101828", fontSize: "0.9rem" }}>
-                      {rootNode?.drawingNumber || selectedDrawingNumber?.drawingNumber || "Assembly Tree"}
-                    </Typography>
-                    {(rootNode?.nomenclature || selectedDrawingNumber?.nomenclature) && (
-                      <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.85rem" }}>
-                        · {rootNode?.nomenclature || selectedDrawingNumber?.nomenclature}
-                      </Typography>
-                    )}
-                    {treeData.length > 0 && (
-                      <Typography variant="caption" sx={{ color: "#667085", fontSize: "0.775rem", fontWeight: 500 }}>
-                        · {treeData.length} nodes · {maxLevels} levels
-                      </Typography>
-                    )}
-                  </Box>
-
-                  {treeData.length > 0 && (
-                    <Stack direction="row" spacing={1}>
-                      <Button
-                        size="small"
-                        variant="text"
-                        onClick={() => treeTableRef.current?.expandAll()}
-                        sx={{
-                          fontSize: "0.775rem",
-                          fontWeight: 600,
-                          color: "primary.main",
-                          textTransform: "none",
-                          p: 0,
-                          minWidth: "auto",
-                        }}
-                      >
-                        Expand all
-                      </Button>
-                      <Typography variant="caption" sx={{ color: "#D0D5DD" }}>
-                        ·
-                      </Typography>
-                      <Button
-                        size="small"
-                        variant="text"
-                        onClick={() => treeTableRef.current?.collapseAll()}
-                        sx={{
-                          fontSize: "0.775rem",
-                          fontWeight: 600,
-                          color: "#667085",
-                          textTransform: "none",
-                          p: 0,
-                          minWidth: "auto",
-                        }}
-                      >
-                        Collapse
-                      </Button>
-                    </Stack>
-                  )}
-                </Box>
-
-                {/* Tree Table View */}
-                <Box sx={{ overflow: "hidden" }}>
-                  {assemblyData && assemblyData.length > 0 ? (
-                    <TreeTable
-                      ref={treeTableRef}
-                      data={treeData}
-                      columns={treeColumns}
-                      idField="id"
-                      parentIdField="parentId"
-                      height={600}
-                      enableVirtualization={assemblyData.length > 80}
-                      onRowClick={(row) => {
-                        setSelectedNode(row);
-                      }}
-                    />
-                  ) : isLoading ? (
-                    <Box
+          {/* SOP Details Table */}
+          <TableCard>
+            <TableCardHeader
+              title={
+               "SOP Details"
+              }
+              count={treeData.length > 0 ? treeData.length : undefined}
+              actions={
+                treeData.length > 0 ? (
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Button
+                      size="small"
+                      variant="text"
+                      onClick={() => treeTableRef.current?.expandAll()}
                       sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        py: 8,
-                        color: "#667085",
+                        fontSize: "0.775rem",
+                        fontWeight: 600,
+                        color: "primary.main",
+                        textTransform: "none",
+                        p: 0,
+                        minWidth: "auto",
+                        "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
                       }}
                     >
-                      <CircularProgress size={32} color="primary" sx={{ mb: 2 }} />
-                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        Loading assembly tree structure...
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <EmptyState
-                      title="Apply filters to search"
-                      
-                      height={260}
-                    />
-                  )}
+                      Expand all
+                    </Button>
+                    <Typography variant="caption" sx={{ color: "#D0D5DD" }}>
+                      ·
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="text"
+                      onClick={() => treeTableRef.current?.collapseAll()}
+                      sx={{
+                        fontSize: "0.775rem",
+                        fontWeight: 600,
+                        color: "#667085",
+                        textTransform: "none",
+                        p: 0,
+                        minWidth: "auto",
+                        "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
+                      }}
+                    >
+                      Collapse
+                    </Button>
+                  </Stack>
+                ) : undefined
+              }
+            />
+
+            {/* Tree Table View */}
+            <Box sx={{ overflow: "hidden" }}>
+              {isLoading ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    py: 8,
+                    color: "#667085",
+                  }}
+                >
+                  <CircularProgress size={32} color="primary" sx={{ mb: 2 }} />
+                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                    Loading SOP details...
+                  </Typography>
                 </Box>
-              </Paper>
-            </Grid>
-          </Grid>
+              ) : (
+                <TreeTable
+                  ref={treeTableRef}
+                  data={treeData}
+                  columns={treeColumns}
+                  idField="id"
+                  parentIdField="parentId"
+                  height={600}
+                  enableVirtualization={Boolean(assemblyData && assemblyData.length > 80)}
+                  onRowClick={(row) => {
+                    setSelectedNode(row);
+                  }}
+                />
+              )}
+            </Box>
+          </TableCard>
         </>
       ) : (
         /* BOM Details Tab */
@@ -1048,7 +1002,12 @@ const ViewSOP: React.FC = () => {
             pb: 1,
           }}
         >
-          {activeTab === "sop" ? "Export Assembly Tree (SOP)" : "Export BOM Details"}
+          <Box display="flex" alignItems="center" gap={1}>
+            <DownloadIcon sx={{ color: "primary.main" }} />
+            <Typography variant="h6" fontWeight="700" color="primary.main">
+              {activeTab === "sop" ? "Export SOP Details" : "Export BOM Details"}
+            </Typography>
+          </Box>
           <IconButton size="small" onClick={() => setExportDialogOpen(false)} disabled={isExporting}>
             <CloseIcon />
           </IconButton>

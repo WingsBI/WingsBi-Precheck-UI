@@ -161,8 +161,51 @@ export const commonDataGridSx = {
     maxHeight: `${TABLE_TOKENS.rowHeight}px !important`,
     "&:hover": { backgroundColor: TABLE_TOKENS.rowHoverColor },
   },
-  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-columnHeader:focus": {
+  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus-visible, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader:focus-visible, & .MuiDataGrid-columnHeader--focused, & .MuiDataGrid-columnHeaderTitleContainer:focus, & .MuiDataGrid-columnHeaderTitleContainer:focus-within": {
     outline: "none !important",
+    boxShadow: "none !important",
+    border: "none !important",
+  },
+  "& .MuiDataGrid-sortIcon": {
+    color: "#6D2A8F !important",
+    fontSize: "1rem !important",
+  },
+  "& .MuiDataGrid-columnHeader--sortable .MuiDataGrid-iconButtonContainer": {
+    color: "#6D2A8F !important",
+    visibility: "visible !important",
+    opacity: "1 !important",
+    width: "auto !important",
+    "& .MuiIconButton-root": {
+      color: "#6D2A8F !important",
+      padding: "2px !important",
+      opacity: "1 !important",
+    },
+  },
+  "& .MuiDataGrid-columnHeader:not(.MuiDataGrid-columnHeader--sortable) .MuiDataGrid-iconButtonContainer": {
+    display: "none !important",
+    visibility: "hidden !important",
+    width: "0 !important",
+  },
+  "& .MuiDataGrid-columnHeader--sortable:not(.MuiDataGrid-columnHeader--sorted) .MuiDataGrid-sortIcon": {
+    opacity: "0.45 !important",
+    color: "#6D2A8F !important",
+  },
+  "& .MuiDataGrid-overlayWrapper": {
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-overlayWrapperInner": {
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-overlay": {
+    backgroundColor: "#ffffff !important",
+    display: "flex !important",
+    alignItems: "center !important",
+    justifyContent: "center !important",
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon": {
+    opacity: "1 !important",
+    color: "#6D2A8F !important",
   },
   "& .MuiDataGrid-footerContainer": {
     borderTop: `1px solid ${TABLE_TOKENS.footerBorderColor}`,
@@ -259,8 +302,51 @@ export const adminDataGridSx = {
     "&.Mui-selected": { backgroundColor: "#F1F5F9 !important" },
     "&.Mui-selected:hover": { backgroundColor: "#F1F5F9 !important" },
   },
-  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within": {
+  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus-visible, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader:focus-visible, & .MuiDataGrid-columnHeader--focused, & .MuiDataGrid-columnHeaderTitleContainer:focus, & .MuiDataGrid-columnHeaderTitleContainer:focus-within": {
     outline: "none !important",
+    boxShadow: "none !important",
+    border: "none !important",
+  },
+  "& .MuiDataGrid-sortIcon": {
+    color: "#6D2A8F !important",
+    fontSize: "1rem !important",
+  },
+  "& .MuiDataGrid-columnHeader--sortable .MuiDataGrid-iconButtonContainer": {
+    color: "#6D2A8F !important",
+    visibility: "visible !important",
+    opacity: "1 !important",
+    width: "auto !important",
+    "& .MuiIconButton-root": {
+      color: "#6D2A8F !important",
+      padding: "2px !important",
+      opacity: "1 !important",
+    },
+  },
+  "& .MuiDataGrid-columnHeader:not(.MuiDataGrid-columnHeader--sortable) .MuiDataGrid-iconButtonContainer": {
+    display: "none !important",
+    visibility: "hidden !important",
+    width: "0 !important",
+  },
+  "& .MuiDataGrid-columnHeader--sortable:not(.MuiDataGrid-columnHeader--sorted) .MuiDataGrid-sortIcon": {
+    opacity: "0.45 !important",
+    color: "#6D2A8F !important",
+  },
+  "& .MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon": {
+    opacity: "1 !important",
+    color: "#6D2A8F !important",
+  },
+  "& .MuiDataGrid-overlayWrapper": {
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-overlayWrapperInner": {
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-overlay": {
+    backgroundColor: "#ffffff !important",
+    display: "flex !important",
+    alignItems: "center !important",
+    justifyContent: "center !important",
+    minHeight: "260px !important",
   },
   "& .MuiDataGrid-footerContainer": {
     borderTop: `1px solid ${TABLE_TOKENS.footerBorderColor} !important`,

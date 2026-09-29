@@ -68,7 +68,7 @@ import PageHeader from '../../components/ui/PageHeader';
 import ActionButton from '../../components/ui/ActionButton';
 import ConfirmationDialog from '../../components/ui/ConfirmationDialog';
 import { TableCard } from '../../components/ui/TableCard';
-import { ExpandedDetailsTable, type ExpandedTableColumn } from '../../components/ui';
+import { ExpandedDetailsTable, SortableTableHeader, type ExpandedTableColumn } from '../../components/ui';
 import { commonExpandedRowStyle, commonTableHeaderStyle, commonTableRowStyle, commonTableCellCompactCheckbox } from '../../components/tableStyles';
 import ToastSnackbar from '../../components/ui/ToastSnackbar';
 import ActiveFilterChips, { type FilterChip } from '../../components/ui/ActiveFilterChips';
@@ -176,79 +176,7 @@ const renderStatusBadge = (statusStr: string) => {
 
 
 
-const isAllowedSortColumn = (labelStr: string, keyStr?: string): boolean => {
-  const normLabel = (labelStr || "").toLowerCase().trim();
-  const normKey = (keyStr || "").toLowerCase().trim();
 
-  if (normLabel.startsWith("sr") || normKey === "sr") {
-    return true;
-  }
-  if (normLabel.includes("qrcode") || normKey === "qrcodenumber") {
-    return true;
-  }
-  if (normLabel.includes("item code") || normKey === "lnitemcode") {
-    return true;
-  }
-  if (normLabel.includes("part number") || normKey === "drawingnumber") {
-    return true;
-  }
-
-  return false;
-};
-
-const TableHeaderSortable = ({
-  label,
-  columnKey,
-  sortColumn,
-  sortDirection,
-  onSort,
-  minWidth = '120px',
-}: {
-  label: string;
-  columnKey: string;
-  sortColumn: string;
-  sortDirection: 'asc' | 'desc';
-  onSort: (col: string) => void;
-  minWidth?: string;
-}) => {
-  const canSort = isAllowedSortColumn(label, columnKey);
-  const isSorted = canSort && sortColumn === columnKey;
-  return (
-    <TableCell
-      onClick={() => canSort && onSort(columnKey)}
-      sx={{
-        fontWeight: 600,
-        minWidth,
-        textAlign: 'left',
-        py: '8px',
-        px: '12px',
-        whiteSpace: 'nowrap',
-        color: '#475467',
-        fontSize: '0.8rem',
-        cursor: canSort ? 'pointer' : 'default',
-        userSelect: 'none',
-        borderBottom: '1px solid #eaecf0',
-        bgcolor: '#f9fafb !important',
-        '&:hover': { color: canSort ? '#101828' : '#475467' },
-      }}
-    >
-      <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-        {label}
-        {canSort && (
-          isSorted ? (
-            sortDirection === 'asc' ? (
-              <ArrowUpwardIcon sx={{ fontSize: 14, color: 'primary.main' }} />
-            ) : (
-              <ArrowDownwardIcon sx={{ fontSize: 14, color: 'primary.main' }} />
-            )
-          ) : (
-            <ArrowDownwardIcon sx={{ fontSize: 14, color: '#98a2b3', opacity: 0.5 }} />
-          )
-        )}
-      </Box>
-    </TableCell>
-  );
-};
 
 const Row = ({ sr, barcodeDetails, isSelected, onSelect, onSplit, showBatchId, onDisable, returnFilters }: {
   sr?: number;
@@ -1043,8 +971,8 @@ const ViewBarcode: React.FC = () => {
   const [selectedExportColumns, setSelectedExportColumns] = useState<string[]>([]);
 
   const handleOpenExportDialog = () => {
-    setExportMode("custom");
-    setSelectedExportColumns(ALL_EXPORTABLE_COLUMNS.map((c) => c.key));
+    setExportMode("all");
+    setSelectedExportColumns([]);
     setExportDialogOpen(true);
   };
 
@@ -1730,18 +1658,84 @@ const ViewBarcode: React.FC = () => {
                     />
                   </TableCell>
 
-                  <TableHeaderSortable label="Sr.No" columnKey="sr" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="65px" />
-                  <TableHeaderSortable label="QRCode Number" columnKey="qrCodeNumber" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="140px" />
-                  <TableHeaderSortable label="Prod Series" columnKey="productionSeries" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="120px" />
-                  <TableHeaderSortable label="Item Code" columnKey="lnItemCode" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="120px" />
-                  <TableHeaderSortable label="Part Number" columnKey="drawingNumber" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="150px" />
-                  <TableHeaderSortable label="Item Description" columnKey="nomenclature" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="160px" />
-                  <TableHeaderSortable label="Component Type" columnKey="componentType" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="130px" />
-                  <TableHeaderSortable label="Consumed In Part" columnKey="consumedInDrawing" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="150px" />
-                  <TableHeaderSortable label="ID Number" columnKey="idNumber" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="130px" />
+                  <SortableTableHeader
+                    label="Sr.No"
+                    columnKey="sr"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    align="center"
+                    minWidth="65px"
+                    isSortable={true}
+                  />
+                  <SortableTableHeader
+                    label="QRCode Number"
+                    columnKey="qrCodeNumber"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    align="left"
+                    minWidth="140px"
+                    isSortable={true}
+                  />
+                  <SortableTableHeader
+                    label="Prod Series"
+                    align="left"
+                    minWidth="120px"
+                    isSortable={false}
+                  />
+                  <SortableTableHeader
+                    label="Item Code"
+                    columnKey="lnItemCode"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    align="left"
+                    minWidth="120px"
+                    isSortable={true}
+                  />
+                  <SortableTableHeader
+                    label="Part Number"
+                    columnKey="drawingNumber"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    align="left"
+                    minWidth="150px"
+                    isSortable={true}
+                  />
+                  <SortableTableHeader
+                    label="Item Description"
+                    align="left"
+                    minWidth="160px"
+                    isSortable={false}
+                  />
+                  <SortableTableHeader
+                    label="Component Type"
+                    align="left"
+                    minWidth="130px"
+                    isSortable={false}
+                  />
+                  <SortableTableHeader
+                    label="Consumed In Part"
+                    align="left"
+                    minWidth="150px"
+                    isSortable={false}
+                  />
+                  <SortableTableHeader
+                    label="ID Number"
+                    align="left"
+                    minWidth="130px"
+                    isSortable={false}
+                  />
 
                   {showBatchIdColumn && (
-                    <TableHeaderSortable label="Batch ID" columnKey="batchId" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} minWidth="110px" />
+                    <SortableTableHeader
+                      label="Batch ID"
+                      align="left"
+                      minWidth="110px"
+                      isSortable={false}
+                    />
                   )}
 
                   <TableCell sx={{ ...commonTableHeaderStyle, minWidth: '110px', textAlign: 'center' }}>
@@ -1821,7 +1815,12 @@ const ViewBarcode: React.FC = () => {
               pb: 1,
             }}
           >
-            Export QR Codes
+            <Box display="flex" alignItems="center" gap={1}>
+              <DownloadIcon sx={{ color: "primary.main" }} />
+              <Typography variant="h6" fontWeight="700" color="primary.main">
+                Export QR Codes
+              </Typography>
+            </Box>
             <IconButton size="small" onClick={() => setExportDialogOpen(false)} disabled={isDownloading}>
               <CloseIcon />
             </IconButton>

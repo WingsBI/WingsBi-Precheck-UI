@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -21,7 +21,6 @@ import {
   Avatar,
   Menu,
   MenuItem,
-  Stack,
   Collapse,
 
 } from "@mui/material";
@@ -50,11 +49,6 @@ import {
   People as PeopleIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
   Storage as StorageIcon,
-  PlayArrow as PlayArrowIcon,
-  Warehouse as WarehouseIcon,
-  MoveToInbox as MoveToInboxIcon,
-  Inventory as InventoryIcon,
-  PlaylistAddCheck as PlaylistAddCheckIcon,
   PlaylistAddCheck,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
@@ -104,6 +98,7 @@ const Main = styled("main")(({ theme }) => ({
   padding: 0,
   marginLeft: 0,
   minWidth: 0,
+  overflowX: "hidden",
   [theme.breakpoints.up("lg")]: {
     paddingLeft: 0,
   },
@@ -125,6 +120,7 @@ const StyledDrawer = styled(Drawer, {
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
+  overflowX: "hidden",
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -135,7 +131,7 @@ const StyledDrawer = styled(Drawer, {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    overflowX: "hidden",
+    overflowX: "hidden !important",
     background: "#ffffff",
     borderRight: "1px solid rgba(0, 0, 0, 0.08)",
     boxShadow: "2px 0 8px rgba(0,0,0,0.05)",
@@ -143,6 +139,8 @@ const StyledDrawer = styled(Drawer, {
     top: 0,
     height: "100vh",
     zIndex: 1200,
+    display: "flex",
+    flexDirection: "column",
   },
 }));
 
@@ -319,7 +317,7 @@ export default function Layout() {
       icon: <AdminPanelSettingsIcon />,
       path: "/adminmaster",
       subItems: [
-         {
+        {
           text: "Bulk Import",
           pageName: "Bulk Import",
           icon: <CloudUploadIcon />,
@@ -343,7 +341,7 @@ export default function Layout() {
           icon: <StorageIcon />,
           path: "/adminmaster/master-data",
         },
-       
+
       ],
     },
   ];
@@ -536,7 +534,19 @@ export default function Layout() {
         </IconButton>
       </LogoBox>
 
-      <List sx={{ flex: 1, py: 1 }}>
+      <List
+        sx={{
+          flex: 1,
+          py: 1,
+          overflowY: isSidebarOpen || !isDesktopVersion ? "auto" : "hidden",
+          overflowX: "hidden",
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
         {getFilteredMenuItems().map((item) => {
           const isActive = isItemActive(item, location.pathname);
           return (
@@ -687,11 +697,119 @@ export default function Layout() {
           );
         })}
       </List>
+
+      {/* Bottom Profile Card */}
+      <Box
+        sx={{
+          mt: "auto",
+          p: isSidebarOpen || !isDesktopVersion ? 1.25 : 0.75,
+          borderTop: "1px solid rgba(0, 0, 0, 0.08)",
+          backgroundColor: "#ffffff",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Tooltip
+          title={!isSidebarOpen && isDesktopVersion ? `${user?.username || "John Smith"} (${user?.role || user?.department || "Administrator"})` : ""}
+          placement="right"
+          arrow
+        >
+          <ListItemButton
+            onClick={handleProfileMenuOpen}
+            sx={{
+              p: isSidebarOpen || !isDesktopVersion ? 1 : 0.75,
+              px: isSidebarOpen || !isDesktopVersion ? 1 : 0,
+              borderRadius: "14px",
+              width: "100%",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(109, 42, 143, 0.06)",
+              },
+              display: "flex",
+              alignItems: "center",
+              justifyContent: isSidebarOpen || !isDesktopVersion ? "space-between" : "center",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: isSidebarOpen || !isDesktopVersion ? 1.5 : 0,
+                justifyContent: isSidebarOpen || !isDesktopVersion ? "flex-start" : "center",
+                width: isSidebarOpen || !isDesktopVersion ? "auto" : "100%",
+                minWidth: 0,
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: "#E9D5FF",
+                  color: "#6D2A8F",
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                  boxShadow: "0 2px 6px rgba(109, 42, 143, 0.15)",
+                  flexShrink: 0,
+                  mx: isSidebarOpen || !isDesktopVersion ? 0 : "auto",
+                }}
+              >
+                {user?.username
+                  ? user.username
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase()
+                  : "JS"}
+              </Avatar>
+
+              {(isSidebarOpen || !isDesktopVersion) && (
+                <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 700,
+                      color: "#1F2937",
+                      fontSize: "0.875rem",
+                      lineHeight: 1.2,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {user?.username || "John Smith"}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "#6B7280",
+                      fontSize: "0.75rem",
+                      fontWeight: 400,
+                      display: "block",
+                      lineHeight: 1.2,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {user?.role || user?.department || "Administrator"}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            {(isSidebarOpen || !isDesktopVersion) && (
+              <ExpandMoreIcon sx={{ color: "#6B7280", fontSize: "1.2rem", ml: 1, flexShrink: 0 }} />
+            )}
+          </ListItemButton>
+        </Tooltip>
+      </Box>
     </>
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden", width: "100%" }}>
       <CssBaseline />
 
       {/* App Bar */}
@@ -716,108 +834,86 @@ export default function Layout() {
             <MenuIcon />
           </IconButton>
 
-          {/* Godrej Aerospace Title */}
+          {/* Wingsbi Logo & Title */}
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
+              gap: 1.2,
+              cursor: "pointer",
             }}
+            onClick={handleDrawerToggle}
           >
-            <img
-              src="/assets/logo.jpg"
-              alt="Wingsbi Logo"
-              style={{ height: 28, marginRight: 8, borderRadius: 8 }}
-            />
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{
-                  fontWeight: 600,
-                  fontSize: "1.05rem",
-                  letterSpacing: 0.5,
-                  color: "white",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                Wingsbi
-              </Typography>
+            <Box
+              sx={{
+                width: 34,
+                height: 34,
+                borderRadius: "8px",
+                bgcolor: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: "4px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+              }}
+            >
+              <img
+                src="/assets/logo.jpg"
+                alt="Wingsbi Logo"
+                style={{ height: 22, width: "auto", objectFit: "contain" }}
+              />
             </Box>
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                fontWeight: 700,
+                fontSize: "1.1rem",
+                letterSpacing: 0.3,
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              Wingsbi
+            </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* User Profile */}
-          {user && (
-            <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
-              <Stack
-                alignItems="flex-end"
-                sx={{ mr: 1.5, display: { xs: "none", sm: "flex" } }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 600, color: "white", fontSize: "0.825rem", lineHeight: 1.2 }}
-                >
-                  {user?.username}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "rgba(255,255,255,0.8)", fontSize: "0.7rem", lineHeight: 1.1 }}
-                >
-                  {user?.department} - {user?.role}
-                </Typography>
-              </Stack>
-              <IconButton
-                size="small"
-                edge="end"
-                aria-label="account of current user"
-                onClick={handleProfileMenuOpen}
-                sx={{
-                  padding: "4px",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    color: "white",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    border: "1.5px solid rgba(255,255,255,0.3)",
-                  }}
-                >
-                  {user?.username?.substring(0, 2).toUpperCase() || "U"}
-                </Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleProfileMenuClose}
-                onClick={handleProfileMenuClose}
-                PaperProps={{
-                  sx: {
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-                    borderRadius: 2,
-                    mt: 1,
-                  },
-                }}
-              >
-                <MenuItem onClick={handleLogout}>
-                  <ListItemIcon>
-                    <LogoutIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary="Logout" />
-                </MenuItem>
-              </Menu>
-            </Box>
-          )}
         </Toolbar>
       </StyledAppBar>
+
+      {/* Logout Dropdown Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleProfileMenuClose}
+        onClick={handleProfileMenuClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        PaperProps={{
+          sx: {
+            boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+            borderRadius: 2,
+            mb: 1,
+            minWidth: 160,
+          },
+        }}
+      >
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText primary="Logout" sx={{ color: "error.main" }} />
+        </MenuItem>
+      </Menu>
 
       <Drawer
         variant="temporary"

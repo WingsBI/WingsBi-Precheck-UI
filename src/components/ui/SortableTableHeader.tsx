@@ -57,6 +57,7 @@ export const SortableTableHeader: React.FC<SortableTableHeaderProps> = ({
       onClick={handleClick}
       sx={{
         fontWeight: 700,
+        fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         backgroundColor: COLOUR_ROLES.headerBg,
         color: COLOUR_ROLES.textSecondary,
         fontSize: "0.8rem",
@@ -69,7 +70,7 @@ export const SortableTableHeader: React.FC<SortableTableHeaderProps> = ({
         userSelect: "none",
         whiteSpace: "nowrap",
         "&:hover": {
-          color: isSortable && onSort ? COLOUR_ROLES.primary : COLOUR_ROLES.textSecondary,
+          color: isSortable && onSort ? COLOUR_ROLES.textSecondary: COLOUR_ROLES.textSecondary,
         },
         ...sx,
       }}

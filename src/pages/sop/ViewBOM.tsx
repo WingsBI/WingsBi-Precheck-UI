@@ -182,9 +182,9 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       assemblyInputValue ||
       (bomData && bomData.length > 0
         ? bomData[0]?.parentDrawingNumber ||
-          bomData[0]?.assemblyNumber ||
-          bomData[0]?.childDrawingNumber ||
-          ""
+        bomData[0]?.assemblyNumber ||
+        bomData[0]?.childDrawingNumber ||
+        ""
         : "");
     if (activeDwg) {
       dispatch(getBomDetails(activeDwg));
@@ -439,7 +439,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
               variant="body2"
               sx={{
                 fontWeight: level === 0 ? 600 : 500,
-                color: COLOUR_ROLES.textMain,
+                color: COLOUR_ROLES.textSecondary,
                 fontSize: "0.775rem",
                 whiteSpace: "nowrap",
               }}
@@ -455,7 +455,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       label: "Item Description",
       minWidth: 150,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.775rem" }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -467,7 +467,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       format: (value: any) => (
         <Typography
           variant="body2"
-          sx={{ fontSize: "0.775rem", fontWeight: 500 }}
+          sx={{ fontSize: "0.775rem", fontWeight: 500, color: COLOUR_ROLES.textSecondary }}
         >
           {value || "-"}
         </Typography>
@@ -488,7 +488,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       minWidth: 60,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontWeight: 500, color: COLOUR_ROLES.textMain, fontSize: "0.775rem" }}>
+        <Typography variant="body2" sx={{ fontWeight: 500, color: COLOUR_ROLES.textSecondary, fontSize: "0.775rem" }}>
           {value || "0"}
         </Typography>
       ),
@@ -499,7 +499,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       minWidth: 80,
       align: "center" as const,
       format: (value: any) => (
-        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textMain }}>
+        <Typography variant="body2" sx={{ fontSize: "0.775rem", color: COLOUR_ROLES.textSecondary }}>
           {value || "-"}
         </Typography>
       ),
@@ -615,7 +615,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
       <TableCard>
         <TableCardHeader
           title="BOM Details"
-          
+
           actions={
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
               {bomData && bomData.length > 0 && (
@@ -659,37 +659,37 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
               )}
 
               {/* Add Button */}
-                  <ActionButton
-                    variant="primary"
-                    size="compact"
-                    disabled={!hasEditBomAccess}
-                    startIcon={<AddIcon sx={{ fontSize: "0.95rem" }} />}
-                    onClick={() => {
-                      const parentDwg =
-                        selectedAssembly?.drawingNumber ||
-                        selectedAssemblyNumber ||
-                        assemblyInputValue ||
-                        (bomData && bomData.length > 0
-                          ? bomData[0]?.parentDrawingNumber ||
-                            bomData[0]?.assemblyNumber ||
-                            bomData[0]?.childDrawingNumber ||
-                            ""
-                          : "");
-                      const parentLn =
-                        selectedAssembly?.lnItemCode ||
-                        (bomData && bomData.length > 0 ? bomData[0]?.lnItemCode || "" : "");
+              <ActionButton
+                variant="primary"
+                size="compact"
+                disabled={!hasEditBomAccess}
+                startIcon={<AddIcon sx={{ fontSize: "0.95rem" }} />}
+                onClick={() => {
+                  const parentDwg =
+                    selectedAssembly?.drawingNumber ||
+                    selectedAssemblyNumber ||
+                    assemblyInputValue ||
+                    (bomData && bomData.length > 0
+                      ? bomData[0]?.parentDrawingNumber ||
+                      bomData[0]?.assemblyNumber ||
+                      bomData[0]?.childDrawingNumber ||
+                      ""
+                      : "");
+                  const parentLn =
+                    selectedAssembly?.lnItemCode ||
+                    (bomData && bomData.length > 0 ? bomData[0]?.lnItemCode || "" : "");
 
-                      setAddParentNumber(parentDwg);
-                      setAddParentLnCode(parentLn);
-                      setSelectedChildOption(null);
-                      setChildOptions([]);
-                      setAddFindNo("");
-                      setAddQuantity(1);
-                      setOpenAddDialog(true);
-                    }}
-                  >
-                    Add
-                  </ActionButton>
+                  setAddParentNumber(parentDwg);
+                  setAddParentLnCode(parentLn);
+                  setSelectedChildOption(null);
+                  setChildOptions([]);
+                  setAddFindNo("");
+                  setAddQuantity(1);
+                  setOpenAddDialog(true);
+                }}
+              >
+                Add
+              </ActionButton>
             </Box>
           }
         />
@@ -753,7 +753,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
                   <EmptyState
                     colSpan={columns.length}
                     title="Apply filters to search"
-                    
+
                     height={260}
                   />
                 )}
@@ -796,8 +796,8 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
               typeof option === "string"
                 ? option
                 : option.drawingNumber
-                ? `${option.drawingNumber}${option.lnItemCode ? ` - ${option.lnItemCode}` : ""}`
-                : ""
+                  ? `${option.drawingNumber}${option.lnItemCode ? ` - ${option.lnItemCode}` : ""}`
+                  : ""
             }
             renderInput={(params) => (
               <TextField
@@ -945,7 +945,7 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
           <Button
-          size="small"
+            size="small"
             onClick={() => setOpenDeleteDialog(false)}
             sx={{ color: "#344054", textTransform: "none", fontWeight: 600 }}
           >

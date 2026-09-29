@@ -26,6 +26,8 @@ import {
   Typography,
   IconButton,
   Button,
+  Paper,
+  Divider,
 } from "@mui/material";
 import { Close as CloseIcon, FileDownload as FileDownloadIcon } from "@mui/icons-material";
 import ToastSnackbar from "../../components/ui/ToastSnackbar";
@@ -1714,7 +1716,8 @@ const MakePrecheck: React.FC = () => {
   return (
     <Box
       sx={{
-        py: { xs: 0.5, sm: 0.75 }, px: { xs: 1.5, sm: 2 },
+        py: 1,
+        px: { xs: 1.5, sm: 2 },
         height: "calc(100vh - 64px)",
         boxSizing: "border-box",
         display: "flex",
@@ -1745,156 +1748,172 @@ const MakePrecheck: React.FC = () => {
         isLoadingLocal={isLoadingLocal}
       />
 
-      {/* Filter Controls Bar */}
-      <PrecheckFormControls
-        selectedPO={selectedPO}
-        poNumbers={poNumbers}
-        poLoading={poLoading}
-        onPOSearchChange={(inputValue) => setPOSearchText(inputValue)}
-        onPOChange={(newValue) => {
-          isClearedRef.current = false;
-          if (newValue) {
-            setSelectedPO(newValue);
-            // Auto-fill form fields from PO using precise drawing matching
-            const matchingDrawing = findMatchingDrawingInList(allDrawingNumbers, newValue);
-            if (matchingDrawing) {
-              setSelectedDrawing(matchingDrawing);
-            } else if (newValue.drawingNumberId || newValue.drawingNumber || newValue.lnItemCode) {
-              setSelectedDrawing({
-                id: newValue.drawingNumberId,
-                drawingNumber: newValue.drawingNumber || "",
-                lnItemCode: newValue.lnItemCode || "",
-                nomenclature: newValue.nomenclature || "",
-                componentType: newValue.componentType || "",
-              });
-            }
-
-            if (newValue.productionSeries || newValue.prodSeriesId) {
-              let matchingPS = null;
-              if (productionSeriesData && productionSeriesData.length > 0) {
-                matchingPS = productionSeriesData.find(
-                  (ps: any) =>
-                    (newValue.prodSeriesId && ps.id === newValue.prodSeriesId) ||
-                    (ps.productionSeries && newValue.productionSeries && String(ps.productionSeries).trim().toLowerCase() === String(newValue.productionSeries).trim().toLowerCase()),
-                );
-              }
-              if (matchingPS) {
-                setSelectedProductionSeries(matchingPS);
-              } else {
-                setSelectedProductionSeries({
-                  id: newValue.prodSeriesId,
-                  productionSeries: newValue.productionSeries || "",
+      {/* Single Consolidated Container with Dividers */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: "12px",
+          border: "1px solid #EAECF0",
+          backgroundColor: "#FFFFFF",
+          boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05)",
+          overflow: "hidden",
+        }}
+      >
+        {/* Filter Controls Bar */}
+        <PrecheckFormControls
+          selectedPO={selectedPO}
+          poNumbers={poNumbers}
+          poLoading={poLoading}
+          onPOSearchChange={(inputValue) => setPOSearchText(inputValue)}
+          onPOChange={(newValue) => {
+            isClearedRef.current = false;
+            if (newValue) {
+              setSelectedPO(newValue);
+              // Auto-fill form fields from PO using precise drawing matching
+              const matchingDrawing = findMatchingDrawingInList(allDrawingNumbers, newValue);
+              if (matchingDrawing) {
+                setSelectedDrawing(matchingDrawing);
+              } else if (newValue.drawingNumberId || newValue.drawingNumber || newValue.lnItemCode) {
+                setSelectedDrawing({
+                  id: newValue.drawingNumberId,
+                  drawingNumber: newValue.drawingNumber || "",
+                  lnItemCode: newValue.lnItemCode || "",
+                  nomenclature: newValue.nomenclature || "",
+                  componentType: newValue.componentType || "",
                 });
               }
+
+              if (newValue.productionSeries || newValue.prodSeriesId) {
+                let matchingPS = null;
+                if (productionSeriesData && productionSeriesData.length > 0) {
+                  matchingPS = productionSeriesData.find(
+                    (ps: any) =>
+                      (newValue.prodSeriesId && ps.id === newValue.prodSeriesId) ||
+                      (ps.productionSeries && newValue.productionSeries && String(ps.productionSeries).trim().toLowerCase() === String(newValue.productionSeries).trim().toLowerCase()),
+                  );
+                }
+                if (matchingPS) {
+                  setSelectedProductionSeries(matchingPS);
+                } else {
+                  setSelectedProductionSeries({
+                    id: newValue.prodSeriesId,
+                    productionSeries: newValue.productionSeries || "",
+                  });
+                }
+              }
+
+              if (newValue.startIdNumber !== undefined && newValue.startIdNumber !== null) {
+                setIdNumber(newValue.startIdNumber.toString());
+              }
+            } else {
+              setSelectedPO(null);
+              setSelectedDrawing(null);
+              setSelectedProductionSeries(null);
+              setIdNumber("");
             }
+          }}
+          selectedDrawing={selectedDrawing}
+          allDrawingNumbers={allDrawingNumbers}
+          drawingNumbersData={drawingNumbersData}
+          drawingLoading={drawingLoading}
+          isLnSearchLoading={isLnSearchLoading}
+          onLnSearchChange={(value) => updateDebouncedLnSearch(value)}
+          onDrawingSearchChange={(value) => debouncedDrawingSearch(value)}
+          onDrawingChange={(value) => setSelectedDrawing(value)}
+          selectedProductionSeries={selectedProductionSeries}
+          productionSeriesData={productionSeriesData}
+          prodSeriesLoading={prodSeriesLoading}
+          onProdSeriesSearchChange={() => debouncedProdSeriesSearch()}
+          onProdSeriesChange={(value) => setSelectedProductionSeries(value)}
+          idNumber={idNumber}
+          idOptions={idOptions}
+          onIdNumberChange={(val) => setIdNumber(val)}
+          onIdInputChange={(val) => setIdNumber(val)}
+          onApply={handleMakePrecheck}
+          onClear={handleReset}
+          isApplyEnabled={isMakePrecheckEnabled}
+          onReset={handleReset}
+          showAlertMessage={showAlertMessage}
+          selectedPOEndIdNumber={selectedPO?.endIdNumber}
+          selectedPOStartIdNumber={selectedPO?.startIdNumber}
+          selectedPOQuantity={selectedPO?.quantity}
+          isSubmitEnabled={isSubmitEnabled}
+          onExport={handleExport}
+          isSidebarOpen={isSidebarOpen}
+        />
 
-            if (newValue.startIdNumber !== undefined && newValue.startIdNumber !== null) {
-              setIdNumber(newValue.startIdNumber.toString());
-            }
-          } else {
-            setSelectedPO(null);
-            setSelectedDrawing(null);
-            setSelectedProductionSeries(null);
-            setIdNumber("");
-          }
-        }}
-        selectedDrawing={selectedDrawing}
-        allDrawingNumbers={allDrawingNumbers}
-        drawingNumbersData={drawingNumbersData}
-        drawingLoading={drawingLoading}
-        isLnSearchLoading={isLnSearchLoading}
-        onLnSearchChange={(value) => updateDebouncedLnSearch(value)}
-        onDrawingSearchChange={(value) => debouncedDrawingSearch(value)}
-        onDrawingChange={(value) => setSelectedDrawing(value)}
-        selectedProductionSeries={selectedProductionSeries}
-        productionSeriesData={productionSeriesData}
-        prodSeriesLoading={prodSeriesLoading}
-        onProdSeriesSearchChange={() => debouncedProdSeriesSearch()}
-        onProdSeriesChange={(value) => setSelectedProductionSeries(value)}
-        idNumber={idNumber}
-        idOptions={idOptions}
-        onIdNumberChange={(val) => setIdNumber(val)}
-        onIdInputChange={(val) => setIdNumber(val)}
-        onApply={handleMakePrecheck}
-        onClear={handleReset}
-        isApplyEnabled={isMakePrecheckEnabled}
-        onReset={handleReset}
-        showAlertMessage={showAlertMessage}
-        selectedPOEndIdNumber={selectedPO?.endIdNumber}
-        selectedPOStartIdNumber={selectedPO?.startIdNumber}
-        selectedPOQuantity={selectedPO?.quantity}
-        isSubmitEnabled={isSubmitEnabled}
-        onExport={handleExport}
-        isSidebarOpen={isSidebarOpen}
-      />
+        <Divider sx={{ borderColor: "#EAECF0" }} />
 
-      {/* Action Bar + Header + Scanner Hero Panel */}
-      <PrecheckActionBar
-        barcodeText={barcodeText}
-        isSidebarOpen={isSidebarOpen}
-        showResults={showResults}
-        searchResultsLength={searchResults.length}
-        isMakePrecheckEnabled={isMakePrecheckEnabled}
-        isSubmitEnabled={isSubmitEnabled}
-        isLoadingLocal={isLoadingLocal}
-        uploadInProgress={uploadInProgress}
-        downloadTemplateInProgress={downloadTemplateInProgress}
-        idOptionsLength={idOptions.length}
-        selectedDrawingNumber={selectedDrawing?.drawingNumber || ""}
-        selectedProductionSeries={selectedProductionSeries?.productionSeries || ""}
-        idNumber={idNumber}
-        selectedPONumber={selectedPO?.productionOrderNumber || ""}
-        selectedLnItemCode={selectedDrawing?.lnItemCode || ""}
-        searchResults={searchResults}
-        onExport={handleExport}
-        onReset={handleReset}
-        onBarcodeChange={handleBarcodeChange}
-        onBarcodeKeyDown={handleBarcodeKeyDown}
-        onOpenScanner={handleOpenScanner}
-        onUploadExcel={() => excelFileInputRef.current?.click()}
-        onDownloadTemplate={handleDownloadTemplate}
-        onMakePrecheck={handleMakePrecheck}
-        onSubmitPrecheck={handleSubmitPrecheck}
-        onReject={() => navigate("/verification/material-requisition")}
-        isAdminOrHead={isAdminOrHead}
-        isAddEnabled={isSubmitEnabled}
-        onAddBomDrawingClick={() => setAddBomDrawingOpen(true)}
-      />
+        {/* Action Bar + Header + Scanner Hero Panel */}
+        <PrecheckActionBar
+          barcodeText={barcodeText}
+          isSidebarOpen={isSidebarOpen}
+          showResults={showResults}
+          searchResultsLength={searchResults.length}
+          isMakePrecheckEnabled={isMakePrecheckEnabled}
+          isSubmitEnabled={isSubmitEnabled}
+          isLoadingLocal={isLoadingLocal}
+          uploadInProgress={uploadInProgress}
+          downloadTemplateInProgress={downloadTemplateInProgress}
+          idOptionsLength={idOptions.length}
+          selectedDrawingNumber={selectedDrawing?.drawingNumber || ""}
+          selectedProductionSeries={selectedProductionSeries?.productionSeries || ""}
+          idNumber={idNumber}
+          selectedPONumber={selectedPO?.productionOrderNumber || ""}
+          selectedLnItemCode={selectedDrawing?.lnItemCode || ""}
+          searchResults={searchResults}
+          onExport={handleExport}
+          onReset={handleReset}
+          onBarcodeChange={handleBarcodeChange}
+          onBarcodeKeyDown={handleBarcodeKeyDown}
+          onOpenScanner={handleOpenScanner}
+          onUploadExcel={() => excelFileInputRef.current?.click()}
+          onDownloadTemplate={handleDownloadTemplate}
+          onMakePrecheck={handleMakePrecheck}
+          onSubmitPrecheck={handleSubmitPrecheck}
+          onReject={() => navigate("/verification/material-requisition")}
+          isAdminOrHead={isAdminOrHead}
+          isAddEnabled={isSubmitEnabled}
+          onAddBomDrawingClick={() => setAddBomDrawingOpen(true)}
+        />
 
-      {/* BOM Details Table */}
-      <PrecheckTable
-        paginatedResults={paginatedResults}
-        filteredResults={filteredResults}
-        searchResults={searchResults}
-        isLoading={isLoadingLocal}
-        showResults={showResults}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        selectedRow={selectedRow}
-        expandedRows={expandedRows}
-        maxPrecheckDetailsIdMap={maxPrecheckDetailsIdMap}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
-        onRowExpand={handleRowExpand}
-        onRowDoubleClick={handleRowDoubleClick}
-        onAddRow={handleAddRow}
-        onEditClick={handleEditClick}
-        onUndoScan={handleUndoScan}
-        onRemarksChange={handleRemarksChange}
-        onUndoPrecheck={handleRemovePrecheck}
-        onDeletePrecheck={handleDeletePrecheck}
-        onRejectClick={(item) => {
-          setSelectedRowForMaterialReq(item);
-          setMaterialReqDialogOpen(true);
-        }}
-        orderBy={orderBy}
-        order={order}
-        onRequestSort={handleRequestSort}
-        onExportBom={handleExport}
-        isExportEnabled={isSubmitEnabled}
-        selectedStatus={selectedStatus}
-        onStatusChange={handleStatusChange}
-      />
+        <Divider sx={{ borderColor: "#EAECF0" }} />
+
+        {/* BOM Details Table */}
+        <PrecheckTable
+          paginatedResults={paginatedResults}
+          filteredResults={filteredResults}
+          searchResults={searchResults}
+          isLoading={isLoadingLocal}
+          showResults={showResults}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          selectedRow={selectedRow}
+          expandedRows={expandedRows}
+          maxPrecheckDetailsIdMap={maxPrecheckDetailsIdMap}
+          onChangePage={handleChangePage}
+          onChangeRowsPerPage={handleChangeRowsPerPage}
+          onRowExpand={handleRowExpand}
+          onRowDoubleClick={handleRowDoubleClick}
+          onAddRow={handleAddRow}
+          onEditClick={handleEditClick}
+          onUndoScan={handleUndoScan}
+          onRemarksChange={handleRemarksChange}
+          onUndoPrecheck={handleRemovePrecheck}
+          onDeletePrecheck={handleDeletePrecheck}
+          onRejectClick={(item) => {
+            setSelectedRowForMaterialReq(item);
+            setMaterialReqDialogOpen(true);
+          }}
+          orderBy={orderBy}
+          order={order}
+          onRequestSort={handleRequestSort}
+          onExportBom={handleExport}
+          isExportEnabled={isSubmitEnabled}
+          selectedStatus={selectedStatus}
+          onStatusChange={handleStatusChange}
+        />
+      </Paper>
 
       {/* Quantity Dialog */}
       <QuantityDialog
@@ -2080,7 +2099,13 @@ const MakePrecheck: React.FC = () => {
             pb: 1,
           }}
         >
-          Export Precheck Details
+          <Box display="flex" alignItems="center" gap={1}>
+            <FileDownloadIcon sx={{ color: "primary.main" }} />
+            <Typography variant="h6" fontWeight="700" color="primary.main">
+              Export Production Order 
+            </Typography>
+          </Box>
+         
           <IconButton size="small" onClick={() => setExportDialogOpen(false)}>
             <CloseIcon />
           </IconButton>

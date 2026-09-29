@@ -65,6 +65,7 @@ export const TableCardHeader: React.FC<TableCardHeaderProps> = ({
       backgroundColor: '#FFFFFF',
       flexWrap: 'wrap',
       gap: 1,
+      boxSizing: 'border-box',
       ...sx,
     }}
   >

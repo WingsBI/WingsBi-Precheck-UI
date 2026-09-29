@@ -52,6 +52,10 @@ interface PageHeaderProps {
   onBack?: () => void;
   /** If true, the title & subtitle are displayed as-is without case conversion */
   skipCaseConversion?: boolean;
+  /** Optional bottom margin override (defaults to 0.75 / 6px) */
+  mb?: number | string | object;
+  /** Custom sx overrides */
+  sx?: object;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
@@ -60,6 +64,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   actions,
   onBack,
   skipCaseConversion = false,
+  mb = 0.75,
+  sx,
 }) => {
   const displayTitle =
     typeof title === 'string'
@@ -79,9 +85,10 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        mb: 2,
+        mb: mb,
         flexWrap: 'wrap',
         gap: 1,
+        ...sx,
       }}
     >
       {/* Back button + Title + Info icon */}

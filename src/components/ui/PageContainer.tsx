@@ -20,7 +20,7 @@ interface PageContainerProps {
 
 const PageContainer: React.FC<PageContainerProps> = ({
   children,
-  maxWidth = spacing.maxContentWidth,
+  maxWidth = 1600,
   sx,
 }) => (
   <Box
@@ -28,8 +28,9 @@ const PageContainer: React.FC<PageContainerProps> = ({
       width: '100%',
       maxWidth,
       mx: 'auto',
-      py: spacing.pagePaddingY,
-      px: spacing.pagePaddingX,
+      py: 1,
+      px: { xs: 1, sm: 2 },
+      boxSizing: 'border-box',
       ...sx,
     }}
   >

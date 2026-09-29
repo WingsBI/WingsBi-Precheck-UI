@@ -1070,7 +1070,7 @@ const ViewIRMSN: React.FC = () => {
           <TableContainer
             sx={{
               borderTop: "1px solid #EAECF0",
-              minHeight: 320,
+              minHeight: 380,
               maxHeight: "calc(100vh - 310px)",
               overflow: "auto",
             }}
@@ -1080,12 +1080,9 @@ const ViewIRMSN: React.FC = () => {
                 <TableRow>
                   <SortableTableHeader
                     label="Sr.No"
-                    sortKey="id"
-                    activeSortColumn={sortColumn}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
                     align="center"
                     minWidth={60}
+                    isSortable={false}
                   />
                   <SortableTableHeader
                     label="IR/MSN No."
@@ -1096,6 +1093,7 @@ const ViewIRMSN: React.FC = () => {
                     onSort={handleSort}
                     align="center"
                     minWidth={130}
+                    isSortable={true}
                   />
                   <TableCell align="center" sx={{ ...commonTableHeaderStyle, minWidth: 70 }}>
                     Type
@@ -1108,6 +1106,7 @@ const ViewIRMSN: React.FC = () => {
                     onSort={handleSort}
                     align="left"
                     minWidth={120}
+                    isSortable={true}
                   />
                   <SortableTableHeader
                     label="Item code"
@@ -1117,6 +1116,7 @@ const ViewIRMSN: React.FC = () => {
                     onSort={handleSort}
                     align="left"
                     minWidth={130}
+                    isSortable={true}
                   />
                   <SortableTableHeader
                     label="Part Number"
@@ -1126,6 +1126,7 @@ const ViewIRMSN: React.FC = () => {
                     onSort={handleSort}
                     align="left"
                     minWidth={150}
+                    isSortable={true}
                   />
                   <TableCell align="center" sx={{ ...commonTableHeaderStyle, minWidth: 90 }}>
                     ID Number
@@ -1135,12 +1136,9 @@ const ViewIRMSN: React.FC = () => {
                   </TableCell>
                   <SortableTableHeader
                     label="Date"
-                    sortKey="date"
-                    activeSortColumn={sortColumn}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
                     align="center"
                     minWidth={130}
+                    isSortable={false}
                   />
                   <TableCell align="left" sx={{ ...commonTableHeaderStyle, minWidth: 100 }}>
                     UserName

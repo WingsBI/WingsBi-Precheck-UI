@@ -218,16 +218,19 @@ const ViewOrder: React.FC = () => {
 
   // Update QR code data when available components change
   useEffect(() => {
-    if (availableComponents && Array.isArray(availableComponents)) {
-      const mappedQrData: QRCodeItem[] = availableComponents.map((item: any) => ({
+    const rawList = Array.isArray(availableComponents)
+      ? availableComponents
+      : (availableComponents as any)?.data || [];
+    if (Array.isArray(rawList)) {
+      const mappedQrData: QRCodeItem[] = rawList.map((item: any) => ({
         qrCodeNumber: item.qrCodeNumber || item.qrCode || "",
-        id: item.id || item.idNumber || "",
+        id: item.idNumber || item.id || "",
         qty: item.quantity || item.qty || 0,
         status: item.status || "Available",
         location: item.location || item.storeLocation || "",
         expiry: item.expiryDate || item.expiry || "",
         mfg: item.manufacturingDate || item.mfg || "",
-        remainingQuantity: item.remainingQuantity || 0,
+        remainingQuantity: item.remainingQuantity !== undefined ? item.remainingQuantity : item.quantity || 0,
         remarks: item.remarks || "-",
       }));
       setQrCodeData(mappedQrData);
@@ -371,13 +374,14 @@ const ViewOrder: React.FC = () => {
     <TableContainer
       sx={{
         overflowX: "auto",
+        overflowY: "auto",
         flexGrow: 1,
       }}
     >
       <Table stickyHeader size="small" sx={{ width: "100%" }}>
         <TableHead>
           <TableRow>
-            <SortableTableHeader label="Sr" align="center" isSortable={false} />
+            <SortableTableHeader label="Sr No" align="center" isSortable={false} />
             <SortableTableHeader
               label="Item Code"
               columnKey="lnitemcode"
@@ -398,48 +402,28 @@ const ViewOrder: React.FC = () => {
             />
             <SortableTableHeader
               label="Unit"
-              columnKey="unit"
-              activeSortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
               align="center"
-              isSortable={true}
+              isSortable={false}
             />
             <SortableTableHeader
               label="Qty / Assembly"
-              columnKey="qty"
-              activeSortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
               align="center"
-              isSortable={true}
+              isSortable={false}
             />
             <SortableTableHeader
               label="Total Req Qty"
-              columnKey="totalQuantity"
-              activeSortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
               align="center"
-              isSortable={true}
+              isSortable={false}
             />
             <SortableTableHeader
               label="Total QR Qty"
-              columnKey="totalQrQty"
-              activeSortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
               align="center"
-              isSortable={true}
+              isSortable={false}
             />
             <SortableTableHeader
               label="Available Store Qty"
-              columnKey="availableQuantity"
-              activeSortColumn={sortColumn}
-              sortDirection={sortDirection}
-              onSort={handleSort}
               align="center"
-              isSortable={true}
+              isSortable={false}
             />
           </TableRow>
         </TableHead>
@@ -508,19 +492,8 @@ const ViewOrder: React.FC = () => {
       {/* Header Section */}
       <PageHeader
         title={`View Available QR Codes ${poFromState ? `— ${poFromState}` : ""}`}
-        subtitle="Inspect production order BOM requirements and available store QR codes."
-        actions={
-          <IconButton
-            onClick={() => navigate(-1)}
-            sx={{
-              color: "primary.main",
-              p: 0.5,
-              "&:hover": { backgroundColor: "grey.100" },
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-        }
+        subtitle="View available QR codes for part verification."
+        onBack={() => navigate(-1)}
       />
 
       {error && (
@@ -702,20 +675,42 @@ const ViewOrder: React.FC = () => {
       </Paper>
 
       {/* Main Content Area: BOM Details & Available QRs */}
-      <Grid container spacing={1.5} sx={{ flexGrow: 1 }}>
+      <Grid container spacing={1} sx={{ flexGrow: 1 }}>
         {/* Left Panel: BOM Details */}
         <Grid item xs={12} lg={selectedBomRow !== null ? 6 : 12}>
-          <TableCard sx={{ minHeight: "450px", display: "flex", flexDirection: "column" }}>
+          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
             <TableCardHeader
               title={
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                  <span>Material available in store</span>
-                  <Typography variant="caption" component="span" sx={{ color: "#98A2B3", fontSize: "0.75rem", fontStyle: "italic", fontWeight: 400 }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "0.9rem",
+                      fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      color: "#1F2937",
+                      lineHeight: 1.3,
+                      pt: 1,
+                      pb: 1,
+                    }}
+                  >
+                    Material available in store
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="span"
+                    sx={{
+                      color: "#98A2B3",
+                      fontSize: "0.75rem",
+                      fontStyle: "italic",
+                      fontWeight: 400,
+                      fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    }}
+                  >
                     (Click a row to view available QR codes)
                   </Typography>
                 </Box>
               }
-              count={bomData.length}
+              
             />
 
             {renderBomTable()}
@@ -725,9 +720,25 @@ const ViewOrder: React.FC = () => {
         {/* Right Panel: Available QR Codes (Shown only when a row is clicked) */}
         {selectedBomRow !== null && (
           <Grid item xs={12} lg={6}>
-          <TableCard sx={{ minHeight: "450px", display: "flex", flexDirection: "column" }}>
+          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
             <TableCardHeader
-              title="Available QR Codes"
+              title={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "0.9rem",
+                      fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      color: "#1F2937",
+                      lineHeight: 1.3,
+                      pt: 0.5,
+                      pb: 0.5,
+                    }}
+                  >
+                    Available QR Codes
+                  </Typography>
+                </Box>
+              }
               count={qrCodeData.length}
               actions={
                 <IconButton
@@ -750,57 +761,33 @@ const ViewOrder: React.FC = () => {
                     <TableRow>
                       <SortableTableHeader
                         label="QR Code Number"
-                        columnKey="qrCodeNumber"
-                        activeSortColumn={sortColumn}
-                        sortDirection={sortDirection}
-                        onSort={handleSort}
                         align="center"
-                        isSortable={true}
+                        isSortable={false}
                       />
                       <SortableTableHeader
                         label="ID"
-                        columnKey="id"
-                        activeSortColumn={sortColumn}
-                        sortDirection={sortDirection}
-                        onSort={handleSort}
                         align="center"
-                        isSortable={true}
+                        isSortable={false}
                       />
                       <SortableTableHeader
                         label="Qty"
-                        columnKey="remainingQuantity"
-                        activeSortColumn={sortColumn}
-                        sortDirection={sortDirection}
-                        onSort={handleSort}
                         align="center"
-                        isSortable={true}
+                        isSortable={false}
                       />
                       <SortableTableHeader
                         label="Status"
-                        columnKey="status"
-                        activeSortColumn={sortColumn}
-                        sortDirection={sortDirection}
-                        onSort={handleSort}
                         align="center"
-                        isSortable={true}
+                        isSortable={false}
                       />
                       <SortableTableHeader
                         label="Location"
-                        columnKey="location"
-                        activeSortColumn={sortColumn}
-                        sortDirection={sortDirection}
-                        onSort={handleSort}
                         align="center"
-                        isSortable={true}
+                        isSortable={false}
                       />
                       <SortableTableHeader
                         label="Remarks"
-                        columnKey="remarks"
-                        activeSortColumn={sortColumn}
-                        sortDirection={sortDirection}
-                        onSort={handleSort}
                         align="center"
-                        isSortable={true}
+                        isSortable={false}
                       />
                     </TableRow>
                   </TableHead>

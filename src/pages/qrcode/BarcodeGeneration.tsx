@@ -1809,7 +1809,7 @@ export default function BarcodeGeneration() {
         {/* Page Header */}
         <PageHeader
           title="New QR Code"
-          subtitle="Generate, preview, and print QR codes and barcodes for components and materials."
+          subtitle="Generate and preview QR codes for parts."
         />
 
         <>

@@ -75,7 +75,7 @@ import { UploadSummaryCard, parseErrorString } from "./components/UploadSummaryC
 import { HistoryStatCard } from "./components/HistoryStatCard";
 import { ActiveFilterChips, type FilterChipItem } from "./components/ActiveFilterChips";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
-import { EmptyState } from "../../components/EmptyState";
+
 
 // --- Interfaces & Constants ---
 
@@ -337,10 +337,27 @@ const RowActionsMenu: React.FC<{
   );
 };
 
-const CustomNoRowsOverlay: React.FC<{ isLoading?: boolean }> = ({ isLoading }) => {
-  if (isLoading) return null;
-  return <EmptyState />;
-};
+const CustomLoadingOverlay: React.FC = () => (
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100%",
+      minHeight: 260,
+      gap: 1.5,
+      backgroundColor: "#ffffff",
+    }}
+  >
+    <CircularProgress size={36} sx={{ color: "primary.main" }} />
+    <Typography variant="body2" sx={{ fontWeight: 600, color: "#475467", fontSize: "0.875rem" }}>
+      Loading orders...
+    </Typography>
+  </Box>
+);
+
+
 
 interface CustomPaginationBarProps {
   page: number;
@@ -605,8 +622,8 @@ const ProductionOrderUpload: React.FC = () => {
   // Fetch production orders with filters & pagination
   const {
     data: paginatedResponse,
-
     isLoading: isHistoryLoading,
+    isFetching: isHistoryFetching,
   } = useQuery<PaginatedResponse<ProductionOrder>>({
     queryKey: [
       "productionOrders",
@@ -705,6 +722,8 @@ const ProductionOrderUpload: React.FC = () => {
         (row.precheckStatus === 3 && "completed".includes(term))
     );
   }, [productionOrders, debouncedSearchQuery, appliedProductionSeries, appliedStatusList]);
+
+  const isTableLoading = isHistoryLoading || isHistoryFetching || searchQuery !== debouncedSearchQuery;
 
   // Helper to generate and download error report PDF file
   const downloadErrorReportPdf = (result: UploadResult, message?: string) => {
@@ -1349,7 +1368,7 @@ const ProductionOrderUpload: React.FC = () => {
       minWidth: 140,
       headerAlign: "center",
       align: "center",
-      sortable: true,
+      sortable: false,
     },
     {
       field: "projectcode",
@@ -1376,7 +1395,7 @@ const ProductionOrderUpload: React.FC = () => {
       minWidth: 140,
       headerAlign: "center",
       align: "center",
-      sortable: true,
+      sortable: false,
     },
     {
       field: "itemdescription",
@@ -1512,14 +1531,6 @@ const ProductionOrderUpload: React.FC = () => {
       headerAlign: "left",
       align: "left",
       sortable: true,
-      renderCell: (params) => (
-        <Typography
-          variant="body2"
-          sx={{ fontWeight: 700 }}
-        >
-          {params.value}
-        </Typography>
-      ),
     },
     {
       field: "projectNumber",
@@ -1955,6 +1966,7 @@ const ProductionOrderUpload: React.FC = () => {
               p: 2,
               display: "flex",
               flexDirection: "column",
+              mt: 2,
             }}
           >
             <Typography
@@ -1967,29 +1979,70 @@ const ProductionOrderUpload: React.FC = () => {
                 : "Choose a file to preview its content here"}
             </Typography>
 
-            <Box sx={{ flex: 1, minHeight: 380, width: "100%", position: "relative" }}>
-              <DataGrid
-                {...DATAGRID_DEFAULT_PROPS}
-                rows={uploadTableRows}
-                columns={autosizedPreviewColumns}
-                paginationModel={previewPaginationModel}
-                onPaginationModelChange={setPreviewPaginationModel}
-                pageSizeOptions={[10, 25, 50, 100]}
-                disableColumnSelector
-                disableRowSelectionOnClick
-                hideFooter
-                slots={{ noRowsOverlay: CustomNoRowsOverlay }}
-                sx={commonDataGridSx}
-              />
-              <CustomPagination
-                page={previewPaginationModel.page}
-                pageSize={previewPaginationModel.pageSize}
-                totalCount={uploadTableRows.length}
-                pageSizeOptions={[10, 25, 50, 100]}
-                onPageChange={(newPage) => setPreviewPaginationModel((prev) => ({ ...prev, page: newPage }))}
-                onPageSizeChange={(newPageSize) => setPreviewPaginationModel({ page: 0, pageSize: newPageSize })}
-              />
-            </Box>
+            {uploadTableRows.length > 0 ? (
+              <Box sx={{ flex: 1, minHeight: 380, width: "100%", position: "relative" }}>
+                <DataGrid
+                  {...DATAGRID_DEFAULT_PROPS}
+                  rows={uploadTableRows}
+                  columns={autosizedPreviewColumns}
+                  paginationModel={previewPaginationModel}
+                  onPaginationModelChange={setPreviewPaginationModel}
+                  pageSizeOptions={[10, 25, 50, 100]}
+                  disableColumnMenu
+                  disableColumnFilter
+                  disableColumnSelector
+                  disableRowSelectionOnClick
+                  hideFooter
+                  
+                  sx={commonDataGridSx}
+                />
+                <CustomPagination
+                  page={previewPaginationModel.page}
+                  pageSize={previewPaginationModel.pageSize}
+                  totalCount={uploadTableRows.length}
+                  pageSizeOptions={[10, 25, 50, 100]}
+                  onPageChange={(newPage) => setPreviewPaginationModel((prev) => ({ ...prev, page: newPage }))}
+                  onPageSizeChange={(newPageSize) => setPreviewPaginationModel({ page: 0, pageSize: newPageSize })}
+                />
+              </Box>
+            ) : (
+              <Box
+                sx={{
+                  py: 6,
+                  px: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1.25,
+                  backgroundColor: "#FAFAFA",
+                  borderRadius: "12px",
+                  border: "1px dashed #D0D5DD",
+                  mt: 0.5,
+                  minHeight: 220,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "50%",
+                    backgroundColor: "#F2F4F7",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <UploadIcon sx={{ color: "#667085", fontSize: 22 }} />
+                </Box>
+                <Typography variant="body1" sx={{ fontWeight: 600, color: "#344054", fontSize: "0.95rem" }}>
+                  Import production order to see preview
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.825rem" }}>
+                  Upload an Excel file above to view row details before importing
+                </Typography>
+              </Box>
+            )}
           </TableCard>
         </Box>
       ) : (
@@ -2321,7 +2374,7 @@ const ProductionOrderUpload: React.FC = () => {
             <Box
               sx={{
                 flexGrow: 1,
-                minHeight: 0,
+                minHeight: 300,
                 backgroundColor: "#ffffff",
                 position: "relative",
                 display: "flex",
@@ -2346,7 +2399,10 @@ const ProductionOrderUpload: React.FC = () => {
                 disableRowSelectionOnClick
                 getRowId={(row) => row.id || row.sr}
                 hideFooter
-                slots={{ noRowsOverlay: CustomNoRowsOverlay }}
+                slots={{
+                  
+                  loadingOverlay: CustomLoadingOverlay,
+                }}
                 slotProps={{ noRowsOverlay: { isLoading: isHistoryLoading } as any }}
                 sx={commonDataGridSx}
               />
@@ -2377,7 +2433,7 @@ const ProductionOrderUpload: React.FC = () => {
         <DialogTitle sx={{ pb: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Box display="flex" alignItems="center" gap={1}>
             <DownloadIcon sx={{ color: "primary.main" }} />
-            <Typography variant="h6" fontWeight="700" color="#101828">
+            <Typography variant="h6" fontWeight="700" color="primary.main">
               Export Production Order Data
             </Typography>
           </Box>

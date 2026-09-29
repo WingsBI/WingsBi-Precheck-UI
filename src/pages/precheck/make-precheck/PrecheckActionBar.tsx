@@ -278,18 +278,18 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
   }, [searchResults]);
 
   return (
-    <Box sx={{ width: "100%", mb: 0.6 }}>
+    <Box sx={{ width: "100%", mb: 0 }}>
 
       {/* Hero Scanner QR Box & Verification Stats Card */}
       <Paper
         elevation={0}
         sx={{
-          py: 0.75,
-          px: { xs: 1.25, md: 1.5 },
-          borderRadius: "12px",
-          border: "1px solid #E5E7EB",
-          backgroundColor: "#FFFFFF",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+          py: 1.25,
+          px: { xs: 1.25, md: 2 },
+          borderRadius: 0,
+          border: "none",
+          backgroundColor: "transparent",
+          boxShadow: "none",
         }}
       >
         <Grid container spacing={1.5} alignItems="center">
@@ -378,9 +378,29 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
               {/* Scan QR Button */}
               <ActionButton
                 variant="secondary"
-                size="standard"
+                size="hero"
                 onClick={onOpenScanner}
-                startIcon={<QrCodeScannerIcon />}
+                startIcon={<QrCodeScannerIcon sx={{ color: "primary.main" }} />}
+                sx={{
+                  borderRadius: "10px",
+                  minWidth: "120px",
+                  height: "48px !important",
+                  minHeight: "48px !important",
+                  maxHeight: "48px !important",
+                  boxSizing: "border-box !important",
+                  border: "2px solid !important",
+                  borderColor: "primary.main !important",
+                  color: "primary.main",
+                  backgroundColor: "#FFFFFF",
+                  fontWeight: 700,
+                  fontSize: "0.875rem",
+                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
+                  "&:hover": {
+                    border: "2px solid !important",
+                    borderColor: "primary.dark !important",
+                    backgroundColor: "#F3E8F8",
+                  },
+                }}
               >
                 Scan QR
               </ActionButton>
