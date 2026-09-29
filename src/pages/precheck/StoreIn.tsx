@@ -62,6 +62,8 @@ import {
   FileDownload as FileDownloadIcon,
   CloudUpload as CloudUploadIcon,
   Inventory as InventoryIcon,
+  CheckCircleOutline as CheckCircleOutlineIcon,
+  ErrorOutline as ErrorOutlineIcon,
 } from "@mui/icons-material";
 import { getStoreInData } from "../../store/slices/precheckSlice";
 import { format } from "date-fns";
@@ -307,6 +309,15 @@ const StoreIn: React.FC = () => {
   const [bulkMenuAnchor, setBulkMenuAnchor] = useState<null | HTMLElement>(null);
   const isBulkMenuOpen = Boolean(bulkMenuAnchor);
 
+  // Bulk Store In Results Dialog state
+  const [bulkResultsOpen, setBulkResultsOpen] = useState(false);
+  const [bulkResults, setBulkResults] = useState<{
+    results: Array<{ qrCodeNumber: string; success: boolean; message: string; data: any }>;
+    totalCount: number;
+    successCount: number;
+    failureCount: number;
+  } | null>(null);
+
   const handleBulkMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setBulkMenuAnchor(event.currentTarget);
   };
@@ -408,21 +419,90 @@ const StoreIn: React.FC = () => {
 
     try {
       const result = await dispatch(bulkStoreInFromExcel(file)).unwrap();
-      const messageStr =
-        typeof result === "string"
-          ? result
-          : result?.message || `Bulk Store In file ${file.name} imported successfully.`;
-      setAlertMessage({
-        message: messageStr,
-        type: "success",
-      });
+
+      // Check if the response has the detailed results structure
+      if (result && result.results && Array.isArray(result.results)) {
+        setBulkResults({
+          results: result.results,
+          totalCount: result.totalCount ?? result.results.length,
+          successCount: result.successCount ?? result.results.filter((r: any) => r.success).length,
+          failureCount: result.failureCount ?? result.results.filter((r: any) => !r.success).length,
+        });
+        setBulkResultsOpen(true);
+
+        const successCount = result.successCount ?? result.results.filter((r: any) => r.success).length;
+        const failureCount = result.failureCount ?? result.results.filter((r: any) => !r.success).length;
+
+        if (failureCount === 0) {
+          setAlertMessage({
+            message: `Bulk Store In completed. All ${successCount} QR code(s) processed successfully.`,
+            type: "success",
+          });
+        } else if (successCount === 0) {
+          setAlertMessage({
+            message: `Bulk Store In completed. All ${failureCount} QR code(s) failed.`,
+            type: "error",
+          });
+        } else {
+          setAlertMessage({
+            message: `Bulk Store In completed. ${successCount} succeeded, ${failureCount} failed.`,
+            type: "info",
+          });
+        }
+      } else {
+        const messageStr =
+          typeof result === "string"
+            ? result
+            : result?.message || `Bulk Store In file ${file.name} imported successfully.`;
+        setAlertMessage({
+          message: messageStr,
+          type: "success",
+        });
+      }
       fetchStoreInData();
     } catch (err: any) {
       console.error("Error performing bulk store in:", err);
-      setAlertMessage({
-        message: getErrorMessage(err, "Failed to process Bulk Store In Excel file"),
-        type: "error",
-      });
+
+      // Check if the rejected error contains detailed results (non-2xx response with results body)
+      const errorData = typeof err === "object" && err !== null ? err : null;
+      const responseResults = errorData?.results || errorData?.response?.data?.results;
+
+      if (responseResults && Array.isArray(responseResults)) {
+        const totalCount = errorData.totalCount ?? errorData?.response?.data?.totalCount ?? responseResults.length;
+        const successCount = errorData.successCount ?? errorData?.response?.data?.successCount ?? responseResults.filter((r: any) => r.success).length;
+        const failureCount = errorData.failureCount ?? errorData?.response?.data?.failureCount ?? responseResults.filter((r: any) => !r.success).length;
+
+        setBulkResults({
+          results: responseResults,
+          totalCount,
+          successCount,
+          failureCount,
+        });
+        setBulkResultsOpen(true);
+
+        if (failureCount === 0) {
+          setAlertMessage({
+            message: `Bulk Store In completed. All ${successCount} QR code(s) processed successfully.`,
+            type: "success",
+          });
+        } else if (successCount === 0) {
+          setAlertMessage({
+            message: `Bulk Store In completed. All ${failureCount} QR code(s) failed.`,
+            type: "error",
+          });
+        } else {
+          setAlertMessage({
+            message: `Bulk Store In completed. ${successCount} succeeded, ${failureCount} failed.`,
+            type: "info",
+          });
+        }
+        fetchStoreInData();
+      } else {
+        setAlertMessage({
+          message: getErrorMessage(err, "Failed to process Bulk Store In Excel file"),
+          type: "error",
+        });
+      }
     } finally {
       setIsLoading(false);
       if (event.target) event.target.value = "";
@@ -951,7 +1031,7 @@ const StoreIn: React.FC = () => {
                   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                 }}
               >
-               
+
                 <TextField
                   inputRef={scanInputRef}
                   fullWidth
@@ -1227,10 +1307,10 @@ const StoreIn: React.FC = () => {
                                   render: (r) =>
                                     r.createdDate
                                       ? new Date(r.createdDate).toLocaleDateString("en-GB", {
-                                          day: "2-digit",
-                                          month: "2-digit",
-                                          year: "numeric",
-                                        })
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                      })
                                       : "-",
                                 },
                               ]}
@@ -2001,6 +2081,240 @@ const StoreIn: React.FC = () => {
             sx={{ visibility: "hidden", position: "absolute", width: 0, height: 0 }}
           />
         </Box>
+      </Dialog>
+
+      {/* Bulk Store In Results Dialog */}
+      <Dialog
+        open={bulkResultsOpen}
+        onClose={() => setBulkResultsOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            overflow: "hidden",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontWeight: 700,
+            fontSize: "1rem",
+            color: "primary.main",
+            borderBottom: "1px solid #EAECF0",
+            py: 1.5,
+            px: 2.5,
+          }}
+        >
+          Bulk Store In Results
+          <IconButton
+            size="small"
+            onClick={() => setBulkResultsOpen(false)}
+            sx={{ color: "#667085", "&:hover": { backgroundColor: "#F2F4F7" } }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          {bulkResults && (
+            <>
+              {/* Summary Chips */}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1.5,
+                  px: 2.5,
+                  py: 1.5,
+                  borderBottom: "1px solid #EAECF0",
+                  backgroundColor: "#F9FAFB",
+                  flexWrap: "wrap",
+                }}
+              >
+                <Chip
+                  label={`Total: ${bulkResults.totalCount}`}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "0.78rem",
+                    backgroundColor: "#F3E8F8",
+                    color: "#6D2A8F",
+                    height: 26,
+                  }}
+                />
+                <Chip
+                  icon={<CheckCircleOutlineIcon sx={{ fontSize: 16 }} />}
+                  label={`Success: ${bulkResults.successCount}`}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "0.78rem",
+                    backgroundColor: "#f0fdf4",
+                    color: "#15803d",
+                    height: 26,
+                    "& .MuiChip-icon": { color: "#16a34a" },
+                  }}
+                />
+                <Chip
+                  icon={<ErrorOutlineIcon sx={{ fontSize: 16 }} />}
+                  label={`Failed: ${bulkResults.failureCount}`}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "0.78rem",
+                    backgroundColor: bulkResults.failureCount > 0 ? "#fef2f2" : "#f9fafb",
+                    color: bulkResults.failureCount > 0 ? "#b91c1c" : "#667085",
+                    height: 26,
+                    "& .MuiChip-icon": { color: bulkResults.failureCount > 0 ? "#dc2626" : "#98A2B3" },
+                  }}
+                />
+              </Box>
+
+              {/* Results Table */}
+              <TableContainer sx={{ maxHeight: 360, overflowY: "auto" }}>
+                <Table stickyHeader size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          fontWeight: 700,
+                          backgroundColor: "#F9FAFB !important",
+                          color: "#475467",
+                          fontSize: "0.78rem",
+                          borderBottom: "1px solid #EAECF0",
+                          py: 1,
+                          px: 1,
+                          width: 50,
+                          textAlign: "center",
+                        }}
+                      >
+                        Sr No
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 700,
+                          backgroundColor: "#F9FAFB !important",
+                          color: "#475467",
+                          fontSize: "0.78rem",
+                          borderBottom: "1px solid #EAECF0",
+                          py: 1,
+                          px: 1.5,
+                        }}
+                      >
+                        QR Code Number
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 700,
+                          backgroundColor: "#F9FAFB !important",
+                          color: "#475467",
+                          fontSize: "0.78rem",
+                          borderBottom: "1px solid #EAECF0",
+                          py: 1,
+                          px: 1,
+                          width: 90,
+                          textAlign: "center",
+                        }}
+                      >
+                        Status
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 700,
+                          backgroundColor: "#F9FAFB !important",
+                          color: "#475467",
+                          fontSize: "0.78rem",
+                          borderBottom: "1px solid #EAECF0",
+                          py: 1,
+                          px: 1.5,
+                        }}
+                      >
+                        Message
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {bulkResults.results.map((row, idx) => (
+                      <TableRow
+                        key={idx}
+                        sx={{
+                          "&:hover": { backgroundColor: "#F9FAFB" },
+                          "& td": {
+                            fontSize: "0.8rem",
+                            color: "#344054",
+                            py: 0.75,
+                            borderBottom: "1px solid #F2F4F7",
+                          },
+                        }}
+                      >
+                        <TableCell sx={{ textAlign: "center", color: "#98A2B3", fontWeight: 500, px: 1 }}>
+                          {idx + 1}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontSize: "0.78rem", px: 1.5 }}>
+                          {row.qrCodeNumber}
+                        </TableCell>
+                        <TableCell sx={{ textAlign: "center", px: 1 }}>
+                          <Box
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              px: 1,
+                              py: 0.25,
+                              borderRadius: "12px",
+                              fontSize: "0.7rem",
+                              fontWeight: 600,
+                              backgroundColor: row.success ? "#f0fdf4" : "#fef2f2",
+                              color: row.success ? "#15803d" : "#b91c1c",
+                              border: `1px solid ${row.success ? "#bbf7d0" : "#fecaca"}`,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                width: 6,
+                                height: 6,
+                                borderRadius: "50%",
+                                backgroundColor: row.success ? "#16a34a" : "#dc2626",
+                                flexShrink: 0,
+                              }}
+                            />
+                            {row.success ? "Success" : "Failed"}
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ color: row.success ? "#344054" : "#b91c1c", whiteSpace: "normal", wordBreak: "break-word" }}>
+                          {row.message}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 2.5, py: 1.5, borderTop: "1px solid #EAECF0" }}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setBulkResultsOpen(false)}
+            sx={{
+              backgroundColor: "primary.main",
+              color: "#FFFFFF",
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "0.82rem",
+              borderRadius: "6px",
+              px: 2.5,
+              boxShadow: "none",
+              "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

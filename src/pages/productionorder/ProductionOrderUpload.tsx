@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   Box,
+  Paper,
   Button,
   Typography,
   LinearProgress,
@@ -1923,7 +1924,21 @@ const ProductionOrderUpload: React.FC = () => {
 
       {/* Main View Content */}
       {view === "upload" ? (
-        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 2, sm: 2.5 },
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflowY: "auto",
+            borderRadius: "16px",
+            border: "1px solid",
+            borderColor: "neutral.border",
+            backgroundColor: "background.paper",
+            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)",
+          }}
+        >
           {/* Dropzone OR Upload Summary Card */}
           {!selectedFile && !uploadResult ? (
             <UploadDropzone
@@ -1973,10 +1988,10 @@ const ProductionOrderUpload: React.FC = () => {
               variant="subtitle1"
               sx={{ fontWeight: 700, color: "#101828", mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}
             >
-              <VisibilityIcon sx={{ color: "primary.main", fontSize: 20 }} />
+            
               {uploadTableRows.length > 0
                 ? `Rows Preview (${uploadTableRows.length} rows)`
-                : "Choose a file to preview its content here"}
+                : ""}
             </Typography>
 
             {uploadTableRows.length > 0 ? (
@@ -2044,7 +2059,7 @@ const ProductionOrderUpload: React.FC = () => {
               </Box>
             )}
           </TableCard>
-        </Box>
+        </Paper>
       ) : (
         /* History Tab Content */
         <Box sx={{ flexGrow: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>

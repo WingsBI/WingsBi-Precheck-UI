@@ -69,13 +69,13 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
       sx={{
         border: "2px dashed",
         borderColor: isDragOver ? "primary.main" : (theme) => theme.palette.primary.light + "60",
-        borderRadius: 3,
+        borderRadius: 1,
         bgcolor: isDragOver ? (theme) => theme.palette.primary.main + "0A" : (theme) => theme.palette.primary.main + "04",
         transition: "all 0.25s ease",
         p: 2,
         cursor: "pointer",
         textAlign: "center",
-        mb: 2,
+        mb: 0,
         "&:hover": {
           borderColor: "primary.main",
           bgcolor: (theme) => theme.palette.primary.main + "06",
@@ -107,7 +107,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
               sx={{
                 width: 48,
                 height: 48,
-                borderRadius: "50%",
+                borderRadius: 1,
                 bgcolor: "background.paper",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                 display: "flex",
@@ -119,7 +119,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
             </Box>
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "text.primary" }}>
-                Drag & drop your Excel file here
+                Drag and drop your Excel file here
               </Typography>
               <Typography variant="body2" sx={{ color: "primary.main", fontWeight: 700, mt: 0.25 }}>
                 or browse files

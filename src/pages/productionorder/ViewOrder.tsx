@@ -681,7 +681,7 @@ const ViewOrder: React.FC = () => {
       <Grid container spacing={1} sx={{ flexGrow: 1 }}>
         {/* Left Panel: BOM Details */}
         <Grid item xs={12} lg={selectedBomRow !== null ? 6 : 12}>
-          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
+          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column"}}>
             <TableCardHeader
               title={
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
@@ -691,9 +691,7 @@ const ViewOrder: React.FC = () => {
                       fontSize: "0.9rem",
                       fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                       color: "#1F2937",
-                      lineHeight: 1.3,
-                      pt: 1,
-                      pb: 1,
+                      
                     }}
                   >
                     Material available in store
@@ -733,9 +731,6 @@ const ViewOrder: React.FC = () => {
                       fontSize: "0.9rem",
                       fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                       color: "#1F2937",
-                      lineHeight: 1.3,
-                      pt: 0.5,
-                      pb: 0.5,
                     }}
                   >
                     Available QR Codes

@@ -205,8 +205,11 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
   const [bomSortColumn, setBomSortColumn] = useState<string | null>(null);
   const [bomSortDirection, setBomSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleBomSort = (col: string) => {
-    if (bomSortColumn === col) {
+  const handleBomSort = (col: string | null) => {
+    if (col === null) {
+      setBomSortColumn(null);
+      setBomSortDirection("asc");
+    } else if (bomSortColumn === col) {
       setBomSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setBomSortColumn(col);
@@ -260,8 +263,11 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
   const [qrSortColumn, setQrSortColumn] = useState<string | null>(null);
   const [qrSortDirection, setQrSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleQrSort = (col: string) => {
-    if (qrSortColumn === col) {
+  const handleQrSort = (col: string | null) => {
+    if (col === null) {
+      setQrSortColumn(null);
+      setQrSortDirection("asc");
+    } else if (qrSortColumn === col) {
       setQrSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setQrSortColumn(col);
@@ -911,7 +917,7 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
             <>
               {/* Left Side: BOM Details */}
               <Grid item xs={12} md={selectedBomRowIndex !== null ? 6 : 12}>
-                <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" ,lineHeight: 1.3,pt: 1, pb: 2,}}>
+                <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
                   <TableCardHeader
                     title="Material available in store"
 

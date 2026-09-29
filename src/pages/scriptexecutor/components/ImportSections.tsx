@@ -49,7 +49,7 @@ export const ImportTypeSelector: React.FC<ImportTypeSelectorProps> = ({ activeTa
     {
       tab: TABS.QR_CODE,
       title: "QR Code",
-      subtitle: "Bulk QR code records with ID ranges",
+      subtitle: "Generate bulk QR codes",
     },
   ];
 
@@ -140,7 +140,7 @@ export const GuidanceCard: React.FC<GuidanceCardProps> = ({
       sx={{
         border: "1px solid",
         borderColor: "#D0E2FF",
-        borderRadius: 2.5,
+        borderRadius: 1,
         bgcolor: "#F0F5FF",
         mb: 2,
       }}
