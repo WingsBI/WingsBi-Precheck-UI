@@ -380,7 +380,10 @@ const UnitTab = forwardRef<
       {
         field: "srNo",
         headerName: "Sr No",
-        width: 100,
+         headerAlign: "center",
+        align: "center",
+        width: 89,
+        sortable: false,
         valueGetter: (params) =>
           rows.findIndex((r) => r.id === params.row.id) + 1,
       },
@@ -389,6 +392,7 @@ const UnitTab = forwardRef<
         field: "createdBy",
         headerName: "Created By",
         flex: 1,
+        sortable: false,
         minWidth: 180,
         renderCell: (params) => getUserName(params.row.createdBy, users),
       },
@@ -403,6 +407,7 @@ const UnitTab = forwardRef<
         headerName: "Modified By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.modifiedBy, users),
       },
       {
@@ -575,6 +580,9 @@ const StageTab = forwardRef<
         field: "srNo",
         headerName: "Sr No",
         width: 100,
+        headerAlign: "center",
+        align: "center",
+        sortable: false,
         valueGetter: (params) =>
           rows.findIndex((r) => r.id === params.row.id) + 1,
       },
@@ -585,12 +593,13 @@ const StageTab = forwardRef<
         minWidth: 160,
         valueGetter: (params) => params.row.stageName || params.row.stage || "-",
       },
-      { field: "stageType", headerName: "Stage Type", width: 110 },
+      { field: "stageType", headerName: "Stage Type", width: 110,sortable: false, },
       {
         field: "createdBy",
         headerName: "Created By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.createdBy, users),
       },
       {
@@ -604,6 +613,7 @@ const StageTab = forwardRef<
         headerName: "Modified By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.modifiedBy, users),
       },
       {
@@ -784,6 +794,9 @@ const MaterialTab = forwardRef<
         field: "srNo",
         headerName: "Sr No",
         width: 100,
+        headerAlign: "center",
+        align: "center",
+        sortable: false,
         valueGetter: (params) =>
           rows.findIndex((r) => r.id === params.row.id) + 1,
       },
@@ -799,6 +812,7 @@ const MaterialTab = forwardRef<
         headerName: "Created By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.createdBy, users),
       },
       {
@@ -811,6 +825,7 @@ const MaterialTab = forwardRef<
         field: "modifiedBy",
         headerName: "Modified By",
         flex: 1,
+        sortable: false,
         minWidth: 180,
         renderCell: (params) => getUserName(params.row.modifiedBy, users),
       },
@@ -1004,7 +1019,10 @@ const ProductionSeriesTab = forwardRef<
       {
         field: "srNo",
         headerName: "Sr No",
+        headerAlign: "center",
+        align: "center",
         width: 100,
+        sortable: false,
         valueGetter: (params) =>
           rows.findIndex((r: any) => r.id === params.row.id) + 1,
       },
@@ -1013,6 +1031,7 @@ const ProductionSeriesTab = forwardRef<
         headerName: "Production Series",
         flex: 1,
         minWidth: 160,
+        sortable: false,
         valueGetter: (params) =>
           params.row.productionSeries || "-",
       },
@@ -1020,6 +1039,7 @@ const ProductionSeriesTab = forwardRef<
         field: "createdBy",
         headerName: "Created By",
         flex: 1,
+        sortable: false,
         minWidth: 180,
         renderCell: (params) => getUserName(params.row.createdBy, users),
       },
@@ -1034,6 +1054,7 @@ const ProductionSeriesTab = forwardRef<
         headerName: "Modified By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.modifiedBy, users),
       },
       {

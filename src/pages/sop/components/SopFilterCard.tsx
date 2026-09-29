@@ -62,14 +62,11 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
   hasAssemblyData,
 }) => {
   return (
-    <Paper
-      elevation={0}
+    <Box
       sx={{
-        p: 1.25,
-        mb: 1.5,
-        borderRadius: "10px",
-        border: "1px solid #EAECF0",
-        backgroundColor: "#ffffff",
+        p: 1.5,
+        pb: 1.25,
+        borderBottom: "1px solid #EAECF0",
       }}
     >
       <Grid container spacing={1.25} alignItems="center">
@@ -289,7 +286,7 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
               onClick={executeSearch}
               disabled={isLoading || !isSearchAndResetEnabled}
             >
-              {isLoading ? "Applying..." : "Apply"}
+              {isLoading ? "Apply" : "Apply"}
             </ActionButton>
             <ActionButton
               variant="secondary"
@@ -302,6 +299,6 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
           </Box>
         </Grid>
       </Grid>
-    </Paper>
+    </Box>
   );
 };

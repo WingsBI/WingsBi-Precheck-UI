@@ -355,15 +355,12 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                     disableUnderline: true,
                     sx: {
                       fontSize: "0.9rem",
-                      fontFamily: "'Nunito Sans', sans-serif !important",
                       color: "#1E293B",
                       "& input": {
-                        fontFamily: "'Nunito Sans', sans-serif !important",
                         py: "0 !important",
                         height: "auto",
                       },
                       "& input::placeholder": {
-                        fontFamily: "'Nunito Sans', sans-serif !important",
                         color: "#94A3B8",
                         opacity: 1,
                       },

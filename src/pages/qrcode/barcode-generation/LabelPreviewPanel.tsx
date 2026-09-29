@@ -334,7 +334,17 @@ const LabelPreviewPanel = ({
           placeholder="Enter QR Code to preview..."
           value={previewQrInput}
           onChange={(e) => onPreviewQrInputChange(e.target.value)}
-          sx={{ mb: 1.5, fontFamily: "'Nunito Sans', sans-serif !important", }}
+          InputProps={{
+            sx: {
+              "& input": {
+                fontFamily: "'Nunito Sans', sans-serif !important",
+              },
+              "& input::placeholder": {
+                fontFamily: "'Nunito Sans', sans-serif !important",
+              },
+            },
+          }}
+          sx={{ mb: 1.5, fontFamily: "'Nunito Sans', sans-serif !important" }}
         />
 
         {previewQrInput.trim() !== "" || fetchedPreviewItem !== null ? (

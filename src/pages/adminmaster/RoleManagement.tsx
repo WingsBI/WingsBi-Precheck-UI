@@ -308,22 +308,25 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
     {
       field: "srNo",
       headerName: "Sr No",
-      width: 100,
+      width: 80,
       type: "number",
-      headerAlign: "left",
-      align: "left",
+      headerAlign: "center",
+      align: "center",
+      sortable: false,
     },
     {
       field: "role",
       headerName: "Role Name",
       flex: 1,
       minWidth: 150,
+      sortable: true,
     },
     {
       field: "description",
       headerName: "Description",
       flex: 1.2,
       minWidth: 160,
+      sortable: false,
       renderCell: (params) => params.value || "-",
     },
     {
@@ -331,12 +334,19 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
       headerName: "Created By",
       flex: 1,
       minWidth: 130,
+      sortable: false,
       renderCell: (params) => getUserName(params.row.createdBy, users),
     },
     {
       field: "createdDate",
       headerName: "Created Date",
       width: 135,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        const val = row.createdDate;
+        return val ? new Date(val).getTime() : 0;
+      },
       renderCell: (params) => formatDate(params.row.createdDate),
     },
     {
@@ -344,12 +354,19 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
       headerName: "Modified By",
       flex: 1,
       minWidth: 130,
+      sortable: false,
       renderCell: (params) => getUserName(params.row.modifiedBy, users),
     },
     {
       field: "modifiedDate",
       headerName: "Modified Date",
       width: 135,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        const val = row.modifiedDate;
+        return val ? new Date(val).getTime() : 0;
+      },
       renderCell: (params) => formatDate(params.row.modifiedDate),
     },
     {
@@ -397,7 +414,7 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
               paginationModel: { pageSize: 10 },
             },
             sorting: {
-              sortModel: [{ field: "srNo", sort: "asc" }],
+              sortModel: [{ field: "role", sort: "asc" }],
             },
           }}
           pageSizeOptions={[10, 20, 50]}
@@ -571,16 +588,22 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
     {
       field: "srNo",
       headerName: "Sr No",
-      width: 100,
+      width: 80,
       type: "number",
-      headerAlign: "left",
-      align: "left",
+      headerAlign: "center",
+      align: "center",
+      sortable: false,
     },
     {
       field: "name",
       headerName: "Department Name",
       flex: 1,
       minWidth: 150,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        return row.name || row.departmentName || "";
+      },
       renderCell: (params) => params.row.name || params.row.departmentName || "-",
     },
     {
@@ -588,6 +611,7 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
       headerName: "Description",
       flex: 1,
       minWidth: 150,
+      sortable: false,
       renderCell: (params) => params.row.description || "-",
     },
     {
@@ -595,12 +619,19 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
       headerName: "Created By",
       flex: 1,
       minWidth: 150,
+      sortable: false,
       renderCell: (params) => getUserName(params.row.createdBy, users),
     },
     {
       field: "createdDate",
       headerName: "Created Date",
       width: 135,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        const val = row.createdDate;
+        return val ? new Date(val).getTime() : 0;
+      },
       renderCell: (params) => formatDate(params.row.createdDate),
     },
     {
@@ -608,12 +639,19 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
       headerName: "Modified By",
       flex: 1,
       minWidth: 150,
+      sortable: false,
       renderCell: (params) => getUserName(params.row.modifiedBy, users),
     },
     {
       field: "modifiedDate",
       headerName: "Modified Date",
       width: 135,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        const val = row.modifiedDate;
+        return val ? new Date(val).getTime() : 0;
+      },
       renderCell: (params) => formatDate(params.row.modifiedDate),
     },
     {
@@ -667,7 +705,7 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
               paginationModel: { pageSize: 10 },
             },
             sorting: {
-              sortModel: [{ field: "srNo", sort: "asc" }],
+              sortModel: [{ field: "name", sort: "asc" }],
             },
           }}
           pageSizeOptions={[10, 20, 50]}

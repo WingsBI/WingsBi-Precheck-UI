@@ -45,14 +45,11 @@ export const BomFilterCard: React.FC<BomFilterCardProps> = ({
   hasBomData = false,
 }) => {
   return (
-    <Paper
-      elevation={0}
+    <Box
       sx={{
         p: 1.5,
-        mb: 2,
-        borderRadius: "10px",
-        border: "1px solid #EAECF0",
-        backgroundColor: "#ffffff",
+        pb: 1.25,
+        borderBottom: "1px solid #EAECF0",
       }}
     >
       <Grid container spacing={1.25} alignItems="center">
@@ -153,7 +150,7 @@ export const BomFilterCard: React.FC<BomFilterCardProps> = ({
               onClick={handleSearch}
               disabled={isBomLoading || !selectedAssembly}
             >
-              {isBomLoading ? "Applying..." : "Apply"}
+              {isBomLoading ? "Apply" : "Apply"}
             </ActionButton>
             <ActionButton
               variant="secondary"
@@ -166,6 +163,6 @@ export const BomFilterCard: React.FC<BomFilterCardProps> = ({
           </Box>
         </Grid>
       </Grid>
-    </Paper>
+    </Box>
   );
 };

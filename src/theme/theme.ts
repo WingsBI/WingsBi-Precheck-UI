@@ -341,15 +341,14 @@ let theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        'html, body, input, textarea, select, button, pre, code': {
-          fontFamily: 'inherit',
+        
+        'html, body': {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#D1D5DB transparent',
         },
         '.Toastify, .Toastify__toast': {
           fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        },
-        'html, body': {
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#D1D5DB transparent',
         },
         '::-webkit-scrollbar': {
           width: '6px',
@@ -547,6 +546,7 @@ let theme = createTheme({
     MuiInputLabel: {
       styleOverrides: {
         root: {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           fontSize: '0.875rem',
           color: '#374151',
           '&.Mui-focused': {
@@ -585,6 +585,7 @@ let theme = createTheme({
             },
           },
           '& .MuiInputLabel-root': {
+            fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             fontSize: '0.875rem',
             color: '#374151',
             '&.Mui-focused': {
@@ -616,6 +617,7 @@ let theme = createTheme({
             },
           },
           '& .MuiInputLabel-root': {
+            fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             fontSize: '0.875rem',
             color: '#374151',
             '&.Mui-focused': {

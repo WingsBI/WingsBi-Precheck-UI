@@ -66,7 +66,12 @@ interface AssemblyOption {
   lnItemCode?: string;
 }
 
-const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => {
+export interface ViewBOMProps {
+  hideHeader?: boolean;
+  onRegisterAddAction?: (actionFn: () => void) => void;
+}
+
+const ViewBOM: React.FC<ViewBOMProps> = ({ hideHeader = false, onRegisterAddAction }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -108,6 +113,36 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
   const [addFindNo, setAddFindNo] = useState("");
   const [addQuantity, setAddQuantity] = useState<number | string>(1);
   const [isSubmittingAdd, setIsSubmittingAdd] = useState(false);
+
+  const handleOpenAddDialog = useCallback(() => {
+    const parentDwg =
+      selectedAssembly?.drawingNumber ||
+      selectedAssemblyNumber ||
+      assemblyInputValue ||
+      (bomData && bomData.length > 0
+        ? bomData[0]?.parentDrawingNumber ||
+          bomData[0]?.assemblyNumber ||
+          bomData[0]?.childDrawingNumber ||
+          ""
+        : "");
+    const parentLn =
+      selectedAssembly?.lnItemCode ||
+      (bomData && bomData.length > 0 ? bomData[0]?.lnItemCode || "" : "");
+
+    setAddParentNumber(parentDwg);
+    setAddParentLnCode(parentLn);
+    setSelectedChildOption(null);
+    setChildOptions([]);
+    setAddFindNo("");
+    setAddQuantity(1);
+    setOpenAddDialog(true);
+  }, [selectedAssembly, selectedAssemblyNumber, assemblyInputValue, bomData]);
+
+  React.useEffect(() => {
+    if (onRegisterAddAction) {
+      onRegisterAddAction(handleOpenAddDialog);
+    }
+  }, [onRegisterAddAction, handleOpenAddDialog]);
 
   // 2. Edit Part Number Dialog state
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -597,100 +632,65 @@ const ViewBOM: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => 
         </Alert>
       )}
 
-      {/* Bom Search Filter Card */}
-      <BomFilterCard
-        selectedAssembly={selectedAssembly}
-        handleAssemblyChange={handleAssemblyChange}
-        assemblyInputValue={assemblyInputValue}
-        handleAssemblyInputChange={handleAssemblyInputChange}
-        assemblySearchResults={assemblySearchResults}
-        isSearchingAssembly={isSearchingAssembly}
-        handleSearch={handleSearch}
-        handleReset={handleReset}
-        isBomLoading={isBomLoading}
-        hasBomData={bomData && bomData.length > 0}
-      />
+      {/* Unified Single TableCard Container */}
+      <TableCard sx={{ mb: 2 }}>
+        {/* Section 1: Bom Search Filter Card */}
+        <BomFilterCard
+          selectedAssembly={selectedAssembly}
+          handleAssemblyChange={handleAssemblyChange}
+          assemblyInputValue={assemblyInputValue}
+          handleAssemblyInputChange={handleAssemblyInputChange}
+          assemblySearchResults={assemblySearchResults}
+          isSearchingAssembly={isSearchingAssembly}
+          handleSearch={handleSearch}
+          handleReset={handleReset}
+          isBomLoading={isBomLoading}
+          hasBomData={bomData && bomData.length > 0}
+        />
 
-      {/* Results Table Card */}
-      <TableCard>
+        {/* Section 2: Results Table Header */}
         <TableCardHeader
           title="BOM Details"
-
           actions={
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              {bomData && bomData.length > 0 && (
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Button
-                    size="small"
-                    variant="text"
-                    onClick={expandAll}
-                    sx={{
-                      fontSize: "0.775rem",
-                      fontWeight: 600,
-                      color: "primary.main",
-                      textTransform: "none",
-                      p: 0,
-                      minWidth: "auto",
-                      "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                    }}
-                  >
-                    Expand all
-                  </Button>
-                  <Typography variant="caption" sx={{ color: "#D0D5DD" }}>
-                    ·
-                  </Typography>
-                  <Button
-                    size="small"
-                    variant="text"
-                    onClick={collapseAll}
-                    sx={{
-                      fontSize: "0.775rem",
-                      fontWeight: 600,
-                      color: "#667085",
-                      textTransform: "none",
-                      p: 0,
-                      minWidth: "auto",
-                      "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                    }}
-                  >
-                    Collapse
-                  </Button>
-                </Stack>
-              )}
-
-              {/* Add Button */}
-              <ActionButton
-                variant="primary"
-                size="compact"
-                disabled={!hasEditBomAccess}
-                startIcon={<AddIcon sx={{ fontSize: "0.95rem" }} />}
-                onClick={() => {
-                  const parentDwg =
-                    selectedAssembly?.drawingNumber ||
-                    selectedAssemblyNumber ||
-                    assemblyInputValue ||
-                    (bomData && bomData.length > 0
-                      ? bomData[0]?.parentDrawingNumber ||
-                      bomData[0]?.assemblyNumber ||
-                      bomData[0]?.childDrawingNumber ||
-                      ""
-                      : "");
-                  const parentLn =
-                    selectedAssembly?.lnItemCode ||
-                    (bomData && bomData.length > 0 ? bomData[0]?.lnItemCode || "" : "");
-
-                  setAddParentNumber(parentDwg);
-                  setAddParentLnCode(parentLn);
-                  setSelectedChildOption(null);
-                  setChildOptions([]);
-                  setAddFindNo("");
-                  setAddQuantity(1);
-                  setOpenAddDialog(true);
-                }}
-              >
-                Add
-              </ActionButton>
-            </Box>
+            bomData && bomData.length > 0 ? (
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Button
+                  size="small"
+                  variant="text"
+                  onClick={expandAll}
+                  sx={{
+                    fontSize: "0.775rem",
+                    fontWeight: 600,
+                    color: "primary.main",
+                    textTransform: "none",
+                    p: 0,
+                    minWidth: "auto",
+                    "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
+                  }}
+                >
+                  Expand all
+                </Button>
+                <Typography variant="caption" sx={{ color: "#D0D5DD" }}>
+                  ·
+                </Typography>
+                <Button
+                  size="small"
+                  variant="text"
+                  onClick={collapseAll}
+                  sx={{
+                    fontSize: "0.775rem",
+                    fontWeight: 600,
+                    color: "#667085",
+                    textTransform: "none",
+                    p: 0,
+                    minWidth: "auto",
+                    "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
+                  }}
+                >
+                  Collapse
+                </Button>
+              </Stack>
+            ) : undefined
           }
         />
 

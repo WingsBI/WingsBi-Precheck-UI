@@ -29,8 +29,10 @@ import {
 import {
   FileDownload as DownloadIcon,
   Close as CloseIcon,
+  Add as AddIcon,
 } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
+import { useHasPermission } from "../../hooks/useHasPermission";
 import type { RootState, AppDispatch } from "../../store/store";
 import {
   getSopAssemblyData,
@@ -46,7 +48,6 @@ import { useProductionSeries, useDrawingNumbers } from "../../hooks/useMasterDat
 import TreeTable from "../../components/TreeTable/TreeTable";
 import ViewBOM from "./ViewBOM";
 import { SopFilterCard } from "./components/SopFilterCard";
-import { EmptyState } from "../../components/EmptyState";
 import PageHeader from "../../components/ui/PageHeader";
 import ActionButton from "../../components/ui/ActionButton";
 import { ComponentTypeChip } from "../../components/ComponentTypeChip";
@@ -123,6 +124,9 @@ const ViewSOP: React.FC = () => {
     isExporting,
     error,
   } = useSelector((state: RootState) => state.sop);
+
+  const hasEditBomAccess = useHasPermission("Components");
+  const bomAddActionRef = useRef<(() => void) | null>(null);
 
   // Local state
   const [drwDisplayText, setDrwDisplayText] = useState("");
@@ -751,6 +755,17 @@ const ViewSOP: React.FC = () => {
     return !bomData || bomData.length === 0;
   }, [isExporting, activeTab, assemblyData, bomData]);
 
+  const isAddDisabled = useMemo(() => {
+    if (!hasEditBomAccess) return true;
+    return !bomData || bomData.length === 0;
+  }, [hasEditBomAccess, bomData]);
+
+  const addTooltipTitle = useMemo(() => {
+    if (!hasEditBomAccess) return "You do not have access to add assembly mapping";
+    if (!bomData || bomData.length === 0) return "Search for an assembly drawing to add mapping";
+    return "";
+  }, [hasEditBomAccess, bomData]);
+
   const handleHeaderExportClick = useCallback(() => {
     handleOpenExportDialog();
   }, [handleOpenExportDialog]);
@@ -781,21 +796,39 @@ const ViewSOP: React.FC = () => {
             : "Browse the BOM tree of an assembly"
         }
         actions={
-          <ActionButton
-            variant="secondary"
-            size="small"
-            onClick={handleHeaderExportClick}
-            disabled={isExportDisabled}
-            startIcon={
-              isExporting ? (
-                <CircularProgress size={16} color="inherit" />
-              ) : (
-                <DownloadIcon fontSize="small" />
-              )
-            }
-          >
-            Export
-          </ActionButton>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <ActionButton
+              variant="secondary"
+              size="standard"
+              onClick={handleHeaderExportClick}
+              disabled={isExportDisabled}
+              startIcon={
+                isExporting ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : (
+                  <DownloadIcon fontSize="small" />
+                )
+              }
+            >
+              Export
+            </ActionButton>
+
+            {activeTab === "bom" && (
+              <Tooltip title={addTooltipTitle} arrow>
+                <Box component="span" sx={{ display: "inline-flex" }}>
+                  <ActionButton
+                    variant="primary"
+                    size="standard"
+                    disabled={isAddDisabled}
+                    startIcon={<AddIcon fontSize="small" />}
+                    onClick={() => bomAddActionRef.current?.()}
+                  >
+                    Add
+                  </ActionButton>
+                </Box>
+              </Tooltip>
+            )}
+          </Stack>
         }
       />
 
@@ -858,8 +891,9 @@ const ViewSOP: React.FC = () => {
 
       {/* Tab Panels */}
       {activeTab === "sop" ? (
-        <>
-          {/* SOP Search Filter Card */}
+        /* Unified Single TableCard Container */
+        <TableCard sx={{ mb: 2 }}>
+          {/* Section 1: SOP Search Filter Controls */}
           <SopFilterCard
             control={control}
             productionSeriesData={productionSeriesData}
@@ -883,94 +917,90 @@ const ViewSOP: React.FC = () => {
             hasAssemblyData={assemblyData && assemblyData.length > 0}
           />
 
-          {/* SOP Details Table */}
-          <TableCard>
-            <TableCardHeader
-              title={
-               "SOP Details"
-              }
-              count={treeData.length > 0 ? treeData.length : undefined}
-              actions={
-                treeData.length > 0 ? (
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Button
-                      size="small"
-                      variant="text"
-                      onClick={() => treeTableRef.current?.expandAll()}
-                      sx={{
-                        fontSize: "0.775rem",
-                        fontWeight: 600,
-                        color: "primary.main",
-                        textTransform: "none",
-                        p: 0,
-                        minWidth: "auto",
-                        "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                      }}
-                    >
-                      Expand all
-                    </Button>
-                    <Typography variant="caption" sx={{ color: "#D0D5DD" }}>
-                      ·
-                    </Typography>
-                    <Button
-                      size="small"
-                      variant="text"
-                      onClick={() => treeTableRef.current?.collapseAll()}
-                      sx={{
-                        fontSize: "0.775rem",
-                        fontWeight: 600,
-                        color: "#667085",
-                        textTransform: "none",
-                        p: 0,
-                        minWidth: "auto",
-                        "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                      }}
-                    >
-                      Collapse
-                    </Button>
-                  </Stack>
-                ) : undefined
-              }
-            />
-
-            {/* Tree Table View */}
-            <Box sx={{ overflow: "hidden" }}>
-              {isLoading ? (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    py: 8,
-                    color: "#667085",
-                  }}
-                >
-                  <CircularProgress size={32} color="primary" sx={{ mb: 2 }} />
-                  <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    Loading SOP details...
+          {/* Section 2: SOP Details Table */}
+          <TableCardHeader
+            title={"SOP Details"}
+            count={treeData.length > 0 ? treeData.length : undefined}
+            actions={
+              treeData.length > 0 ? (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Button
+                    size="small"
+                    variant="text"
+                    onClick={() => treeTableRef.current?.expandAll()}
+                    sx={{
+                      fontSize: "0.775rem",
+                      fontWeight: 600,
+                      color: "primary.main",
+                      textTransform: "none",
+                      p: 0,
+                      minWidth: "auto",
+                      "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
+                    }}
+                  >
+                    Expand all
+                  </Button>
+                  <Typography variant="caption" sx={{ color: "#D0D5DD" }}>
+                    ·
                   </Typography>
-                </Box>
-              ) : (
-                <TreeTable
-                  ref={treeTableRef}
-                  data={treeData}
-                  columns={treeColumns}
-                  idField="id"
-                  parentIdField="parentId"
-                  height={600}
-                  enableVirtualization={Boolean(assemblyData && assemblyData.length > 80)}
-                  onRowClick={(row) => {
-                    setSelectedNode(row);
-                  }}
-                />
-              )}
-            </Box>
-          </TableCard>
-        </>
+                  <Button
+                    size="small"
+                    variant="text"
+                    onClick={() => treeTableRef.current?.collapseAll()}
+                    sx={{
+                      fontSize: "0.775rem",
+                      fontWeight: 600,
+                      color: "#667085",
+                      textTransform: "none",
+                      p: 0,
+                      minWidth: "auto",
+                      "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
+                    }}
+                  >
+                    Collapse
+                  </Button>
+                </Stack>
+              ) : undefined
+            }
+          />
+
+          {/* Tree Table View */}
+          <Box sx={{ overflow: "hidden" }}>
+            {isLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  py: 8,
+                  color: "#667085",
+                }}
+              >
+                <CircularProgress size={32} color="primary" sx={{ mb: 2 }} />
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Loading SOP details...
+                </Typography>
+              </Box>
+            ) : (
+              <TreeTable
+                ref={treeTableRef}
+                data={treeData}
+                columns={treeColumns}
+                idField="id"
+                parentIdField="parentId"
+                height={600}
+                enableVirtualization={Boolean(assemblyData && assemblyData.length > 80)}
+                onRowClick={(row) => {
+                  setSelectedNode(row);
+                }}
+              />
+            )}
+          </Box>
+        </TableCard>
       ) : (
         /* BOM Details Tab */
-        <ViewBOM hideHeader />
+        <ViewBOM hideHeader onRegisterAddAction={(fn) => { bomAddActionRef.current = fn; }} />
       )}
 
       {/* Exporting Backdrop */}

@@ -422,20 +422,21 @@ export default function UserManagement() {
       field: "srNo",
       headerName: "Sr No",
       width: 80,
-      align: "left",
-      headerAlign: "left",
+      align: "center",
+      headerAlign: "center",
       renderCell: (params: any) =>
         params.api.getSortedRowIds().indexOf(params.id) + 1,
     },
     { field: "userName", headerName: "Full Name", flex: 1.5, minWidth: 150, align: "left", headerAlign: "left" },
     { field: "email", headerName: "User Email", width: 200, align: "left", headerAlign: "left" },
-    { field: "userId", headerName: "User ID", width: 150, align: "left", headerAlign: "left" },
+    { field: "userId", headerName: "User ID", width: 150, align: "left", headerAlign: "left", sortable: false },
     {
       field: "plantName",
       headerName: "Plant",
       width: 120,
       align: "left",
       headerAlign: "left",
+      sortable: false,
       valueGetter: (params: any) => {
         const row = params.row || params;
         const plant = plants.find((p: any) => p.id === row.plantId);
@@ -446,6 +447,7 @@ export default function UserManagement() {
       field: "role",
       headerName: "Role",
       width: 120,
+      sortable: false,
       align: "left",
       headerAlign: "left",
       valueGetter: (params: any) => {
@@ -459,6 +461,7 @@ export default function UserManagement() {
       field: "departmentName",
       headerName: "Department",
       width: 150,
+      sortable: false,
       align: "left",
       headerAlign: "left",
       valueGetter: (params: any) => {
@@ -472,6 +475,7 @@ export default function UserManagement() {
       field: "isActive",
       headerName: "Status",
       width: 150,
+      sortable: false,
       align: "center",
       headerAlign: "center",
       renderCell: () => (
@@ -534,14 +538,15 @@ export default function UserManagement() {
       field: "srNo",
       headerName: "Sr No",
       width: 80,
-      align: "left",
-      headerAlign: "left",
+      align: "center",
+      headerAlign: "center",
+      sortable: false,
       renderCell: (params: any) =>
         params.api.getSortedRowIds().indexOf(params.id) + 1,
     },
     {
       field: "userName",
-      headerName: "User",
+      headerName: "Full Name",
       flex: 1.5,
       minWidth: 180,
       align: "left",
@@ -571,6 +576,7 @@ export default function UserManagement() {
       width: 140,
       align: "left",
       headerAlign: "left",
+      sortable: false,
       renderCell: (params: any) => (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {params.value || "-"}
@@ -583,6 +589,7 @@ export default function UserManagement() {
       width: 150,
       align: "left",
       headerAlign: "left",
+      sortable: false,
       renderCell: (params: any) => (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {params.value || "-"}
@@ -595,6 +602,7 @@ export default function UserManagement() {
       width: 140,
       align: "left",
       headerAlign: "left",
+
       renderCell: (params: any) => {
         const val = params.row.modifiedDate || params.row.createdDate;
         return (
@@ -607,6 +615,7 @@ export default function UserManagement() {
     {
       field: "isActive",
       headerName: "Active",
+      sortable: false,
       width: 100,
       align: "center",
       headerAlign: "center",
