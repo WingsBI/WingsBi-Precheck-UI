@@ -282,8 +282,11 @@ const Components: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) 
   }, [searchQuery, selectedSeries, selectedTypes, selectedUnits, page, rowsPerPage, sortColumn, sortOrder]);
   // ──────────────────────────────────────────────────────────────────────────
 
-  const handleSort = (columnKey: string) => {
-    if (sortColumn === columnKey) {
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      setSortColumn("");
+      setSortOrder("asc");
+    } else if (sortColumn === columnKey) {
       setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(columnKey);

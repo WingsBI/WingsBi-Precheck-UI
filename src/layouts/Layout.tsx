@@ -321,7 +321,7 @@ export default function Layout() {
           text: "Bulk Import",
           pageName: "Bulk Import",
           icon: <CloudUploadIcon />,
-          path: "/adminmaster//bulk-import",
+          path: "/adminmaster/bulk-import",
         },
         {
           text: "User Management",

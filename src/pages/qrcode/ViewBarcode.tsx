@@ -594,8 +594,11 @@ const ViewBarcode: React.FC = () => {
     severity: 'success'
   });
 
-  const handleSort = (columnKey: string) => {
-    if (sortColumn === columnKey) {
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      setSortColumn('');
+      setSortDirection('asc');
+    } else if (sortColumn === columnKey) {
       setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
     } else {
       setSortColumn(columnKey);

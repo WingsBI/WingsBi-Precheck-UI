@@ -268,11 +268,14 @@ const ViewOrder: React.FC = () => {
 
 
   // Sorting state
-  const [sortColumn, setSortColumn] = useState<string>("");
+  const [sortColumn, setSortColumn] = useState<string | null>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (columnKey: string) => {
-    if (sortColumn === columnKey) {
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      setSortColumn("");
+      setSortDirection("asc");
+    } else if (sortColumn === columnKey) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(columnKey);

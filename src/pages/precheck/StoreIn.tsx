@@ -161,8 +161,12 @@ const StoreIn: React.FC = () => {
   const [sortColumn, setSortColumn] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (columnKey: string) => {
-    if (sortColumn === columnKey) {
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      // 3rd click: clear sort
+      setSortColumn("");
+      setSortDirection("asc");
+    } else if (sortColumn === columnKey) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(columnKey);

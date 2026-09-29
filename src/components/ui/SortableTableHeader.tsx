@@ -12,7 +12,11 @@ export interface SortableTableHeaderProps {
   sortColumn?: string | null;
   activeSortColumn?: string | null;
   sortDirection?: "asc" | "desc";
-  onSort?: (columnKey: string) => void;
+  /**
+   * Called with the column key when sorting, or null to clear the sort.
+   * Cycle: none → asc → desc → null (clear)
+   */
+  onSort?: (columnKey: string | null) => void;
   align?: "left" | "center" | "right";
   width?: number | string;
   minWidth?: number | string;
@@ -41,7 +45,13 @@ export const SortableTableHeader: React.FC<SortableTableHeaderProps> = ({
 
   const handleClick = () => {
     if (isSortable && onSort && effectiveKey) {
-      onSort(effectiveKey);
+      if (isSorted && sortDirection === "desc") {
+        // 3rd click: clear the sort
+        onSort(null);
+      } else {
+        // 1st click (not sorted) → asc, 2nd click (asc) → desc
+        onSort(effectiveKey);
+      }
     }
   };
 

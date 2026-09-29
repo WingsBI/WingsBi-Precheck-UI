@@ -79,11 +79,14 @@ const QRCodesTable = ({
   const [actionMenuItem, setActionMenuItem] = useState<any | null>(null);
   const [actionMenuIndex, setActionMenuIndex] = useState<number | null>(null);
 
-  const [sortColumn, setSortColumn] = useState<string>("");
+  const [sortColumn, setSortColumn] = useState<string | null>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (columnKey: string) => {
-    if (sortColumn === columnKey) {
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      setSortColumn("");
+      setSortDirection("asc");
+    } else if (sortColumn === columnKey) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(columnKey);

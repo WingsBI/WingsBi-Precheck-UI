@@ -403,8 +403,11 @@ const StoredInComponents: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = f
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (col: string) => {
-    if (sortColumn === col) {
+  const handleSort = (col: string | null) => {
+    if (col === null) {
+      setSortColumn(null);
+      setSortDirection("asc");
+    } else if (sortColumn === col) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(col);

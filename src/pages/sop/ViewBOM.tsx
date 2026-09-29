@@ -178,11 +178,14 @@ const ViewBOM: React.FC<ViewBOMProps> = ({ hideHeader = false, onRegisterAddActi
   });
 
   // Sorting State
-  const [sortColumn, setSortColumn] = useState<string>("");
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (columnKey: string) => {
-    if (sortColumn === columnKey) {
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      setSortColumn(null);
+      setSortDirection("asc");
+    } else if (sortColumn === columnKey) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(columnKey);
