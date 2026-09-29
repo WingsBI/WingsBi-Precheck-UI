@@ -1583,7 +1583,7 @@ export default function GenerateIRMSN() {
                     right: 14,
                     backgroundColor: "#ffffff",
                     px: 0.35,
-                    color: "#d32f2f",
+                    color: "#706c6cff",
                     fontWeight: 700,
                     fontSize: "0.875rem",
                     lineHeight: 1,

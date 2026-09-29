@@ -800,7 +800,7 @@ export default function Layout() {
             </Box>
 
             {(isSidebarOpen || !isDesktopVersion) && (
-              <ExpandMoreIcon sx={{ color: "#6B7280", fontSize: "1.2rem", ml: 1, flexShrink: 0 }} />
+              <SettingsIcon sx={{ color: "#6B7280", fontSize: "1.2rem", mr: 1, flexShrink: 0 }} />
             )}
           </ListItemButton>
         </Tooltip>

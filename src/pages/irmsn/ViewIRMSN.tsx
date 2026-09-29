@@ -1179,12 +1179,7 @@ const ViewIRMSN: React.FC = () => {
                     >
                       <TableCell align="center">{page * rowsPerPage + index + 1}</TableCell>
                       <TableCell align="center">
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "#101828", fontSize: "inherit" }}
-                        >
-                          {item.displayNumber || "-"}
-                        </Typography>
+                        {item.displayNumber || "-"}
                       </TableCell>
                       <TableCell align="center">
                         <Box
