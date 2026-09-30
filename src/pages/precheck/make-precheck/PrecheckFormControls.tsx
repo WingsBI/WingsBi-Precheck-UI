@@ -15,7 +15,7 @@ import {
 } from "@mui/icons-material";
 import type { ProductionOrderMaster } from "../../../hooks/usePONumbers";
 import ActionButton from "../../../components/ui/ActionButton";
-import { RequiredChip } from "../../../components/ui";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 
 interface PrecheckFormControlsProps {
   // PO Number
@@ -262,8 +262,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { maxHeight: "300px" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 200px", lg: 1.5 },
-          minWidth: { xs: "100%", sm: 190 },
+          flex: { xs: "1 1 100%", sm: "1 1 250px", lg: 1.8 },
+          minWidth: { xs: "100%", sm: 230 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             backgroundColor: "#FFFFFF",
@@ -277,14 +277,10 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label={
-              <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                <span>Production Order No</span>
-                <RequiredChip />
-              </Box>
-            }
+            label={<RequiredLabel text="Production Order No" required />}
             fullWidth
             size="small"
+            InputLabelProps={{ shrink: true }}
           />
         )}
       />
@@ -302,8 +298,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { backgroundColor: "#F9FAFB" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 160px", lg: 1.2 },
-          minWidth: { xs: "100%", sm: 140 },
+          flex: { xs: "1 1 100%", sm: "1 1 150px", lg: 1.1 },
+          minWidth: { xs: "100%", sm: 130 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             borderRadius: "6px",
@@ -330,8 +326,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { backgroundColor: "#F9FAFB" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 160px", lg: 1.2 },
-          minWidth: { xs: "100%", sm: 140 },
+          flex: { xs: "1 1 100%", sm: "1 1 150px", lg: 1.1 },
+          minWidth: { xs: "100%", sm: 130 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             borderRadius: "6px",
@@ -358,8 +354,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { backgroundColor: "#F9FAFB" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 110px", lg: 0.9 },
-          minWidth: { xs: "100%", sm: 95 },
+          flex: { xs: "1 1 100%", sm: "1 1 100px", lg: 0.8 },
+          minWidth: { xs: "100%", sm: 90 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             borderRadius: "6px",
@@ -392,8 +388,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { maxHeight: "300px" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 160px", lg: 1.1 },
-          minWidth: { xs: "100%", sm: 150 },
+          flex: { xs: "1 1 100%", sm: "1 1 110px", lg: 0.8 },
+          minWidth: { xs: "100%", sm: 105 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             backgroundColor: "#FFFFFF",
@@ -407,13 +403,9 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label={
-              <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                <span>ID Number</span>
-                <RequiredChip />
-              </Box>
-            }
+            label={<RequiredLabel text="ID " required />}
             variant="outlined"
+            InputLabelProps={{ shrink: true }}
           />
         )}
       />

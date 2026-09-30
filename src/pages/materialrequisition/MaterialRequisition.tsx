@@ -34,7 +34,7 @@ import {
 } from "@mui/material";
 import { CustomPagination } from "../../components/CustomPagination";
 import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
-import { RequiredChip } from "../../components/ui";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { commonTableCellCompactCheckbox, commonTableRowStyle } from "../../components/tableStyles";
 
 import {
@@ -1521,7 +1521,7 @@ const MaterialRequisition: React.FC = () => {
                           size="small"
                           label="Request No."
                           variant="outlined"
-                          InputLabelProps={{ shrink: true }}
+                         
                         />
                       )}
                     />
@@ -1538,7 +1538,7 @@ const MaterialRequisition: React.FC = () => {
                           size="small"
                           label="Rejected Part ID Number"
                           variant="outlined"
-                          InputLabelProps={{ shrink: true }}
+                        
                           disabled
                         />
                       )}
@@ -1706,7 +1706,7 @@ const MaterialRequisition: React.FC = () => {
                               label="MIN Date"
                               variant="outlined"
                               type="date"
-                              InputLabelProps={{ shrink: true }}
+                              
                             />
                           )}
                         />
@@ -2106,13 +2106,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>From Assembly PO Number</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="From Assembly PO Number" required />}
                       fullWidth
+                  
                       placeholder="Select From Assembly PO Number"
                     />
                   )}
@@ -2122,12 +2118,8 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label={
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>From Assembly ID Number</span>
-                      <RequiredChip />
-                    </Box>
-                  }
+                  label={<RequiredLabel text="From Assembly ID Number" required />}
+                 
                   value={swapData.fromId}
                   onChange={(e) =>
                     setSwapData((prev) => ({
@@ -2198,13 +2190,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>To Assembly PO Number</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="To Assembly PO Number" required />}
                       fullWidth
+                      
                       placeholder="Select To Assembly PO Number"
                     />
                   )}
@@ -2215,12 +2203,8 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label={
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>To Assembly ID Number</span>
-                      <RequiredChip />
-                    </Box>
-                  }
+                  label={<RequiredLabel text="To Assembly ID Number" required />}
+                 
                   value={swapData.toId}
                   onChange={(e) =>
                     setSwapData((prev) => ({
@@ -2258,13 +2242,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>Part Number</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="Part Number" required />}
                       fullWidth
+                     
                       placeholder="Select Part Number to Swap"
                     />
                   )}
@@ -2274,12 +2254,8 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label={
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>ID Number</span>
-                      <RequiredChip />
-                    </Box>
-                  }
+                  label={<RequiredLabel text="ID Number" required />}
+              
                   placeholder="Enter ID Number of the Drawing to Swap"
                   value={swapData.idNumber}
                   onChange={(e) =>
@@ -2422,14 +2398,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>Rejected part Part Number</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="Rejected part Part Number" required />}
                       fullWidth
-                    />
+                                          />
                   )}
                 />
               </Grid>
@@ -2439,7 +2410,7 @@ const MaterialRequisition: React.FC = () => {
                   fullWidth
                   size="small"
                   label="Rejected part Item Description"
-                  value={newRequisition.nomenclature || ""}
+                                    value={newRequisition.nomenclature || ""}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -2448,7 +2419,7 @@ const MaterialRequisition: React.FC = () => {
                   size="small"
                   label="Quantity"
                   type="number"
-                  value={newRequisition.quantity || ""}
+                                    value={newRequisition.quantity || ""}
                   onChange={(e) =>
                     setNewRequisition((prev) => ({
                       ...prev,
@@ -2461,12 +2432,8 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label={
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>Rejected Part ID Number</span>
-                      <RequiredChip />
-                    </Box>
-                  }
+                  label={<RequiredLabel text="Rejected Part ID Number" required />}
+               
                   type="text"
                   value={newRequisition.rejectedIdNumber || ""}
                   onChange={(e) =>
@@ -2576,14 +2543,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>Assembly PO Number</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="Assembly PO Number" required />}
                       fullWidth
-                      placeholder="Enter Assembly PO Number"
+                                            placeholder="Enter Assembly PO Number"
                     />
                   )}
                 />

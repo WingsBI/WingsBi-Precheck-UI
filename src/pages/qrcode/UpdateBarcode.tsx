@@ -1408,7 +1408,7 @@ const UpdateBarcode: React.FC = () => {
                     component="legend"
                     sx={{ mr: 2, fontSize: "0.875rem" }}
                   >
-                    Disposition *:
+                    Disposition:
                   </FormLabel>
                   <RadioGroup
                     row

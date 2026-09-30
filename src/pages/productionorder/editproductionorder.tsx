@@ -15,7 +15,7 @@ import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
 import PageHeader from "../../components/ui/PageHeader";
-import { RequiredChip } from "../../components/ui";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import {
@@ -273,6 +273,7 @@ export default function EditProductionOrder() {
                     fullWidth
                     size="small"
                     disabled
+                    InputLabelProps={{ shrink: true }}
                     sx={{
                       "& .MuiInputBase-input.Mui-disabled": { WebkitTextFillColor: "#344054", fontWeight: 600 },
                     }}
@@ -290,6 +291,7 @@ export default function EditProductionOrder() {
                     label="Item Code"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                     InputProps={{ readOnly: true }}
                     sx={{
                       "& .MuiInputBase-input": { color: "#344054", fontWeight: 600 },
@@ -308,6 +310,7 @@ export default function EditProductionOrder() {
                     label="Item Description"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                     InputProps={{ readOnly: true }}
                     sx={{
                       "& .MuiInputBase-input": { color: "#344054" },
@@ -328,6 +331,7 @@ export default function EditProductionOrder() {
                     label="Project Code"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                   />
                 )}
               />
@@ -342,6 +346,7 @@ export default function EditProductionOrder() {
                     label="Project Description"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                   />
                 )}
               />
@@ -352,6 +357,7 @@ export default function EditProductionOrder() {
                 fullWidth
                 size="small"
                 value={selectedProductionSeries?.productionSeries || ""}
+                InputLabelProps={{ shrink: true }}
                 InputProps={{ readOnly: true }}
                 sx={{
                   "& .MuiInputBase-input": { color: "#344054", fontWeight: 600 },
@@ -371,6 +377,7 @@ export default function EditProductionOrder() {
                     type="number"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                   />
                 )}
               />
@@ -383,15 +390,11 @@ export default function EditProductionOrder() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>Quantity</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="Quantity" required />}
                     type="number"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                     error={!!errors.quantity}
                     helperText={errors.quantity?.message}
                   />

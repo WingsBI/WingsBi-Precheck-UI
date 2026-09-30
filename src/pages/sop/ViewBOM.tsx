@@ -40,7 +40,7 @@ import {
   Add as AddIcon,
   MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
-import { RequiredChip } from "../../components/ui";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import {
   getBomDetails,
   searchAssemblyNumbers,
@@ -784,15 +784,11 @@ const ViewBOM: React.FC<ViewBOMProps> = ({ hideHeader = false, onRegisterAddActi
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, pt: "8px !important" }}>
           <TextField
             size="small"
-            label={
-              <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                <span>Parent Part Number</span>
-                <RequiredChip />
-              </Box>
-            }
+            label={<RequiredLabel text="Parent Part Number" required />}
             value={addParentNumber}
             onChange={(e) => setAddParentNumber(e.target.value)}
             fullWidth
+          
           />
           <Autocomplete
             size="small"
@@ -811,13 +807,9 @@ const ViewBOM: React.FC<ViewBOMProps> = ({ hideHeader = false, onRegisterAddActi
             renderInput={(params) => (
               <TextField
                 {...params}
-                label={
-                  <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                    <span>Child Part Number</span>
-                    <RequiredChip />
-                  </Box>
-                }
+                label={<RequiredLabel text="Child Part Number" required />}
                 placeholder="Search child part number..."
+                
               />
             )}
           />
@@ -827,6 +819,7 @@ const ViewBOM: React.FC<ViewBOMProps> = ({ hideHeader = false, onRegisterAddActi
             value={addFindNo}
             onChange={(e) => setAddFindNo(e.target.value)}
             fullWidth
+            
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>

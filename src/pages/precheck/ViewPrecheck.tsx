@@ -41,6 +41,7 @@ import {
 } from "@mui/material";
 import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import {
   Visibility as VisibilityIcon,
   FileDownload as FileDownloadIcon,
@@ -721,7 +722,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
     return sortedData.slice(start, start + rowsPerPage);
   }, [activeTab, sortedData, page, rowsPerPage]);
 
-  const handleRequestSort = (field: string) => {
+  const handleRequestSort = (field: string | null) => {
+    if (!field) return;
     const isAsc = orderBy === field && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(field);
@@ -1286,7 +1288,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Item Code *"
+                    label={<RequiredLabel text="Item Code" required />}
+                    InputLabelProps={{ shrink: true }}
                     size="small"
                     variant="outlined"
                     sx={{
@@ -1369,7 +1372,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Part Number *"
+                    label={<RequiredLabel text="Part Number" required />}
+                    InputLabelProps={{ shrink: true }}
                     size="small"
                     variant="outlined"
                     sx={{
@@ -1434,7 +1438,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Prod Series *"
+                    label={<RequiredLabel text="Prod Series" required />}
+                    InputLabelProps={{ shrink: true }}
                     size="small"
                     variant="outlined"
                     sx={{
@@ -1453,6 +1458,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
 
               {/* 4. Assembly No (Text Input) */}
               <TextField
+                label="Assembly No"
+                InputLabelProps={{ shrink: true }}
                 placeholder="Assembly No"
                 size="small"
                 variant="outlined"
@@ -1496,6 +1503,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
 
               {/* 5. ID Number */}
               <TextField
+                label="ID Number"
+                InputLabelProps={{ shrink: true }}
                 placeholder="ID Number..."
                 size="small"
                 variant="outlined"

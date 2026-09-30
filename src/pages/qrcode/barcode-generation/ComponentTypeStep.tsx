@@ -23,7 +23,7 @@ import {
 import { Controller } from "react-hook-form";
 import { Add as AddIcon } from "@mui/icons-material";
 import StepHeader from "./StepHeader";
-import { RequiredChip } from "../../../components/ui";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 import { commonTableHeaderStyle, commonTableRowStyle } from "../../../components/tableStyles";
 
 interface ComponentTypeStepProps {
@@ -196,16 +196,12 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>Start ID</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="Start ID" required />}
                       type="number"
                       placeholder="e.g. 301"
                       fullWidth
                       size="small"
+                      InputLabelProps={{ shrink: true }}
                       error={!!error}
                       helperText={error?.message || idRangeNotice}
                     />
@@ -231,16 +227,12 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>End ID</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="End ID" required />}
                       type="number"
                       placeholder="e.g. 320"
                       fullWidth
                       size="small"
+                      InputLabelProps={{ shrink: true }}
                       error={!!error}
                       helperText={error?.message || idRangeNotice}
                     />
@@ -307,14 +299,10 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>ID Range</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="ID Range" required />}
                       fullWidth
                       size="small"
+                      InputLabelProps={{ shrink: true }}
                       placeholder="e.g., 301, 302, 305-310"
                       error={!!error}
                       helperText={error?.message || idRangeNotice}
@@ -492,14 +480,10 @@ function ComponentTypeStep({
               render={({ field, fieldState: { error } }) => (
                 <TextField
                   {...field}
-                  label={
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>ID Range</span>
-                      <RequiredChip />
-                    </Box>
-                  }
+                  label={<RequiredLabel text="ID Range" required />}
                   fullWidth
                   size="small"
+                  InputLabelProps={{ shrink: true }}
                   placeholder="e.g., 1,2,3,4-7"
                   error={!!error}
                   helperText={error?.message || idRangeNotice}

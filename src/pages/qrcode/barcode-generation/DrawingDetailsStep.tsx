@@ -19,7 +19,7 @@ import {
 import { Controller } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import StepHeader from "./StepHeader";
-import { RequiredChip } from "../../../components/ui";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 import type { DrawingNumber, Shape } from "../../../types";
 
 interface DrawingDetailsStepProps {
@@ -381,14 +381,10 @@ function DrawingDetailsStep({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>Production Order Number</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="Production Order No" required />}
                       fullWidth
                       size="small"
+                      InputLabelProps={{ shrink: true }}
                       inputRef={ref}
                       onKeyDown={handlePOKeyDown}
                       onClick={() => setOpenPO(true)}
@@ -555,12 +551,7 @@ function DrawingDetailsStep({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label={
-                          <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                            <span>Production Series</span>
-                            <RequiredChip />
-                          </Box>
-                        }
+                        label={<RequiredLabel text="Production Series" required />}
                         inputRef={ref}
                         onClick={() => setOpenProdSeries(true)}
                         onFocus={(e) => {
@@ -585,22 +576,15 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel id="id-unit-label">
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>Unit</span>
-                      <RequiredChip />
-                    </Box>
+                  <InputLabel id="id-unit-label" shrink>
+                    <RequiredLabel text="Unit" required />
                   </InputLabel>
                   <Select
                     {...field}
                     labelId="id-unit-label"
+                    notched
                     value={currentUnitVal}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>Unit</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {
                       field.onChange(e);
                       if (e.target.value) {
@@ -661,12 +645,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>IR Number</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="IR Number" required />}
                     onClick={() => setOpenIR(true)}
                     onFocus={(e) => {
                       setOpenIR(true);
@@ -721,12 +700,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>MSN Number</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="MSN Number" required />}
                     inputRef={ref}
                     onClick={() => setOpenMSN(true)}
                     onFocus={(e) => {
@@ -748,12 +722,7 @@ function DrawingDetailsStep({
               render={({ field, fieldState: { error } }) => (
                 <DatePicker
                   {...field}
-                  label={
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>MFG Date</span>
-                      <RequiredChip />
-                    </Box>
-                  }
+                  label={<RequiredLabel text="MFG Date" required />}
                   maxDate={new Date()}
                   slotProps={{
                     textField: {
@@ -945,12 +914,7 @@ function DrawingDetailsStep({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>RM Part Number</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="RM Part Number" required />}
                       inputRef={ref}
                       onClick={() => setOpenDrawing(true)}
                       onFocus={(e) => {
@@ -1035,12 +999,7 @@ function DrawingDetailsStep({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label={
-                          <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                            <span>Production Series</span>
-                            <RequiredChip />
-                          </Box>
-                        }
+                        label={<RequiredLabel text="Production Series" required />}
                         inputRef={ref}
                         onClick={() => setOpenProdSeries(true)}
                         onFocus={(e) => {
@@ -1067,22 +1026,15 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel id="fim-unit-label">
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>Unit</span>
-                      <RequiredChip />
-                    </Box>
+                  <InputLabel id="fim-unit-label" shrink>
+                    <RequiredLabel text="Unit" required />
                   </InputLabel>
                   <Select
                     {...field}
                     labelId="fim-unit-label"
+                    notched
                     value={currentUnitVal}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>Unit</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {
                       field.onChange(e);
                       if (e.target.value) {
@@ -1143,12 +1095,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>IR Number</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="IR Number" required />}
                     onClick={() => setOpenIR(true)}
                     onFocus={(e) => {
                       setOpenIR(true);
@@ -1201,12 +1148,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>MSN Number</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="MSN Number" required />}
                     inputRef={ref}
                     onClick={() => setOpenMSN(true)}
                     onFocus={(e) => {
@@ -1241,12 +1183,7 @@ function DrawingDetailsStep({
               render={({ field, fieldState: { error } }) => (
                 <DatePicker
                   {...field}
-                  label={
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>MFG Date</span>
-                      <RequiredChip />
-                    </Box>
-                  }
+                  label={<RequiredLabel text="MFG Date" required />}
                   maxDate={new Date()}
                   slotProps={{
                     textField: {
@@ -1438,12 +1375,7 @@ function DrawingDetailsStep({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>RM Part Number</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="RM Part Number" required />}
                       inputRef={ref}
                       onClick={() => setOpenDrawing(true)}
                       onFocus={(e) => {
@@ -1528,12 +1460,7 @@ function DrawingDetailsStep({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label={
-                          <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                            <span>Production Series</span>
-                            <RequiredChip />
-                          </Box>
-                        }
+                        label={<RequiredLabel text="Production Series" required />}
                         inputRef={ref}
                         onClick={() => setOpenProdSeries(true)}
                         onFocus={(e) => {
@@ -1560,22 +1487,15 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel id="si-unit-label">
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>Unit</span>
-                      <RequiredChip />
-                    </Box>
+                  <InputLabel id="si-unit-label" shrink>
+                    <RequiredLabel text="Unit" required />
                   </InputLabel>
                   <Select
                     {...field}
                     labelId="si-unit-label"
+                    notched
                     value={currentUnitVal}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>Unit</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {
                       field.onChange(e);
                       if (e.target.value) {
@@ -1636,12 +1556,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>IR Number</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="IR Number" required />}
                     onClick={() => setOpenIR(true)}
                     onFocus={(e) => {
                       setOpenIR(true);
@@ -1694,12 +1609,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={
-                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                        <span>MSN Number</span>
-                        <RequiredChip />
-                      </Box>
-                    }
+                    label={<RequiredLabel text="MSN Number" required />}
                     inputRef={ref}
                     onClick={() => setOpenMSN(true)}
                     onFocus={(e) => {
@@ -1762,12 +1672,7 @@ function DrawingDetailsStep({
               render={({ field, fieldState: { error } }) => (
                 <DatePicker
                   {...field}
-                  label={
-                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                      <span>MFG Date</span>
-                      <RequiredChip />
-                    </Box>
-                  }
+                  label={<RequiredLabel text="MFG Date" required />}
                   maxDate={new Date()}
                   slotProps={{
                     textField: {

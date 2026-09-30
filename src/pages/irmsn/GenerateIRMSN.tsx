@@ -27,7 +27,7 @@ import {
   FileDownload as DownloadIcon,
 } from "@mui/icons-material";
 import PageHeader from "../../components/ui/PageHeader";
-import { RequiredChip } from "../../components/ui";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 
 import type { RootState, AppDispatch } from "../../store/store";
 import type { DrawingNumber, FormData as BaseFormData } from "../../types";
@@ -833,9 +833,8 @@ export default function GenerateIRMSN() {
           <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap" sx={{ mb: 1.5 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
-                Document type
+                <RequiredLabel text="Document type" required />
               </Typography>
-              <RequiredChip />
             </Box>
             <Controller
               name="documentType"
@@ -1063,42 +1062,14 @@ export default function GenerateIRMSN() {
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Production Order Number"
+                            label={<RequiredLabel text="Production Order Number" required />}
                             fullWidth
                             size="small"
+                          
                             error={!!errors.poNumber}
                             helperText={errors.poNumber?.message}
                             inputRef={ref}
-                            sx={{
-                              ...standardInputStyle,
-                              "& .MuiOutlinedInput-root": {
-                                pr: "75px !important",
-                              },
-                            }}
-                            InputProps={{
-                              ...params.InputProps,
-                              endAdornment: (
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 0.5,
-                                    position: "absolute",
-                                    right: 8,
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
-                                    "& .MuiAutocomplete-endAdornment": {
-                                      position: "static",
-                                      transform: "none",
-                                      ml: 0,
-                                    },
-                                  }}
-                                >
-                                  <RequiredChip />
-                                  {params.InputProps.endAdornment}
-                                </Box>
-                              ),
-                            }}
+                            sx={standardInputStyle}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === "Tab") {
                                 const inputValue = (e.target as HTMLInputElement).value;
@@ -1327,39 +1298,11 @@ export default function GenerateIRMSN() {
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Part Number"
+                            label={<RequiredLabel text="Part Number" required />}
+                           
                             error={!!error}
                             helperText={error?.message}
-                            sx={{
-                              ...standardInputStyle,
-                              "& .MuiOutlinedInput-root": {
-                                pr: "75px !important",
-                              },
-                            }}
-                            InputProps={{
-                              ...params.InputProps,
-                              endAdornment: (
-                                <Box
-                                  sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 0.5,
-                                    position: "absolute",
-                                    right: 8,
-                                    top: "50%",
-                                    transform: "translateY(-50%)",
-                                    "& .MuiAutocomplete-endAdornment": {
-                                      position: "static",
-                                      transform: "none",
-                                      ml: 0,
-                                    },
-                                  }}
-                                >
-                                  <RequiredChip />
-                                  {params.InputProps.endAdornment}
-                                </Box>
-                              ),
-                            }}
+                            sx={standardInputStyle}
                           />
                         )}
                       />
@@ -1463,15 +1406,11 @@ export default function GenerateIRMSN() {
                   render={({ field }) => (
                     <TextField
                       {...field}
-                      label={
-                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                          <span>ID Number(s)</span>
-                          <RequiredChip />
-                        </Box>
-                      }
+                      label={<RequiredLabel text="ID Number(s)" required />}
                       placeholder="e.g. 1,2,3 or 1-5"
                       fullWidth
                       size="small"
+                   
                       error={!!errors.idRange}
                       helperText={errors.idRange?.message || "Comma-separated or a range (e.g. 1,2,3 or 1-5)"}
                       sx={standardInputStyle}
@@ -1493,6 +1432,7 @@ export default function GenerateIRMSN() {
                     type="number"
                     fullWidth
                     size="small"
+                 
                     error={!!errors.quantity}
                     sx={standardInputStyle}
                   />
@@ -1511,6 +1451,7 @@ export default function GenerateIRMSN() {
                       label="Build No."
                       fullWidth
                       size="small"
+                     
                       sx={standardInputStyle}
                     />
                   )}
@@ -1521,6 +1462,7 @@ export default function GenerateIRMSN() {
                   value={watchedBuildNumber || ""}
                   fullWidth
                   size="small"
+                 
                   InputProps={{ readOnly: true }}
                   sx={readOnlyInputStyle}
                 />
@@ -1579,39 +1521,11 @@ export default function GenerateIRMSN() {
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Stage"
+                          label={<RequiredLabel text="Stage" required />}
+                        
                           error={!!error}
                           helperText={error?.message}
-                          sx={{
-                            ...standardInputStyle,
-                            "& .MuiOutlinedInput-root": {
-                              pr: "75px !important",
-                            },
-                          }}
-                          InputProps={{
-                            ...params.InputProps,
-                            endAdornment: (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 0.5,
-                                  position: "absolute",
-                                  right: 8,
-                                  top: "50%",
-                                  transform: "translateY(-50%)",
-                                  "& .MuiAutocomplete-endAdornment": {
-                                    position: "static",
-                                    transform: "none",
-                                    ml: 0,
-                                  },
-                                }}
-                              >
-                                <RequiredChip />
-                                {params.InputProps.endAdornment}
-                              </Box>
-                            ),
-                          }}
+                          sx={standardInputStyle}
                         />
                       )}
                     />

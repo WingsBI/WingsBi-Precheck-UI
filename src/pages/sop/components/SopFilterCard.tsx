@@ -9,7 +9,7 @@ import {
   Paper,
 } from "@mui/material";
 import ActionButton from "../../../components/ui/ActionButton";
-import { RequiredChip } from "../../../components/ui";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 import {
   Search as SearchIcon,
   Refresh as ResetIcon,
@@ -163,12 +163,8 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
                   renderInput={(params) => (
                       <TextField
                         {...params}
-                        label={
-                          <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                            <span>Prod. Series</span>
-                            <RequiredChip />
-                          </Box>
-                        }
+                        label={<RequiredLabel text="Prod. Series" required />}
+                       
                         placeholder="Select series..."
                       />
                   )}
@@ -202,12 +198,8 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label={
-                  <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
-                    <span>Assembly No / Item Code</span>
-                    <RequiredChip />
-                  </Box>
-                }
+                label={<RequiredLabel text="Assembly No / Item Code" required />}
+             
                 placeholder="Type 3+ chars (e.g. CK310)..."
               />
             )}
@@ -272,6 +264,7 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
                 placeholder="ID number..."
                 fullWidth
                 size="small"
+              
               />
             )}
           />

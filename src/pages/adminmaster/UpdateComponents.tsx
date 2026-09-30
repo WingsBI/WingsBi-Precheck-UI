@@ -28,6 +28,7 @@ import {
 } from "@mui/material";
 import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import PageHeader from "../../components/ui/PageHeader";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { Save as SaveIcon, Refresh as RefreshIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -543,9 +544,10 @@ export default function InsertMappings() {
                       render={({ field }) => (
                         <TextField
                           {...field}
-                          label="Item Code *"
+                          label={<RequiredLabel text="Item Code" required />}
                           fullWidth
                           size="small"
+                       
                           error={!!errors.lnItemCode}
                           helperText={errors.lnItemCode?.message}
                         />
@@ -626,7 +628,8 @@ export default function InsertMappings() {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label="Item Code *"
+                              label={<RequiredLabel text="Item Code" required />}
+                        
                               InputProps={{
                                 ...params.InputProps,
                                 endAdornment: (
@@ -660,9 +663,10 @@ export default function InsertMappings() {
                       render={({ field }) => (
                         <TextField
                           {...field}
-                          label="Part Number *"
+                          label={<RequiredLabel text="Part Number" required />}
                           fullWidth
                           size="small"
+                      
                           error={!!errors.drawingNumber}
                           helperText={errors.drawingNumber?.message}
                         />
@@ -753,8 +757,9 @@ export default function InsertMappings() {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label="Part Number *"
+                              label={<RequiredLabel text="Part Number" required />}
                               fullWidth
+                             
                               error={!!errors.drawingNumber}
                               helperText={errors.drawingNumber?.message || ""}
                               InputProps={{
@@ -790,6 +795,7 @@ export default function InsertMappings() {
                         label="Item Description"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       //disabled={!selectedDrawing}
                       />
                     )}
@@ -809,7 +815,7 @@ export default function InsertMappings() {
                         size="small"
                       //disabled={!selectedDrawing}
                       >
-                        <InputLabel>Component Type</InputLabel>
+                        <InputLabel shrink>Component Type</InputLabel>
                         <Select {...field} label="Component Type">
                           <MenuItem value="">
                             <em>None</em>
@@ -833,6 +839,7 @@ export default function InsertMappings() {
                         label="Component Code"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       />
                     )}
                   />
@@ -847,6 +854,7 @@ export default function InsertMappings() {
                         label="Available For"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       />
                     )}
                   />
@@ -864,7 +872,7 @@ export default function InsertMappings() {
                         fullWidth
                         size="small"
                       >
-                        <InputLabel>Document Type</InputLabel>
+                        <InputLabel shrink>Document Type</InputLabel>
                         <Select {...field} label="Document Type">
                           <MenuItem value="">
                             <em>None</em>
@@ -930,6 +938,7 @@ export default function InsertMappings() {
                             label="Assembly Number"
                             fullWidth
                             size="small"
+                            InputLabelProps={{ shrink: true }}
                             InputProps={{
                               ...params.InputProps,
                               endAdornment: (
@@ -1003,6 +1012,7 @@ export default function InsertMappings() {
                             label="Assembly Item Code"
                             fullWidth
                             size="small"
+                            InputLabelProps={{ shrink: true }}
                             InputProps={{
                               ...params.InputProps,
                               endAdornment: (
@@ -1037,6 +1047,7 @@ export default function InsertMappings() {
                         label="Rack Location"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       />
                     )}
                   />
@@ -1050,7 +1061,7 @@ export default function InsertMappings() {
                         fullWidth
                         size="small"
                       >
-                        <InputLabel>Unit</InputLabel>
+                        <InputLabel shrink>Unit</InputLabel>
                         <Select {...field} label="Unit">
                           <MenuItem value="">
                             <em>None</em>
@@ -1075,6 +1086,7 @@ export default function InsertMappings() {
                         label="Has Expiry"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       />
                     )}
                   />
@@ -1095,6 +1107,7 @@ export default function InsertMappings() {
                           type="number"
                           fullWidth
                           size="small"
+                          InputLabelProps={{ shrink: true }}
                         />
                       )}
                     />
@@ -1111,6 +1124,7 @@ export default function InsertMappings() {
                           label="Position No"
                           fullWidth
                           size="small"
+                          InputLabelProps={{ shrink: true }}
                         />
                       )}
                     />

@@ -103,7 +103,7 @@ const LabelPreviewPanel = ({
           variant="caption"
           sx={{
             fontWeight: 700,
-            fontSize:"0.9rem",
+            fontSize: "0.9rem",
             letterSpacing: "0.05em",
             color: "#64748B",
             mb: 1.5,

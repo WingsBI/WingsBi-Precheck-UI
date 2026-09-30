@@ -27,6 +27,8 @@ export { default as ActiveFilterChips } from './ActiveFilterChips';
 export type { FilterChip } from './ActiveFilterChips';
 export { default as RequiredChip } from './RequiredChip';
 export type { RequiredChipProps } from './RequiredChip';
+export { default as RequiredLabel } from './RequiredLabel';
+export type { RequiredLabelProps } from './RequiredLabel';
 
 // Dialogs
 export { default as ConfirmationDialog } from './ConfirmationDialog';

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { Controller } from "react-hook-form";
 import StepHeader from "./StepHeader";
-import { RequiredChip } from "../../../components/ui";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 
 interface DispositionStepProps {
   control: any;
@@ -45,21 +45,18 @@ function DispositionStep({
           render={({ field, fieldState: { error } }) => (
             <Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, flexWrap: "wrap" }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <FormLabel
-                    component="legend"
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: "0.875rem",
-                      color: "#111827",
-                      display: "block",
-                      "&.MuiFormLabel-root": { color: "#111827" },
-                    }}
-                  >
-                    Disposition
-                  </FormLabel>
-                  <RequiredChip />
-                </Box>
+                <FormLabel
+                  component="legend"
+                  sx={{
+                    fontWeight: 700,
+                    fontSize: "0.875rem",
+                    color: "#111827",
+                    display: "block",
+                    "&.MuiFormLabel-root": { color: "#111827" },
+                  }}
+                >
+                  <RequiredLabel text="Disposition" required />
+                </FormLabel>
                 <RadioGroup
                   {...field}
                   row
@@ -165,6 +162,7 @@ function DispositionStep({
               size="small"
               multiline
               rows={3}
+              InputLabelProps={{ shrink: true }}
               placeholder="Optional — printed on the label record"
             />
           )}
