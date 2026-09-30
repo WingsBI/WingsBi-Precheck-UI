@@ -9,6 +9,7 @@ import {
   Paper,
 } from "@mui/material";
 import ActionButton from "../../../components/ui/ActionButton";
+import { RequiredChip } from "../../../components/ui";
 import {
   Search as SearchIcon,
   Refresh as ResetIcon,
@@ -160,11 +161,16 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
                     );
                   }}
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Prod. Series *"
-                      placeholder="Select series..."
-                    />
+                      <TextField
+                        {...params}
+                        label={
+                          <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                            <span>Prod. Series</span>
+                            <RequiredChip />
+                          </Box>
+                        }
+                        placeholder="Select series..."
+                      />
                   )}
                 />
               );
@@ -196,19 +202,13 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Assembly No / Item Code *"
+                label={
+                  <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                    <span>Assembly No / Item Code</span>
+                    <RequiredChip />
+                  </Box>
+                }
                 placeholder="Type 3+ chars (e.g. CK310)..."
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {isDrawingNumbersLoading ? (
-                        <CircularProgress color="inherit" size={16} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
               />
             )}
             ListboxProps={{

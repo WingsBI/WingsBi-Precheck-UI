@@ -2189,6 +2189,7 @@ const ProductionOrderUpload: React.FC = () => {
                   }}
                   inputProps={{ title: "From Date" }}
                   InputProps={{
+                    notched: Boolean(fromDateFocused || draftFromDate),
                     endAdornment: (
                       <InputAdornment position="end" sx={{ cursor: "pointer" }}>
                         <CalendarTodayIcon
@@ -2280,6 +2281,7 @@ const ProductionOrderUpload: React.FC = () => {
                   }}
                   inputProps={{ title: "To Date" }}
                   InputProps={{
+                    notched: Boolean(toDateFocused || draftToDate),
                     endAdornment: (
                       <InputAdornment position="end" sx={{ cursor: "pointer" }}>
                         <CalendarTodayIcon

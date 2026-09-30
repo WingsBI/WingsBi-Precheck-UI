@@ -34,6 +34,7 @@ import {
 } from "@mui/material";
 import { CustomPagination } from "../../components/CustomPagination";
 import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
+import { RequiredChip } from "../../components/ui";
 import { commonTableCellCompactCheckbox, commonTableRowStyle } from "../../components/tableStyles";
 
 import {
@@ -2105,7 +2106,12 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="From Assembly PO Number *"
+                      label={
+                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                          <span>From Assembly PO Number</span>
+                          <RequiredChip />
+                        </Box>
+                      }
                       fullWidth
                       placeholder="Select From Assembly PO Number"
                     />
@@ -2116,8 +2122,12 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="From Assembly ID Number "
-                  required
+                  label={
+                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                      <span>From Assembly ID Number</span>
+                      <RequiredChip />
+                    </Box>
+                  }
                   value={swapData.fromId}
                   onChange={(e) =>
                     setSwapData((prev) => ({
@@ -2188,7 +2198,12 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="To Assembly PO Number *"
+                      label={
+                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                          <span>To Assembly PO Number</span>
+                          <RequiredChip />
+                        </Box>
+                      }
                       fullWidth
                       placeholder="Select To Assembly PO Number"
                     />
@@ -2200,8 +2215,12 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="To Assembly ID Number "
-                  required
+                  label={
+                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                      <span>To Assembly ID Number</span>
+                      <RequiredChip />
+                    </Box>
+                  }
                   value={swapData.toId}
                   onChange={(e) =>
                     setSwapData((prev) => ({
@@ -2239,7 +2258,12 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Part Number *"
+                      label={
+                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                          <span>Part Number</span>
+                          <RequiredChip />
+                        </Box>
+                      }
                       fullWidth
                       placeholder="Select Part Number to Swap"
                     />
@@ -2250,9 +2274,13 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="ID Number  "
+                  label={
+                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                      <span>ID Number</span>
+                      <RequiredChip />
+                    </Box>
+                  }
                   placeholder="Enter ID Number of the Drawing to Swap"
-                  required
                   value={swapData.idNumber}
                   onChange={(e) =>
                     setSwapData((prev) => ({
@@ -2394,7 +2422,12 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Rejected part Part Number *"
+                      label={
+                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                          <span>Rejected part Part Number</span>
+                          <RequiredChip />
+                        </Box>
+                      }
                       fullWidth
                     />
                   )}
@@ -2428,7 +2461,12 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="Rejected Part ID Number *"
+                  label={
+                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                      <span>Rejected Part ID Number</span>
+                      <RequiredChip />
+                    </Box>
+                  }
                   type="text"
                   value={newRequisition.rejectedIdNumber || ""}
                   onChange={(e) =>
@@ -2538,7 +2576,12 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Assembly PO Number *"
+                      label={
+                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                          <span>Assembly PO Number</span>
+                          <RequiredChip />
+                        </Box>
+                      }
                       fullWidth
                       placeholder="Enter Assembly PO Number"
                     />

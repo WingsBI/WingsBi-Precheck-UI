@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { Controller } from "react-hook-form";
 import StepHeader from "./StepHeader";
+import { RequiredChip } from "../../../components/ui";
 
 interface DispositionStepProps {
   control: any;
@@ -34,7 +35,7 @@ function DispositionStep({
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
     >
-      <StepHeader number={3} title="Disposition & remarks" />
+      <StepHeader title="Disposition & remarks" />
 
       <Box sx={{ mb: 1.5 }}>
         <Controller
@@ -44,18 +45,21 @@ function DispositionStep({
           render={({ field, fieldState: { error } }) => (
             <Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, flexWrap: "wrap" }}>
-                <FormLabel
-                  component="legend"
-                  sx={{
-                    fontWeight: 700,
-                    fontSize: "0.875rem",
-                    color: "#111827",
-                    display: "block",
-                    "&.MuiFormLabel-root": { color: "#111827" },
-                  }}
-                >
-                  Disposition <span style={{ color: "#050505ff" }}>*</span>
-                </FormLabel>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <FormLabel
+                    component="legend"
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "0.875rem",
+                      color: "#111827",
+                      display: "block",
+                      "&.MuiFormLabel-root": { color: "#111827" },
+                    }}
+                  >
+                    Disposition
+                  </FormLabel>
+                  <RequiredChip />
+                </Box>
                 <RadioGroup
                   {...field}
                   row

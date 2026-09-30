@@ -23,6 +23,7 @@ import {
 import { Controller } from "react-hook-form";
 import { Add as AddIcon } from "@mui/icons-material";
 import StepHeader from "./StepHeader";
+import { RequiredChip } from "../../../components/ui";
 import { commonTableHeaderStyle, commonTableRowStyle } from "../../../components/tableStyles";
 
 interface ComponentTypeStepProps {
@@ -88,10 +89,7 @@ function ComponentTypeStep({
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
     >
-      <StepHeader
-        number={2}
-        title="ID range"
-      />
+      <StepHeader title="ID range" />
 
       {componentType === "ID" && (
         <>
@@ -198,7 +196,12 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label="Start ID *"
+                      label={
+                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                          <span>Start ID</span>
+                          <RequiredChip />
+                        </Box>
+                      }
                       type="number"
                       placeholder="e.g. 301"
                       fullWidth
@@ -228,7 +231,12 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label="End ID *"
+                      label={
+                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                          <span>End ID</span>
+                          <RequiredChip />
+                        </Box>
+                      }
                       type="number"
                       placeholder="e.g. 320"
                       fullWidth
@@ -299,7 +307,12 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label="ID Range *"
+                      label={
+                        <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                          <span>ID Range</span>
+                          <RequiredChip />
+                        </Box>
+                      }
                       fullWidth
                       size="small"
                       placeholder="e.g., 301, 302, 305-310"
@@ -479,7 +492,12 @@ function ComponentTypeStep({
               render={({ field, fieldState: { error } }) => (
                 <TextField
                   {...field}
-                  label="ID Range *"
+                  label={
+                    <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                      <span>ID Range</span>
+                      <RequiredChip />
+                    </Box>
+                  }
                   fullWidth
                   size="small"
                   placeholder="e.g., 1,2,3,4-7"

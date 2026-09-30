@@ -579,11 +579,11 @@ const ViewOrder: React.FC = () => {
             }}
             ListboxProps={{ style: { maxHeight: "300px" } }}
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 180px", md: 1.4 },
-              minWidth: 150,
+              flex: { xs: "1 1 100%", sm: "1 1 200px", md: 1.6 },
+              minWidth: 175,
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Production Order Number *" size="small" placeholder="Select PO" />
+              <TextField {...params} label="Production Order Number" size="small" placeholder="Select PO" />
             )}
           />
 
@@ -600,8 +600,8 @@ const ViewOrder: React.FC = () => {
               style: { backgroundColor: "#F9FAFB" },
             }}
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 160px", md: 1.2 },
-              minWidth: 140,
+              flex: { xs: "1 1 100%", sm: "1 1 140px", md: 1.1 },
+              minWidth: 130,
             }}
           />
 
@@ -618,8 +618,8 @@ const ViewOrder: React.FC = () => {
               style: { backgroundColor: "#F9FAFB" },
             }}
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 160px", md: 1.2 },
-              minWidth: 140,
+              flex: { xs: "1 1 100%", sm: "1 1 140px", md: 1.1 },
+              minWidth: 130,
             }}
           />
 
@@ -636,23 +636,23 @@ const ViewOrder: React.FC = () => {
               style: { backgroundColor: "#F9FAFB" },
             }}
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 120px", md: 1.0 },
-              minWidth: 100,
+              flex: { xs: "1 1 100%", sm: "1 1 90px", md: 0.7 },
+              minWidth: 85,
             }}
           />
 
           {/* ID Number Field */}
           <TextField
             size="small"
-            label="ID Number"
+            label="ID"
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
-            placeholder="Enter ID"
+            placeholder="ID"
             variant="outlined"
             fullWidth
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 110px", md: 0.9 },
-              minWidth: 95,
+              flex: { xs: "1 1 100%", sm: "1 1 75px", md: 0.5 },
+              minWidth: 75,
             }}
           />
 

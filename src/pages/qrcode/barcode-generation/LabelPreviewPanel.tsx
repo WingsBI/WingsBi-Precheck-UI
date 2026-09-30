@@ -103,7 +103,7 @@ const LabelPreviewPanel = ({
           variant="caption"
           sx={{
             fontWeight: 700,
-            textTransform: "uppercase",
+            fontSize:"0.9rem",
             letterSpacing: "0.05em",
             color: "#64748B",
             mb: 1.5,
@@ -317,7 +317,7 @@ const LabelPreviewPanel = ({
 
         <Typography
           variant="subtitle1"
-          sx={{ fontWeight: 700, color: "#111827", fontSize: "0.95rem" }}
+          sx={{ fontWeight: 700, color: "#64748B", fontSize: "0.95rem" }}
         >
           Label preview
         </Typography>

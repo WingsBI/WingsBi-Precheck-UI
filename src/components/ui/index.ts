@@ -25,6 +25,8 @@ export type { ExpandedTableColumn, ExpandedDetailsTableProps } from './ExpandedD
 export { default as SearchBar } from './SearchBar';
 export { default as ActiveFilterChips } from './ActiveFilterChips';
 export type { FilterChip } from './ActiveFilterChips';
+export { default as RequiredChip } from './RequiredChip';
+export type { RequiredChipProps } from './RequiredChip';
 
 // Dialogs
 export { default as ConfirmationDialog } from './ConfirmationDialog';

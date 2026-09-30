@@ -10,6 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import type { GridItem } from "./types";
+import { RequiredChip } from "../../../components/ui";
 
 interface RejectDialogProps {
   open: boolean;
@@ -60,7 +61,12 @@ const RejectDialog: React.FC<RejectDialogProps> = ({
             </ul>
           </Typography>
           <TextField
-            label="Remarks for Rejected Row *"
+            label={
+              <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                <span>Remarks for Rejected Row</span>
+                <RequiredChip />
+              </Box>
+            }
             variant="outlined"
             size="small"
             fullWidth
@@ -69,10 +75,14 @@ const RejectDialog: React.FC<RejectDialogProps> = ({
             value={rejectRemarks}
             onChange={(e) => onRejectRemarksChange(e.target.value)}
             placeholder="Enter remarks for the rejected component"
-            required
           />
           <TextField
-            label="Remarks for Duplicate Row *"
+            label={
+              <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                <span>Remarks for Duplicate Row</span>
+                <RequiredChip />
+              </Box>
+            }
             variant="outlined"
             size="small"
             fullWidth
@@ -81,7 +91,6 @@ const RejectDialog: React.FC<RejectDialogProps> = ({
             value={duplicateRemarks}
             onChange={(e) => onDuplicateRemarksChange(e.target.value)}
             placeholder="Enter remarks for the duplicate/replacement component"
-            required
           />
         </Box>
       </DialogContent>

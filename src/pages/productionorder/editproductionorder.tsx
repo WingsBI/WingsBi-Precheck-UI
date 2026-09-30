@@ -15,6 +15,7 @@ import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
 import PageHeader from "../../components/ui/PageHeader";
+import { RequiredChip } from "../../components/ui";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import {
@@ -382,7 +383,12 @@ export default function EditProductionOrder() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Quantity *"
+                    label={
+                      <Box component="span" sx={{ display: "inline-flex", alignItems: "center" }}>
+                        <span>Quantity</span>
+                        <RequiredChip />
+                      </Box>
+                    }
                     type="number"
                     fullWidth
                     size="small"
