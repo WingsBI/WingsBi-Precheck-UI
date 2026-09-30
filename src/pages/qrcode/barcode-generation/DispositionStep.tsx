@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { Controller } from "react-hook-form";
 import StepHeader from "./StepHeader";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 
 interface DispositionStepProps {
   control: any;
@@ -34,7 +35,7 @@ function DispositionStep({
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
     >
-      <StepHeader number={3} title="Disposition & remarks" />
+      <StepHeader title="Disposition & remarks" />
 
       <Box sx={{ mb: 1.5 }}>
         <Controller
@@ -54,7 +55,7 @@ function DispositionStep({
                     "&.MuiFormLabel-root": { color: "#111827" },
                   }}
                 >
-                  Disposition <span style={{ color: "#050505ff" }}>*</span>
+                  <RequiredLabel text="Disposition" required />
                 </FormLabel>
                 <RadioGroup
                   {...field}
@@ -161,6 +162,7 @@ function DispositionStep({
               size="small"
               multiline
               rows={3}
+              InputLabelProps={{ shrink: true }}
               placeholder="Optional — printed on the label record"
             />
           )}

@@ -40,9 +40,11 @@ import api from "../../services/api";
 import debounce from "lodash/debounce";
 import { EmptyState } from "../../components/EmptyState";
 import { ComponentTypeChip } from "../../components/ComponentTypeChip";
-import { SortableTableHeader } from "../../components/SortableTableHeader";
 import { commonTableHeaderStyle, commonTableRowStyle } from "../../components/tableStyles";
 import { useHasPermission } from "../../hooks/useHasPermission";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import { SortableTableHeader, TableCard } from "../../components/ui";
 
 const ViewAssembly: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) => {
   const navigate = useNavigate();
@@ -594,8 +596,11 @@ const ViewAssembly: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (col: string) => {
-    if (sortColumn === col) {
+  const handleSort = (col: string | null) => {
+    if (col === null) {
+      setSortColumn(null);
+      setSortDirection("asc");
+    } else if (sortColumn === col) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(col);
@@ -624,58 +629,27 @@ const ViewAssembly: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }
   return (
     <Box sx={{ p: hideHeader ? 0 : { xs: 1, sm: 1.5, md: 2 } }}>
       {!hideHeader && (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            mb: 1.5,
-            pb: 0.5,
-            borderBottom: "1px solid #EAECF0",
-            gap: 1,
+        <PageHeader
+          title="Edit BOM Details"
+          onBack={() => {
+            const dwg = (selectedDrawingOption?.drawingNumber || drawingInput || "").trim();
+            const ln = (selectedDrawingOption?.lnItemCode || lnInput || "").trim();
+            if (dwg) {
+              navigate("/assembly/explorer", { state: { tab: "bom", drawingNumber: dwg, lnItemCode: ln } });
+            } else {
+              navigate(-1);
+            }
           }}
-        >
-          <Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <IconButton
-                onClick={() => {
-                  const dwg = (selectedDrawingOption?.drawingNumber || drawingInput || "").trim();
-                  const ln = (selectedDrawingOption?.lnItemCode || lnInput || "").trim();
-                  if (dwg) {
-                    navigate("/assembly/explorer", { state: { tab: "bom", drawingNumber: dwg, lnItemCode: ln } });
-                  } else {
-                    navigate(-1);
-                  }
-                }}
-                sx={{
-                  color: "primary.main",
-                  p: 0.5,
-                  ml: -1,
-                  "&:hover": { backgroundColor: "grey.100" },
-                }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-              <Typography
-                variant="h5"
-                color="primary.main"
-                fontWeight={700}
-                sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
-              >
-                Edit BOM Details
-              </Typography>
-            </Box>
-            
-          </Box>
-          <Box sx={{ ml: "auto" }}>
+          actions={
             <Tooltip
               title={!hasEditAccess ? "You do not have access to manage assembly mappings" : ""}
               arrow
             >
               <span>
-                <Button
+                <ActionButton
                   type="button"
-                  variant="contained"
-                  size="small"
+                  variant="primary"
+                  size="compact"
                   startIcon={<AddIcon />}
                   disabled={!hasEditAccess || !selectedDrawing}
                   onClick={() => {
@@ -697,25 +671,13 @@ const ViewAssembly: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }
                     setQuantity(0);
                     setOpenAddDialog(true);
                   }}
-                  sx={{
-                    height: 36,
-                    whiteSpace: "nowrap",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    textTransform: "none",
-                    borderRadius: "8px",
-                    px: 2,
-                    boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                    "&:hover": { backgroundColor: "primary.dark" },
-                    "&.Mui-disabled": { backgroundColor: "#EAECF0", color: "#98A2B3" },
-                  }}
                 >
                   Add
-                </Button>
+                </ActionButton>
               </span>
             </Tooltip>
-          </Box>
-        </Box>
+          }
+        />
       )}
 
 
@@ -865,16 +827,8 @@ const ViewAssembly: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }
         </Box>
       )}
 
-      {/* Parent-Child Display Table Card */}
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: "12px",
-          border: "1px solid #EAECF0",
-          backgroundColor: "#ffffff",
-          overflow: "hidden",
-        }}
-      >
+      {/* Parent-Child Display TableCard */}
+      <TableCard>
         <TableContainer>
           <Table size="small">
             <TableHead>
@@ -934,7 +888,7 @@ const ViewAssembly: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }
                     <TableCell sx={{ textAlign: "center" }}>
                       {idx + 1}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>
+                    <TableCell>
                       {parent.drawingNumber}
                     </TableCell>
                     <TableCell>
@@ -1048,7 +1002,7 @@ const ViewAssembly: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }
             <ListItemText primary="Delete" primaryTypographyProps={{ fontSize: "0.8rem", fontWeight: 500, color: "error.main" }} />
           </MenuItem>
         </Menu>
-      </Paper>
+      </TableCard>
 
       {/* Add Dialog */}
       <Dialog

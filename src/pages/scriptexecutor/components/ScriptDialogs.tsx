@@ -14,6 +14,8 @@ import {
   DialogActions,
   IconButton,
 } from "@mui/material";
+import ActionButton from "../../../components/ui/ActionButton";
+import ConfirmationDialog from "../../../components/ui/ConfirmationDialog";
 import {
   Info as InfoIcon,
   CheckCircle as SuccessIcon,
@@ -170,7 +172,6 @@ export const ResultDialog: React.FC<ResultDialogProps> = ({
                 borderRadius: 2.5,
                 border: "1px solid",
                 borderColor: "grey.800",
-                fontFamily: 'Consolas, Monaco, "Andale Mono", monospace',
                 fontSize: "0.825rem",
                 lineHeight: 1.4,
                 whiteSpace: "pre-wrap",
@@ -178,6 +179,7 @@ export const ResultDialog: React.FC<ResultDialogProps> = ({
                 maxHeight: "300px",
                 overflowY: "auto",
               }}
+              className="scroll-hover"
             >
               {executionOutput}
             </Box>
@@ -186,25 +188,22 @@ export const ResultDialog: React.FC<ResultDialogProps> = ({
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2, display: "flex", justifyContent: "space-between" }}>
         {executionStats.errors > 0 && onDownloadErrorReport ? (
-          <Button
-            variant="outlined"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="compact"
             startIcon={<DownloadIcon sx={{ fontSize: 16 }} />}
             onClick={onDownloadErrorReport}
-            sx={{ fontWeight: 600, borderRadius: 2, textTransform: "none" }}
           >
             Download Error Report (PDF)
-          </Button>
+          </ActionButton>
         ) : <Box />}
-        <Button
-          variant="contained"
-          size="small"
-          color="primary"
+        <ActionButton
+          variant="primary"
+          size="compact"
           onClick={onDone}
-          sx={{ minWidth: 90, height: 32, fontSize: "0.8rem", fontWeight: 600, borderRadius: "8px", textTransform: "none" }}
         >
           Done
-        </Button>
+        </ActionButton>
       </DialogActions>
     </Dialog>
   );
@@ -257,18 +256,16 @@ export const ValidationErrorDialog: React.FC<ValidationErrorDialogProps> = ({
         </Typography>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button
-          variant="contained"
-          size="small"
-          color="primary"
+        <ActionButton
+          variant="primary"
+          size="compact"
           onClick={() => {
             onClose();
             onBrowseFiles();
           }}
-          sx={{ px: 3, fontWeight: 700 }}
         >
           Okay
-        </Button>
+        </ActionButton>
       </DialogActions>
     </Dialog>
   );
@@ -325,7 +322,6 @@ export const LNValidationErrorDialog: React.FC<LNValidationErrorDialogProps> = (
               border: "1px solid",
               borderColor: "error.light",
               borderRadius: 2,
-              fontFamily: "monospace",
               fontSize: "0.85rem",
               color: "error.main",
               whiteSpace: "pre-wrap",
@@ -356,7 +352,6 @@ export const LNValidationErrorDialog: React.FC<LNValidationErrorDialogProps> = (
               border: "1px solid",
               borderColor: "error.light",
               borderRadius: 2,
-              fontFamily: "monospace",
               fontSize: "0.85rem",
               color: "error.main",
               whiteSpace: "pre-wrap",
@@ -372,14 +367,13 @@ export const LNValidationErrorDialog: React.FC<LNValidationErrorDialogProps> = (
         )}
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
+        <ActionButton
+          variant="primary"
+          size="compact"
           onClick={onClose}
-          sx={{ px: 3, fontWeight: 700 }}
         >
           Okay
-        </Button>
+        </ActionButton>
       </DialogActions>
     </Dialog>
   );
@@ -503,19 +497,14 @@ export const ScriptErrorDialog: React.FC<ScriptErrorDialogProps> = ({
           <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
             {errorDialogTab === 0 ? "ERROR LOG & OUTPUT DETAILS" : "DEVELOPER STACKTRACE"}
           </Typography>
-          <Button
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="compact"
             onClick={onCopyLog}
             startIcon={copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <DownloadIcon sx={{ fontSize: 14 }} />}
-            sx={{
-              textTransform: "none",
-              fontWeight: 600,
-              color: "primary.main",
-              "&:hover": { bgcolor: (theme) => theme.palette.primary.main + "0A" },
-            }}
           >
             {copied ? "Copied" : "Copy Log"}
-          </Button>
+          </ActionButton>
         </Box>
 
         <Box sx={{ px: 3, pb: 2.5, pt: 0 }}>
@@ -527,7 +516,6 @@ export const ScriptErrorDialog: React.FC<ScriptErrorDialogProps> = ({
               borderRadius: 2.5,
               border: "1px solid",
               borderColor: "grey.800",
-              fontFamily: 'Consolas, Monaco, "Andale Mono", monospace',
               fontSize: "0.85rem",
               lineHeight: 1.5,
               whiteSpace: "pre-wrap",
@@ -535,6 +523,7 @@ export const ScriptErrorDialog: React.FC<ScriptErrorDialogProps> = ({
               maxHeight: "350px",
               overflowY: "auto",
             }}
+            className="scroll-hover"
           >
             {displayLog}
           </Box>
@@ -543,25 +532,22 @@ export const ScriptErrorDialog: React.FC<ScriptErrorDialogProps> = ({
 
       <DialogActions sx={{ px: 3, py: 2, bgcolor: "background.paper", borderTop: "1px solid", borderColor: "neutral.border", display: "flex", justifyContent: "space-between" }}>
         {onDownloadErrorReport ? (
-          <Button
-            variant="outlined"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="compact"
             startIcon={<DownloadIcon sx={{ fontSize: 16 }} />}
             onClick={onDownloadErrorReport}
-            sx={{ fontWeight: 600, borderRadius: 2, textTransform: "none" }}
           >
             Download Error Report (PDF)
-          </Button>
+          </ActionButton>
         ) : <Box />}
-        <Button
-          variant="contained"
-          size="small"
-          color="primary"
+        <ActionButton
+          variant="primary"
+          size="compact"
           onClick={onClose}
-          sx={{ minWidth: 90, height: 32, fontSize: "0.8rem", fontWeight: 600, borderRadius: "8px", textTransform: "none" }}
         >
           Close
-        </Button>
+        </ActionButton>
       </DialogActions>
     </Dialog>
   );
@@ -579,51 +565,31 @@ export const WrongFileDialog: React.FC<WrongFileDialogProps> = ({
   expectedTemplate,
 }) => {
   return (
-    <Dialog
+    <ConfirmationDialog
       open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: {
-          borderRadius: 3.5,
-          p: 1.5,
-          width: "100%",
-          maxWidth: 450,
-        },
-      }}
-    >
-      <DialogTitle sx={{ pb: 1, display: "flex", alignItems: "center", gap: 1.5 }}>
-        <WarningIcon sx={{ color: "error.main", fontSize: 28 }} />
-        <Typography variant="h6" sx={{ fontWeight: 700, color: "error.main" }}>
-          Wrong File Uploaded
-        </Typography>
-      </DialogTitle>
-      <DialogContent sx={{ py: 1.5 }}>
-        <Typography variant="body2" sx={{ mb: 2, fontWeight: 500, color: "text.primary" }}>
-          The uploaded file does not match the selected module template.
-        </Typography>
+      title="Wrong File Uploaded"
+      confirmLabel="Okay"
+      confirmVariant="primary"
+      onConfirm={onClose}
+      onCancel={onClose}
+      message={
+        <Box>
+          <Typography variant="body2" sx={{ mb: 2, fontWeight: 500, color: "text.primary" }}>
+            The uploaded file does not match the selected module template.
+          </Typography>
 
-        <Stack spacing={1.5} sx={{ p: 2, bgcolor: "grey.50", borderRadius: 2.5, border: "1px solid", borderColor: "neutral.border" }}>
-          <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>Expected Template:</Typography>
-            <Typography variant="body2" sx={{ fontWeight: 700, color: "success.main" }}>{expectedTemplate}</Typography>
-          </Box>
-        </Stack>
+          <Stack spacing={1.5} sx={{ p: 2, bgcolor: "grey.50", borderRadius: 2.5, border: "1px solid", borderColor: "neutral.border" }}>
+            <Box>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>Expected Template:</Typography>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: "success.main" }}>{expectedTemplate}</Typography>
+            </Box>
+          </Stack>
 
-        <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
-          Please upload the correct template and try again.
-        </Typography>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button
-          variant="contained"
-          size="small"
-          color="primary"
-          onClick={onClose}
-          sx={{ minWidth: 90, height: 32, fontSize: "0.8rem", fontWeight: 600, borderRadius: "8px", textTransform: "none" }}
-        >
-          Okay
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
+            Please upload the correct template and try again.
+          </Typography>
+        </Box>
+      }
+    />
   );
 };

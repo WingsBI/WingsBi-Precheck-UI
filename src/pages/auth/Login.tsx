@@ -5,7 +5,6 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   Link,
   Card,
   CardContent,
@@ -14,6 +13,7 @@ import {
   Alert,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import ActionButton from "../../components/ui/ActionButton";
 import { login, clearError } from "../../store/slices/authSlice";
 import type { RootState } from "../../store/store";
 
@@ -283,27 +283,16 @@ const Login: React.FC = () => {
               </Alert>
             )}
 
-            <Button
+            <ActionButton
+              variant="primary"
+              size="standard"
               fullWidth
               type="submit"
-              variant="contained"
               disabled={isLoading}
-              sx={{
-                mt: 1.5,
-                height: 40,
-                fontWeight: 600,
-                fontSize: "0.875rem",
-                textTransform: "none",
-                borderRadius: "8px",
-                backgroundColor: "#6D2A8F",
-                color: "#ffffff",
-                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                "&:hover": { backgroundColor: "#582075" },
-                "&.Mui-disabled": { backgroundColor: "#EAECF0", color: "#98A2B3" },
-              }}
+              sx={{ mt: 1.5 }}
             >
               {isLoading ? "Logging in..." : "Login"}
-            </Button>
+            </ActionButton>
 
             <Box mt={2.5} textAlign="center">
               <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.825rem" }}>

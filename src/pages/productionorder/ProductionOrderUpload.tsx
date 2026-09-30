@@ -1,21 +1,18 @@
 import React, { useState } from "react";
 import {
   Box,
+  Paper,
   Button,
   Typography,
-  Alert,
   LinearProgress,
   Chip,
-  Paper,
   Stack,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
-  IconButton,
   TextField,
-  Snackbar,
   InputAdornment,
   Menu,
   MenuItem,
@@ -30,7 +27,12 @@ import {
   Tooltip,
   CircularProgress,
   Select,
+  IconButton,
 } from "@mui/material";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import { TableCard } from "../../components/ui/TableCard";
 import {
   CloudUpload as UploadIcon,
   Download as DownloadIcon,
@@ -49,11 +51,7 @@ import {
   ChevronRight as ChevronRightIcon,
   CalendarToday as CalendarTodayIcon,
 } from "@mui/icons-material";
-
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format } from "date-fns";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
   DataGrid,
   type GridColDef,
@@ -64,10 +62,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import * as XLSX from "xlsx";
+import { commonDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../components/tableStyles";
+import { CustomPagination } from "../../components/CustomPagination";
 import api from "../../services/api";
 import { useDebounce } from "../../hooks/useDebounce";
 import { usePageAccess, useProductionSeries } from "../../hooks/useMasterData";
-import { isPageAccessible } from "../../utils/accessUtils";
 import { useHasPermission } from "../../hooks/useHasPermission";
 import { getAutosizedColumns } from "../../utils/gridUtils";
 
@@ -77,7 +76,7 @@ import { UploadSummaryCard, parseErrorString } from "./components/UploadSummaryC
 import { HistoryStatCard } from "./components/HistoryStatCard";
 import { ActiveFilterChips, type FilterChipItem } from "./components/ActiveFilterChips";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
-import { EmptyState } from "../../components/EmptyState";
+
 
 // --- Interfaces & Constants ---
 
@@ -168,11 +167,11 @@ const ALL_EXPORTABLE_COLUMNS = [
 
 const RowActionsMenu: React.FC<{
   row: any;
-  pageAccessData: any;
+  _pageAccessData?: any;
   deleteConfirmId: number | null;
   setDeleteConfirmId: (id: number | null) => void;
   deleteMutation: any;
-}> = ({ row, pageAccessData, deleteConfirmId, setDeleteConfirmId, deleteMutation }) => {
+}> = ({ row, _pageAccessData, deleteConfirmId, setDeleteConfirmId, deleteMutation }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -206,7 +205,7 @@ const RowActionsMenu: React.FC<{
           <IconButton
             size="small"
             color="success"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               deleteMutation.mutate(row);
             }}
@@ -218,7 +217,7 @@ const RowActionsMenu: React.FC<{
           <IconButton
             size="small"
             color="error"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent) => {
               e.stopPropagation();
               setDeleteConfirmId(null);
             }}
@@ -339,10 +338,27 @@ const RowActionsMenu: React.FC<{
   );
 };
 
-const CustomNoRowsOverlay: React.FC<{ isLoading?: boolean }> = ({ isLoading }) => {
-  if (isLoading) return null;
-  return <EmptyState />;
-};
+const CustomLoadingOverlay: React.FC = () => (
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100%",
+      minHeight: 260,
+      gap: 1.5,
+      backgroundColor: "#ffffff",
+    }}
+  >
+    <CircularProgress size={36} sx={{ color: "primary.main" }} />
+    <Typography variant="body2" sx={{ fontWeight: 600, color: "#475467", fontSize: "0.875rem" }}>
+      Loading orders...
+    </Typography>
+  </Box>
+);
+
+
 
 interface CustomPaginationBarProps {
   page: number;
@@ -607,8 +623,8 @@ const ProductionOrderUpload: React.FC = () => {
   // Fetch production orders with filters & pagination
   const {
     data: paginatedResponse,
-
     isLoading: isHistoryLoading,
+    isFetching: isHistoryFetching,
   } = useQuery<PaginatedResponse<ProductionOrder>>({
     queryKey: [
       "productionOrders",
@@ -707,6 +723,8 @@ const ProductionOrderUpload: React.FC = () => {
         (row.precheckStatus === 3 && "completed".includes(term))
     );
   }, [productionOrders, debouncedSearchQuery, appliedProductionSeries, appliedStatusList]);
+
+  const isTableLoading = isHistoryLoading || isHistoryFetching || searchQuery !== debouncedSearchQuery;
 
   // Helper to generate and download error report PDF file
   const downloadErrorReportPdf = (result: UploadResult, message?: string) => {
@@ -1351,7 +1369,7 @@ const ProductionOrderUpload: React.FC = () => {
       minWidth: 140,
       headerAlign: "center",
       align: "center",
-      sortable: true,
+      sortable: false,
     },
     {
       field: "projectcode",
@@ -1378,7 +1396,7 @@ const ProductionOrderUpload: React.FC = () => {
       minWidth: 140,
       headerAlign: "center",
       align: "center",
-      sortable: true,
+      sortable: false,
     },
     {
       field: "itemdescription",
@@ -1514,14 +1532,6 @@ const ProductionOrderUpload: React.FC = () => {
       headerAlign: "left",
       align: "left",
       sortable: true,
-      renderCell: (params) => (
-        <Typography
-          variant="body2"
-          sx={{ fontWeight: 700, color: "#101828", fontSize: "0.85rem" }}
-        >
-          {params.value}
-        </Typography>
-      ),
     },
     {
       field: "projectNumber",
@@ -1685,7 +1695,7 @@ const ProductionOrderUpload: React.FC = () => {
       renderCell: (params) => (
         <RowActionsMenu
           row={params.row}
-          pageAccessData={pageAccessData}
+          _pageAccessData={pageAccessData}
           deleteConfirmId={deleteConfirmId}
           setDeleteConfirmId={setDeleteConfirmId}
           deleteMutation={deleteMutation}
@@ -1862,110 +1872,73 @@ const ProductionOrderUpload: React.FC = () => {
       sx={{
         py: { xs: 1, sm: 1.25 },
         px: { xs: 1.5, sm: 2 },
-        height: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#FAFAFA",
         width: "100%",
         boxSizing: "border-box",
         overflow: view === "history" ? "hidden" : "auto",
       }}
     >
       {/* Header Section */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        spacing={2}
-        sx={{ mb: 1 }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-            }}
-          >
-            {view === "upload" ? "Upload Production Orders" : "Production Order History"}
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-            {view === "upload"
-              ? "Import and validate production orders from an Excel sheet."
-              : "Track, filter, and view uploaded production orders."}
-          </Typography>
-        </Box>
-
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          {view === "upload" ? (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<HistoryIcon fontSize="small" />}
-              onClick={() => setView("history")}
-              sx={{
-                height: 34,
-                borderRadius: "6px",
-                borderColor: "grey.300",
-                color: "text.secondary",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.8rem",
-                backgroundColor: "background.paper",
-                "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-              }}
-            >
-              Upload history ({totalRowCount})
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={handleOpenExportDialog}
-                startIcon={<DownloadIcon fontSize="small" />}
-                sx={{
-                  height: 34,
-                  borderRadius: "6px",
-                  borderColor: "grey.300",
-                  color: "text.secondary",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.8rem",
-                  backgroundColor: "background.paper",
-                  "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-                }}
+      <PageHeader
+        title={view === "upload" ? "Upload Production Orders" : "Production Order History"}
+        subtitle={
+          view === "upload"
+            ? "Import and validate production orders from an Excel sheet."
+            : "Track, filter, and view uploaded production orders."
+        }
+        actions={
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            {view === "upload" ? (
+              <ActionButton
+                variant="secondary"
+                size="standard"
+                startIcon={<HistoryIcon fontSize="small" />}
+                onClick={() => setView("history")}
               >
-                Export
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                startIcon={<UploadIcon fontSize="small" />}
-                onClick={() => setView("upload")}
-                sx={{
-                  height: 34,
-                  borderRadius: "6px",
-                  backgroundColor: "primary.main",
-                  color: "#ffffff",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.8rem",
-                  boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                  "&:hover": { backgroundColor: "primary.dark" },
-                }}
-              >
-                Upload Orders
-              </Button>
-            </>
-          )}
-        </Stack>
-      </Stack>
+                Upload History ({totalRowCount})
+              </ActionButton>
+            ) : (
+              <>
+                <ActionButton
+                  variant="secondary"
+                  size="standard"
+                  onClick={handleOpenExportDialog}
+                  startIcon={<DownloadIcon fontSize="small" />}
+                >
+                  Export
+                </ActionButton>
+                <ActionButton
+                  variant="primary"
+                  size="standard"
+                  startIcon={<UploadIcon fontSize="small" />}
+                  onClick={() => setView("upload")}
+                >
+                  Upload Orders
+                </ActionButton>
+              </>
+            )}
+          </Stack>
+        }
+      />
 
       {/* Main View Content */}
       {view === "upload" ? (
-        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 2, sm: 2.5 },
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            overflowY: "auto",
+            borderRadius: "16px",
+            border: "1px solid",
+            borderColor: "neutral.border",
+            backgroundColor: "background.paper",
+            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)",
+          }}
+        >
           {/* Dropzone OR Upload Summary Card */}
           {!selectedFile && !uploadResult ? (
             <UploadDropzone
@@ -2001,129 +1974,92 @@ const ProductionOrderUpload: React.FC = () => {
           {uploadMutation.isPending && <LinearProgress sx={{ mb: 2, borderRadius: 1 }} />}
 
           {/* Excel Rows Preview DataGrid */}
-          <Paper
-            elevation={0}
+          <TableCard
             sx={{
               flexGrow: 1,
               minHeight: 300,
-              borderRadius: "12px",
-              border: "1px solid #E9EAEB",
-              overflow: "hidden",
               p: 2,
-              backgroundColor: "#ffffff",
               display: "flex",
               flexDirection: "column",
+              mt: 2,
             }}
           >
             <Typography
               variant="subtitle1"
               sx={{ fontWeight: 700, color: "#101828", mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}
             >
-              <VisibilityIcon sx={{ color: "primary.main", fontSize: 20 }} />
+            
               {uploadTableRows.length > 0
                 ? `Rows Preview (${uploadTableRows.length} rows)`
-                : "Choose a file to preview its content here"}
+                : ""}
             </Typography>
 
-            <Box sx={{ flex: 1, minHeight: 380, width: "100%", position: "relative" }}>
-              <DataGrid
-                rows={uploadTableRows}
-                columns={autosizedPreviewColumns}
-                paginationModel={previewPaginationModel}
-                onPaginationModelChange={setPreviewPaginationModel}
-                pageSizeOptions={[10, 25, 50, 100]}
-                rowHeight={32}
-                disableColumnFilter
-                disableColumnMenu
-                disableColumnSelector
-                disableRowSelectionOnClick
-                hideFooter
-                slots={{ noRowsOverlay: CustomNoRowsOverlay }}
+            {uploadTableRows.length > 0 ? (
+              <Box sx={{ flex: 1, minHeight: 380, width: "100%", position: "relative" }}>
+                <DataGrid
+                  {...DATAGRID_DEFAULT_PROPS}
+                  rows={uploadTableRows}
+                  columns={autosizedPreviewColumns}
+                  paginationModel={previewPaginationModel}
+                  onPaginationModelChange={setPreviewPaginationModel}
+                  pageSizeOptions={[10, 25, 50, 100]}
+                  disableColumnMenu
+                  disableColumnFilter
+                  disableColumnSelector
+                  disableRowSelectionOnClick
+                  hideFooter
+                  
+                  sx={commonDataGridSx}
+                />
+                <CustomPagination
+                  page={previewPaginationModel.page}
+                  pageSize={previewPaginationModel.pageSize}
+                  totalCount={uploadTableRows.length}
+                  pageSizeOptions={[10, 25, 50, 100]}
+                  onPageChange={(newPage) => setPreviewPaginationModel((prev) => ({ ...prev, page: newPage }))}
+                  onPageSizeChange={(newPageSize) => setPreviewPaginationModel({ page: 0, pageSize: newPageSize })}
+                />
+              </Box>
+            ) : (
+              <Box
                 sx={{
-                  height: "100%",
-                  width: "100%",
-                  border: "none",
-                  "& .MuiDataGrid-virtualScroller": {
-                    overflowX: "auto !important",
-                    overflowY: "auto !important",
-                  },
-                  "& ::-webkit-scrollbar": {
-                    height: "12px !important",
-                    width: "10px !important",
-                  },
-                  "& ::-webkit-scrollbar-track": {
-                    backgroundColor: "#F2F4F7 !important",
-                    borderRadius: "6px !important",
-                  },
-                  "& ::-webkit-scrollbar-thumb": {
-                    backgroundColor: "#98A2B3 !important",
-                    borderRadius: "6px !important",
-                    border: "2px solid #F2F4F7 !important",
-                    "&:hover": { backgroundColor: "#667085 !important" },
-                  },
-                  "& .MuiDataGrid-row": {
-                    minHeight: "32px !important",
-                    maxHeight: "32px !important",
-                  },
-                  "& .MuiDataGrid-columnHeader--sortable .MuiDataGrid-iconButtonContainer": {
-                    visibility: "visible !important",
-                    width: "auto !important",
-                    opacity: "1 !important",
-                  },
-                  "& .MuiDataGrid-sortIcon": {
-                    opacity: "0.5 !important",
-                    color: "#98A2B3 !important",
-                  },
-                  "& .MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon": {
-                    opacity: "1 !important",
-                    color: "primary.main !important",
-                  },
-                  "& .MuiDataGrid-columnHeader:hover .MuiDataGrid-sortIcon": {
-                    opacity: "1 !important",
-                    color: "#344054 !important",
-                  },
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#F9FAFB",
-                    color: "#475467",
-                    fontWeight: 700,
-                    fontSize: "0.8rem",
-                    borderBottom: "1px solid #EAECF0",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 2,
-                  },
-                  "& .MuiDataGrid-columnHeader": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-columnHeaderTitleContainer": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cell": {
-                    fontSize: "0.775rem",
-                    color: "#344054",
-                    borderBottom: "1px solid #F2F4F7",
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cellContent": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
+                  py: 6,
+                  px: 2,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 1.25,
+                  backgroundColor: "#FAFAFA",
+                  borderRadius: "12px",
+                  border: "1px dashed #D0D5DD",
+                  mt: 0.5,
+                  minHeight: 220,
                 }}
-              />
-              <CustomPaginationBar
-                page={previewPaginationModel.page}
-                pageSize={previewPaginationModel.pageSize}
-                totalCount={uploadTableRows.length}
-                pageSizeOptions={[10, 25, 50, 100]}
-                onPageChange={(newPage) => setPreviewPaginationModel((prev) => ({ ...prev, page: newPage }))}
-                onPageSizeChange={(newPageSize) => setPreviewPaginationModel({ page: 0, pageSize: newPageSize })}
-              />
-            </Box>
-          </Paper>
-        </Box>
+              >
+                <Box
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "50%",
+                    backgroundColor: "#F2F4F7",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <UploadIcon sx={{ color: "#667085", fontSize: 22 }} />
+                </Box>
+                <Typography variant="body1" sx={{ fontWeight: 600, color: "#344054", fontSize: "0.95rem" }}>
+                  Import production order to see preview
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.825rem" }}>
+                  Upload an Excel file above to view row details before importing
+                </Typography>
+              </Box>
+            )}
+          </TableCard>
+        </Paper>
       ) : (
         /* History Tab Content */
         <Box sx={{ flexGrow: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden" }}>
@@ -2134,41 +2070,36 @@ const ProductionOrderUpload: React.FC = () => {
             sx={{ mb: 0.75 }}
           >
             <HistoryStatCard
-              title="Total orders"
+              title="Total Orders"
               count={totalOrdersCount}
               indicatorColor="#6D2A8F"
-              subtext="All Orders"
+              subtext="Total Orders"
             />
             <HistoryStatCard
               title="Pending"
               count={pendingCount}
               indicatorColor="#f03737ff"
-              subtext={`${pendingPct}% · pending`}
+              subtext={`${pendingPct}% · Pending`}
             />
             <HistoryStatCard
               title="Partial"
               count={partialCount}
               indicatorColor="#F79009"
-              subtext={`${partialPct}% · precheck in progress`}
+              subtext={`${partialPct}% · Partial`}
             />
             <HistoryStatCard
               title="Completed"
               count={completedCount}
               indicatorColor="#12B76A"
-              subtext={`${completedPct}% · verified`}
+              subtext={`${completedPct}% · Completed`}
             />
           </Stack>
 
-          {/* Unified Single Container Card */}
-          <Paper
-            elevation={0}
+          {/* Unified Single Container TableCard */}
+          <TableCard
             sx={{
               flexGrow: 1,
               minHeight: 0,
-              borderRadius: "12px",
-              border: "1px solid #EAECF0",
-              backgroundColor: "#ffffff",
-              overflow: "hidden",
               display: "flex",
               flexDirection: "column",
             }}
@@ -2258,6 +2189,7 @@ const ProductionOrderUpload: React.FC = () => {
                   }}
                   inputProps={{ title: "From Date" }}
                   InputProps={{
+                    notched: Boolean(fromDateFocused || draftFromDate),
                     endAdornment: (
                       <InputAdornment position="end" sx={{ cursor: "pointer" }}>
                         <CalendarTodayIcon
@@ -2349,6 +2281,7 @@ const ProductionOrderUpload: React.FC = () => {
                   }}
                   inputProps={{ title: "To Date" }}
                   InputProps={{
+                    notched: Boolean(toDateFocused || draftToDate),
                     endAdornment: (
                       <InputAdornment position="end" sx={{ cursor: "pointer" }}>
                         <CalendarTodayIcon
@@ -2425,59 +2358,23 @@ const ProductionOrderUpload: React.FC = () => {
                   }}
                 />
 
-                <Button
-                  size="small"
-                  variant="contained"
+                <ActionButton
+                  variant="primary"
+                  size="standard"
                   disabled={!hasSelectedDropdownFilters}
                   onClick={handleApplyFilters}
-                  sx={{
-                    flex: "0 0 auto",
-                    backgroundColor: "primary.main",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                    fontSize: "0.82rem",
-                    borderRadius: "6px",
-                    px: 2,
-                    height: 38,
-                    textTransform: "none",
-                    boxShadow: "none",
-                    minWidth: 65,
-                    "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                    "&.Mui-disabled": {
-                      backgroundColor: "#EAECF0",
-                      color: "#98A2B3",
-                    },
-                  }}
                 >
                   Apply
-                </Button>
+                </ActionButton>
 
-                <Button
-                  size="small"
-                  variant="outlined"
+                <ActionButton
+                  variant="secondary"
+                  size="standard"
                   disabled={!hasAnyFilterActive}
                   onClick={handleClearFilters}
-                  sx={{
-                    flex: "0 0 auto",
-                    color: "#667085",
-                    borderColor: "#D0D5DD",
-                    backgroundColor: "#ffffff",
-                    borderRadius: "6px",
-                    fontWeight: 600,
-                    fontSize: "0.82rem",
-                    height: 38,
-                    px: 1.5,
-                    minWidth: 55,
-                    textTransform: "none",
-                    "&:hover": {
-                      borderColor: "#98A2B3",
-                      backgroundColor: "#F9FAFB",
-                      color: "#101828",
-                    },
-                  }}
                 >
                   Clear
-                </Button>
+                </ActionButton>
               </Box>
 
               {/* Active Filter Chips & Results Count Bar */}
@@ -2494,7 +2391,7 @@ const ProductionOrderUpload: React.FC = () => {
             <Box
               sx={{
                 flexGrow: 1,
-                minHeight: 0,
+                minHeight: 300,
                 backgroundColor: "#ffffff",
                 position: "relative",
                 display: "flex",
@@ -2502,6 +2399,7 @@ const ProductionOrderUpload: React.FC = () => {
               }}
             >
               <DataGrid
+                {...DATAGRID_DEFAULT_PROPS}
                 rows={historyTableRows}
                 columns={autosizedHistoryColumns}
                 loading={isHistoryLoading}
@@ -2515,91 +2413,17 @@ const ProductionOrderUpload: React.FC = () => {
                 disableColumnFilter
                 disableColumnMenu
                 disableColumnSelector
-                rowHeight={32}
                 disableRowSelectionOnClick
                 getRowId={(row) => row.id || row.sr}
                 hideFooter
-                slots={{ noRowsOverlay: CustomNoRowsOverlay }}
-                slotProps={{ noRowsOverlay: { isLoading: isHistoryLoading } as any }}
-                sx={{
-                  flex: 1,
-                  height: "100%",
-                  width: "100%",
-                  border: "none",
-                  "& .MuiDataGrid-virtualScroller": {
-                    overflowX: "auto !important",
-                    overflowY: "auto !important",
-                  },
-                  "& ::-webkit-scrollbar": {
-                    height: "12px !important",
-                    width: "10px !important",
-                  },
-                  "& ::-webkit-scrollbar-track": {
-                    backgroundColor: "#F2F4F7 !important",
-                    borderRadius: "6px !important",
-                  },
-                  "& ::-webkit-scrollbar-thumb": {
-                    backgroundColor: "#98A2B3 !important",
-                    borderRadius: "6px !important",
-                    border: "2px solid #F2F4F7 !important",
-                    "&:hover": { backgroundColor: "#667085 !important" },
-                  },
-                  "& .MuiDataGrid-row": {
-                    minHeight: "32px !important",
-                    maxHeight: "32px !important",
-                  },
-                  "& .MuiDataGrid-columnHeader--sortable .MuiDataGrid-iconButtonContainer": {
-                    visibility: "visible !important",
-                    width: "auto !important",
-                    opacity: "1 !important",
-                  },
-                  "& .MuiDataGrid-sortIcon": {
-                    opacity: "0.5 !important",
-                    color: "#98A2B3 !important",
-                  },
-                  "& .MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon": {
-                    opacity: "1 !important",
-                    color: "primary.main !important",
-                  },
-                  "& .MuiDataGrid-columnHeader:hover .MuiDataGrid-sortIcon": {
-                    opacity: "1 !important",
-                    color: "#344054 !important",
-                  },
-                  "& .MuiDataGrid-columnHeaders": {
-                    backgroundColor: "#F9FAFB",
-                    color: "#475467",
-                    fontWeight: 700,
-                    fontSize: "0.8rem",
-                    borderBottom: "1px solid #EAECF0",
-                    position: "sticky",
-                    top: 0,
-                    zIndex: 2,
-                  },
-                  "& .MuiDataGrid-columnHeader": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-columnHeaderTitleContainer": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cell": {
-                    fontSize: "0.775rem",
-                    color: "#344054",
-                    borderBottom: "1px solid #F2F4F7",
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cellContent": {
-                    display: "flex !important",
-                    alignItems: "center !important",
-                  },
-                  "& .MuiDataGrid-cell:focus": { outline: "none !important" },
-                  "& .MuiDataGrid-cell:focus-within": { outline: "none !important" },
-                  "& .MuiDataGrid-columnHeader:focus": { outline: "none !important" },
+                slots={{
+                  
+                  loadingOverlay: CustomLoadingOverlay,
                 }}
+                slotProps={{ noRowsOverlay: { isLoading: isHistoryLoading } as any }}
+                sx={commonDataGridSx}
               />
-              <CustomPaginationBar
+              <CustomPagination
                 page={paginationModel.page}
                 pageSize={paginationModel.pageSize}
                 totalCount={totalRowCount}
@@ -2609,7 +2433,7 @@ const ProductionOrderUpload: React.FC = () => {
                 disabled={isHistoryLoading}
               />
             </Box>
-          </Paper>
+          </TableCard>
         </Box>
       )}
 
@@ -2626,7 +2450,7 @@ const ProductionOrderUpload: React.FC = () => {
         <DialogTitle sx={{ pb: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Box display="flex" alignItems="center" gap={1}>
             <DownloadIcon sx={{ color: "primary.main" }} />
-            <Typography variant="h6" fontWeight="700" color="#101828">
+            <Typography variant="h6" fontWeight="700" color="primary.main">
               Export Production Order Data
             </Typography>
           </Box>
@@ -2724,33 +2548,23 @@ const ProductionOrderUpload: React.FC = () => {
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button
-            variant="outlined"
-            color="inherit"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="standard"
             onClick={() => setExportDialogOpen(false)}
             disabled={isExporting}
-            sx={{ minWidth: 110, fontWeight: 600, borderRadius: "8px", textTransform: "none" }}
           >
             Cancel
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
+          </ActionButton>
+          <ActionButton
+            variant="primary"
+            size="standard"
             startIcon={isExporting ? <CircularProgress size={18} color="inherit" /> : <DownloadIcon />}
             onClick={handleConfirmExportData}
             disabled={isExporting || (exportMode === "custom" && selectedExportColumns.length === 0)}
-            sx={{
-              minWidth: 110,
-              fontWeight: 600,
-              borderRadius: "8px",
-              textTransform: "none",
-              backgroundColor: "primary.main",
-              "&:hover": { backgroundColor: "primary.dark" },
-            }}
           >
             {isExporting ? "Exporting..." : "Export"}
-          </Button>
+          </ActionButton>
         </DialogActions>
       </Dialog>
 
@@ -2818,20 +2632,12 @@ const ProductionOrderUpload: React.FC = () => {
       </Dialog>
 
       {/* Snackbar Notifications */}
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={snackbar.severity === "error" ? null : 6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%", borderRadius: "8px" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 };

@@ -20,12 +20,10 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
+  Select,
+  FormControl,
 } from "@mui/material";
+import ConfirmationDialog from "../../../components/ui/ConfirmationDialog";
 import { CustomPagination } from "../../../components/CustomPagination";
 
 import {
@@ -35,15 +33,12 @@ import {
   MoreVert as MoreVertIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
-  FileDownload as FileDownloadIcon,
-  Add as AddIcon,
-  Remove as RemoveIcon,
   FilterList as FilterListIcon,
 } from "@mui/icons-material";
 import type { GridItem } from "./types";
 import { formatDate, formatQuantity, getStatusBadgeChip } from "./utils";
 import { COLOUR_ROLES, commonTableRowStyle } from "../../../components/tableStyles";
-import { SortableTableHeader } from "../../../components/SortableTableHeader";
+import { SortableTableHeader, TableCard, TableCardHeader } from "../../../components/ui";
 import { ComponentTypeChip } from "../../../components/ComponentTypeChip";
 
 interface PrecheckTableProps {
@@ -66,15 +61,36 @@ interface PrecheckTableProps {
   onUndoScan: (item: GridItem) => void;
   onRemarksChange: (item: GridItem, newRemarks: string) => void;
   onUndoPrecheck: (item: GridItem) => void;
-  onDeletePrecheck: (item: GridItem) => void;
+  onDeletePrecheck?: (item: GridItem) => void;
+  onRejectClick?: (item: GridItem) => void;
   orderBy: string;
   order: "asc" | "desc";
   onRequestSort: (property: string) => void;
   onExportBom?: () => void;
   isExportEnabled?: boolean;
-  filterRemainingOnly?: boolean;
-  onToggleFilter?: () => void;
+  selectedStatus?: string;
+  onStatusChange?: (status: string) => void;
 }
+
+const isItemPrecheckCompleted = (item: GridItem): boolean => {
+  if (!item) return false;
+  const statusLower = (item.precheckStatus || "").toLowerCase();
+  if (item.isRejected || statusLower === "rejected") return false;
+  const remQtyNum =
+    item.remainingQuantity !== undefined && item.remainingQuantity !== null
+      ? Number(item.remainingQuantity)
+      : null;
+  const isZeroRemQty = remQtyNum !== null && remQtyNum === 0;
+
+  return (
+    statusLower === "completed" ||
+    statusLower === "verified" ||
+    statusLower === "complete" ||
+    isZeroRemQty ||
+    Boolean(item.isPrecheckComplete) ||
+    Boolean(item.precheckDetailsId && item.precheckDetailsId > 0)
+  );
+};
 
 const PrecheckTable: React.FC<PrecheckTableProps> = ({
   paginatedResults,
@@ -91,6 +107,7 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
   onRowExpand,
   onRowDoubleClick,
   onEditClick,
+  onRejectClick,
   onUndoScan,
   onUndoPrecheck,
   onDeletePrecheck,
@@ -99,102 +116,57 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
   onRequestSort,
   onExportBom,
   isExportEnabled,
-  filterRemainingOnly = false,
-  onToggleFilter,
+  selectedStatus = "All",
+  onStatusChange,
 }) => {
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<HTMLElement | null>(null);
   const [activeMenuRow, setActiveMenuRow] = React.useState<{ item: GridItem; index: number } | null>(null);
   const [confirmUndoItem, setConfirmUndoItem] = React.useState<GridItem | null>(null);
   const [confirmDeleteItem, setConfirmDeleteItem] = React.useState<GridItem | null>(null);
 
-  const remainingCount = React.useMemo(() => {
-    if (!searchResults || searchResults.length === 0) return 0;
-    return searchResults.filter((item) => {
-      const status = (item.precheckStatus || "").toLowerCase();
-      const isRej = item.isRejected || status === "rejected";
-      const isComplete =
-        !isRej &&
-        (item.isPrecheckComplete ||
-          status === "verified" ||
-          status === "completed" ||
-          (item.remainingQuantity === 0 || item.remainingQuantity === null || item.remainingQuantity === undefined));
-      return !isRej && !isComplete;
-    }).length;
-  }, [searchResults]);
-
   const isEditDeleteEnabled = true;
   return (
-    <Paper
-      elevation={0}
-      sx={{
-        mt: 0.25,
-        mb: 0.5,
-        borderRadius: "16px",
-        border: "1px solid #EAECF0",
-        backgroundColor: "#FFFFFF",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-        width: "100%",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {/* BOM Lines Header Bar */}
-      <Box
-        sx={{
-          px: 2,
-          py: 0.5,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: "1px solid #EAECF0",
-          backgroundColor: "#FFFFFF",
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Typography
-            sx={{ fontWeight: 700, fontSize: "0.8rem", color: "#101828" }}
-          >
-             Parts To be verified 
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#667085", fontSize: "0.8rem", fontWeight: 500 }}
-          >
-            {searchResults.length > 0 ? `${searchResults.length} Parts` : ""}
-          </Typography>
-        </Box>
-
-        {/* Right End:   Filter Button */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {onToggleFilter && (
-            <Button
-              variant={filterRemainingOnly ? "contained" : "outlined"}
-              size="small"
-              onClick={onToggleFilter}
-              disabled={!searchResults || searchResults.length === 0}
-              startIcon={<FilterListIcon fontSize="small" />}
-              sx={{
-                height: 28,
-                borderRadius: "6px",
-                borderColor: filterRemainingOnly ? "primary.main" : "#D0D5DD",
-                backgroundColor: filterRemainingOnly ? "primary.main" : "#FFFFFF",
-                color: filterRemainingOnly ? "#FFFFFF" : "#344054",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.75rem",
-                px: 1.25,
-                "&:hover": {
-                  borderColor: filterRemainingOnly ? "primary.dark" : "#98A2B3",
-                  backgroundColor: filterRemainingOnly ? "primary.dark" : "#F9FAFB",
-                },
-              }}
-            >
-              {filterRemainingOnly ? "All Parts" : `Pending Parts${remainingCount > 0 ? ` (${remainingCount})` : ""}`}
-            </Button>
-          )}
-        </Box>
-      </Box>
+    <TableCard sx={{ mt: 0, mb: 0, borderRadius: 0, border: "none", boxShadow: "none", display: "flex", flexDirection: "column" }}>
+      <TableCardHeader
+        title="Parts to be verified"
+        
+        actions={
+          onStatusChange && (
+            <FormControl size="small" sx={{ minWidth: 130 }}>
+              <Select
+                disabled={!showResults || searchResults.length === 0}
+                value={selectedStatus || "All"}
+                onChange={(e) => onStatusChange(e.target.value as string)}
+                displayEmpty
+                size="small"
+                sx={{
+                  height: 32,
+                  fontSize: "0.8rem",
+                  fontWeight: 600,
+                  borderRadius: "6px",
+                  backgroundColor: "#FFFFFF",
+                  color: "#344054",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#D0D5DD",
+                  },
+                  "&:hover .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#98A2B3",
+                  },
+                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                    borderColor: "#6D2A8F",
+                  },
+                }}
+              >
+                <MenuItem value="All" sx={{ fontSize: "0.8rem" }}>All Status</MenuItem>
+                <MenuItem value="Pending" sx={{ fontSize: "0.8rem" }}>Pending</MenuItem>
+                <MenuItem value="Partial" sx={{ fontSize: "0.8rem" }}>Partial</MenuItem>
+                <MenuItem value="Rejected" sx={{ fontSize: "0.8rem" }}>Rejected</MenuItem>
+                <MenuItem value="Complete" sx={{ fontSize: "0.8rem" }}>Complete</MenuItem>
+              </Select>
+            </FormControl>
+          )
+        }
+      />
 
       <TableContainer
         sx={{
@@ -234,7 +206,7 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
               <SortableTableHeader label="MSN" columnKey="msn" sortColumn={orderBy} sortDirection={order} onSort={onRequestSort} align="center" minWidth={55} />
               <SortableTableHeader label="MRIR Number" columnKey="mrirNumber" sortColumn={orderBy} sortDirection={order} onSort={onRequestSort} align="center" minWidth={75} />
               <SortableTableHeader label="Type" columnKey="componentType" sortColumn={orderBy} sortDirection={order} onSort={onRequestSort} align="center" minWidth={75} />
-              <TableCell align="center" sx={{ fontWeight: 700, backgroundColor: COLOUR_ROLES.headerBg, color: COLOUR_ROLES.textSecondary, fontSize: "0.75rem", borderBottom: `1px solid ${COLOUR_ROLES.hairline}`, py: 0.5, px: 1, minWidth: 75 }}>Actions</TableCell>
+              <TableCell align="center" sx={{ fontWeight: 700, backgroundColor: COLOUR_ROLES.headerBg, color: COLOUR_ROLES.textSecondary, fontSize: "0.75rem", borderBottom: `1px solid ${COLOUR_ROLES.hairline}`, py: 0.5, px: 1, minWidth: 90 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -320,7 +292,7 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
                         transition: "background-color 0.2s ease",
                         cursor: "pointer",
                         "&:hover": {
-                          backgroundColor: `${rowHoverBg} !important`,
+                          backgroundColor: `${rowBg} !important`,
                         },
                         "& .MuiTableCell-root": {
                           py: "1px !important",
@@ -438,21 +410,43 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
                         align="center"
                         sx={{ py: 0.1, px: 0.5, fontSize: "0.72rem" }}
                       >
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setMenuAnchorEl(e.currentTarget);
-                            setActiveMenuRow({ item, index });
-                          }}
-                          sx={{
-                            color: "#667085",
-                            p: 0.25,
-                            "&:hover": { backgroundColor: "#F2F4F7", color: "#101828" },
-                          }}
-                        >
-                          <MoreVertIcon fontSize="small" />
-                        </IconButton>
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.25 }}>
+                          {/* 3-Dot Menu */}
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setMenuAnchorEl(e.currentTarget);
+                              setActiveMenuRow({ item, index });
+                            }}
+                            sx={{
+                              color: "#667085",
+                              p: 0.25,
+                              "&:hover": { backgroundColor: "#F2F4F7", color: "#101828" },
+                            }}
+                          >
+                            <MoreVertIcon fontSize="small" />
+                          </IconButton>
+                          {/* Expand/Collapse Arrow */}
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onRowExpand(index);
+                            }}
+                            sx={{
+                              color: "#667085",
+                              p: 0.25,
+                              "&:hover": { backgroundColor: "#F2F4F7", color: "#101828" },
+                            }}
+                          >
+                            {expandedRows.has(index) ? (
+                              <KeyboardArrowUpIcon fontSize="small" />
+                            ) : (
+                              <KeyboardArrowDownIcon fontSize="small" />
+                            )}
+                          </IconButton>
+                        </Box>
                       </TableCell>
                     </TableRow>
                     <TableRow sx={{ height: "auto" }}>
@@ -479,56 +473,47 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
                               sx={{ width: "100%" }}
                             >
                               <TableHead>
-                                <TableRow sx={{ backgroundColor: "#F2F4F7" }}>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                <TableRow sx={{ backgroundColor: "#F9FAFB" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Status
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     IR Number
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     MSN Number
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     MRIR Number
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Build No
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Quantity
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Remaining Qty
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     PO Number
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Unit
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     FAN/MAN No
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Disposition
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Username
                                   </TableCell>
-                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#344054", fontSize: "0.75rem", py: 1, px: 1, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
+                                  <TableCell align="center" sx={{ fontWeight: 700, color: "#475467", fontSize: "0.75rem", py: 0.75, px: 1.25, borderBottom: "1px solid #EAECF0", whiteSpace: "nowrap" }}>
                                     Created Date
                                   </TableCell>
-                                  <TableCell align="center" sx={{ width: 32, py: 0.5, px: 0.5, borderBottom: "1px solid #EAECF0" }}>
-                                    <IconButton
-                                      size="small"
-                                      onClick={() => onRowExpand(index)}
-                                      title="Hide Additional Details"
-                                      sx={{ p: 0.25, color: "#667085", "&:hover": { color: "#101828", backgroundColor: "#E4E7EC" } }}
-                                    >
-                                      <KeyboardArrowUpIcon fontSize="small" />
-                                    </IconButton>
-                                  </TableCell>
+
                                 </TableRow>
                               </TableHead>
                               <TableBody>
@@ -574,7 +559,7 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
                                   <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
                                     {formatDate(item.modifiedDate || "") || "N/A"}
                                   </TableCell>
-                                  <TableCell align="center" sx={{ width: 32, py: 0.5, px: 0.5, borderBottom: "none" }} />
+
                                 </TableRow>
                               </TableBody>
                             </Table>
@@ -640,27 +625,6 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
       >
         {activeMenuRow && (
           <>
-            {/* View / Hide Details */}
-            <MenuItem
-              onClick={() => {
-                onRowExpand(activeMenuRow.index);
-                setMenuAnchorEl(null);
-                setActiveMenuRow(null);
-              }}
-              sx={{ py: 0.75, px: 1.5 }}
-            >
-              <ListItemIcon sx={{ minWidth: 28 }}>
-                {expandedRows.has(activeMenuRow.index) ? (
-                  <RemoveIcon fontSize="small" color="primary" />
-                ) : (
-                  <AddIcon fontSize="small" color="primary" />
-                )}
-              </ListItemIcon>
-              <ListItemText
-                primary={expandedRows.has(activeMenuRow.index) ? "Hide Additional Details" : "Additional Details"}
-                primaryTypographyProps={{ fontSize: "0.8rem", fontWeight: 500 }}
-              />
-            </MenuItem>
 
             {/* Undo Verification */}
             {!activeMenuRow.item.isRejected &&
@@ -713,7 +677,39 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
                 </MenuItem>
               )}
 
-            {/* Reject Component */}
+            {/* Reject */}
+            {!activeMenuRow.item.isRejected && (
+              <MenuItem
+                disabled={!isItemPrecheckCompleted(activeMenuRow.item)}
+                onClick={() => {
+                  if (onRejectClick) {
+                    onRejectClick(activeMenuRow.item);
+                  } else {
+                    onEditClick(activeMenuRow.item);
+                  }
+                  setMenuAnchorEl(null);
+                  setActiveMenuRow(null);
+                }}
+                sx={{ py: 0.75, px: 1.5 }}
+              >
+                <ListItemIcon sx={{ minWidth: 28 }}>
+                  <CancelIcon
+                    fontSize="small"
+                    color={isItemPrecheckCompleted(activeMenuRow.item) ? "error" : "disabled"}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Reject Part"
+                  primaryTypographyProps={{
+                    fontSize: "0.8rem",
+                    fontWeight: 500,
+                    color: isItemPrecheckCompleted(activeMenuRow.item) ? "error.main" : "text.disabled",
+                  }}
+                />
+              </MenuItem>
+            )}
+
+            {/* Reject Component (Original - enabled when component is ready for rejection) */}
             {activeMenuRow.item.readyForRejection && !activeMenuRow.item.isRejected && (
               <MenuItem
                 onClick={() => {
@@ -760,134 +756,40 @@ const PrecheckTable: React.FC<PrecheckTableProps> = ({
       </Menu>
 
       {/* Confirm Undo Verification Dialog */}
-      <Dialog
+      <ConfirmationDialog
         open={Boolean(confirmUndoItem)}
-        onClose={() => setConfirmUndoItem(null)}
-        PaperProps={{ sx: { borderRadius: "12px", p: 1 } }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, fontSize: "1rem" }}>Confirm Undo Verification</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ fontSize: "0.875rem", color: "#344054" }}>
-            Are you sure you want to Undo Verification for Part Number: <strong>{confirmUndoItem?.drawingNumber}</strong>?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-          <Button
-            onClick={() => setConfirmUndoItem(null)}
-            variant="outlined"
-            size="small"
-            sx={{
-              height: 36,
-              minWidth: 70,
-              px: 2,
-              borderRadius: "6px",
-              borderColor: "#D0D5DD",
-              backgroundColor: "#ffffff",
-              color: "#667085",
-              fontWeight: 600,
-              fontSize: "0.82rem",
-              textTransform: "none",
-              boxShadow: "none",
-              "&:hover": {
-                borderColor: "#98A2B3",
-                backgroundColor: "#F9FAFB",
-                color: "#101828",
-              },
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              if (confirmUndoItem) {
-                onUndoPrecheck(confirmUndoItem);
-              }
-              setConfirmUndoItem(null);
-            }}
-            variant="contained"
-            color="warning"
-            size="small"
-            sx={{
-              height: 36,
-              minWidth: 70,
-              px: 2,
-              borderRadius: "6px",
-              fontWeight: 600,
-              fontSize: "0.82rem",
-              textTransform: "none",
-              boxShadow: "none",
-            }}
-          >
-            Undo
-          </Button>
-        </DialogActions>
-      </Dialog>
+        title="Confirm Undo Verification"
+        message={<>Are you sure you want to undo verification for part number: <strong>{confirmUndoItem?.drawingNumber}</strong>?</>}
+        confirmLabel="Undo"
+        cancelLabel="Cancel"
+        severity="warning"
+        onConfirm={() => {
+          if (confirmUndoItem) {
+            onUndoPrecheck(confirmUndoItem);
+          }
+          setConfirmUndoItem(null);
+        }}
+        onCancel={() => setConfirmUndoItem(null)}
+      />
 
       {/* Confirm Delete Part Dialog */}
-      <Dialog
+      <ConfirmationDialog
         open={Boolean(confirmDeleteItem)}
-        onClose={() => setConfirmDeleteItem(null)}
-        PaperProps={{ sx: { borderRadius: "12px", p: 1 } }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, fontSize: "1rem", color: "error.main" }}>Confirm Delete Part</DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ fontSize: "0.875rem", color: "#344054" }}>
-            Are you sure you want to Delete Part for Part Number: <strong>{confirmDeleteItem?.drawingNumber}</strong>? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-          <Button
-            onClick={() => setConfirmDeleteItem(null)}
-            variant="outlined"
-            size="small"
-            sx={{
-              height: 36,
-              minWidth: 70,
-              px: 2,
-              borderRadius: "6px",
-              borderColor: "#D0D5DD",
-              backgroundColor: "#ffffff",
-              color: "#667085",
-              fontWeight: 600,
-              fontSize: "0.82rem",
-              textTransform: "none",
-              boxShadow: "none",
-              "&:hover": {
-                borderColor: "#98A2B3",
-                backgroundColor: "#F9FAFB",
-                color: "#101828",
-              },
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              if (confirmDeleteItem) {
-                onDeletePrecheck(confirmDeleteItem);
-              }
-              setConfirmDeleteItem(null);
-            }}
-            variant="contained"
-            color="error"
-            size="small"
-            sx={{
-              height: 36,
-              minWidth: 70,
-              px: 2,
-              borderRadius: "6px",
-              fontWeight: 600,
-              fontSize: "0.82rem",
-              textTransform: "none",
-              boxShadow: "none",
-            }}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        title="Confirm Delete Part"
+        message={<>Are you sure you want to delete part for part number: <strong>{confirmDeleteItem?.drawingNumber}</strong>? This action cannot be undone.</>}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        severity="danger"
+        onConfirm={() => {
+          if (confirmDeleteItem && onDeletePrecheck) {
+            onDeletePrecheck(confirmDeleteItem);
+          }
+          setConfirmDeleteItem(null);
+        }}
+        onCancel={() => setConfirmDeleteItem(null)}
+      />
 
-    </Paper>
+    </TableCard>
   );
 };
 

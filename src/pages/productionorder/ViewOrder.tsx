@@ -16,7 +16,6 @@ import {
   Paper,
   IconButton,
   Stack,
-  Button,
   TextField,
   Autocomplete,
 } from "@mui/material";
@@ -27,6 +26,11 @@ import {
   ArrowBack as ArrowBackIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import SortableTableHeader from "../../components/ui/SortableTableHeader";
+import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
+import { commonTableRowStyle } from "../../components/tableStyles";
 import type { RootState, AppDispatch } from "../../store/store";
 import {
   getAvailableComponentsForBOM,
@@ -165,26 +169,7 @@ const ViewOrder: React.FC = () => {
     setSelectedBomRow(null);
   };
 
-  // Sorting state for BOM table
-  const [sortColumn] = useState<string | null>(null);
-  const [sortDirection] = useState<"asc" | "desc">("asc");
 
-  const sortedBomData = useMemo(() => {
-    if (!sortColumn) return bomData;
-    return [...bomData].sort((a: any, b: any) => {
-      let aVal = a[sortColumn] ?? a[sortColumn === "lnitemcode" ? "lnItemCode" : sortColumn] ?? "";
-      let bVal = b[sortColumn] ?? b[sortColumn === "lnitemcode" ? "lnItemCode" : sortColumn] ?? "";
-
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
-      }
-      const strA = String(aVal || "").toLowerCase().trim();
-      const strB = String(bVal || "").toLowerCase().trim();
-      return sortDirection === "asc"
-        ? strA.localeCompare(strB, undefined, { numeric: true, sensitivity: 'base' })
-        : strB.localeCompare(strA, undefined, { numeric: true, sensitivity: 'base' });
-    });
-  }, [bomData, sortColumn, sortDirection]);
 
   // Fetch PO Details helper
   const handleFetchDetails = async (poNumber: string) => {
@@ -233,16 +218,19 @@ const ViewOrder: React.FC = () => {
 
   // Update QR code data when available components change
   useEffect(() => {
-    if (availableComponents && Array.isArray(availableComponents)) {
-      const mappedQrData: QRCodeItem[] = availableComponents.map((item: any) => ({
+    const rawList = Array.isArray(availableComponents)
+      ? availableComponents
+      : (availableComponents as any)?.data || [];
+    if (Array.isArray(rawList)) {
+      const mappedQrData: QRCodeItem[] = rawList.map((item: any) => ({
         qrCodeNumber: item.qrCodeNumber || item.qrCode || "",
-        id: item.id || item.idNumber || "",
+        id: item.idNumber || item.id || "",
         qty: item.quantity || item.qty || 0,
         status: item.status || "Available",
         location: item.location || item.storeLocation || "",
         expiry: item.expiryDate || item.expiry || "",
         mfg: item.manufacturingDate || item.mfg || "",
-        remainingQuantity: item.remainingQuantity || 0,
+        remainingQuantity: item.remainingQuantity !== undefined ? item.remainingQuantity : item.quantity || 0,
         remarks: item.remarks || "-",
       }));
       setQrCodeData(mappedQrData);
@@ -279,11 +267,57 @@ const ViewOrder: React.FC = () => {
 
 
 
+  // Sorting state
+  const [sortColumn, setSortColumn] = useState<string | null>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      setSortColumn("");
+      setSortDirection("asc");
+    } else if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedBomData = useMemo(() => {
+    if (!sortColumn) return bomData;
+    return [...bomData].sort((a: any, b: any) => {
+      let valA = a[sortColumn] ?? "";
+      let valB = b[sortColumn] ?? "";
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortDirection === "asc" ? valA - valB : valB - valA;
+      }
+      if (typeof valA === "string") valA = valA.toLowerCase();
+      if (typeof valB === "string") valB = valB.toLowerCase();
+      const cmp = String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [bomData, sortColumn, sortDirection]);
+
+  const sortedQrCodeData = useMemo(() => {
+    if (!sortColumn) return qrCodeData;
+    return [...qrCodeData].sort((a: any, b: any) => {
+      let valA = a[sortColumn] ?? "";
+      let valB = b[sortColumn] ?? "";
+      if (typeof valA === "number" && typeof valB === "number") {
+        return sortDirection === "asc" ? valA - valB : valB - valA;
+      }
+      if (typeof valA === "string") valA = valA.toLowerCase();
+      if (typeof valB === "string") valB = valB.toLowerCase();
+      const cmp = String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [qrCodeData, sortColumn, sortDirection]);
+
   const paginatedQrResults = useMemo(() => {
     const startIndex = qrPage * qrRowsPerPage;
     const endIndex = startIndex + qrRowsPerPage;
-    return qrCodeData.slice(startIndex, endIndex);
-  }, [qrCodeData, qrPage, qrRowsPerPage]);
+    return sortedQrCodeData.slice(startIndex, endIndex);
+  }, [sortedQrCodeData, qrPage, qrRowsPerPage]);
 
   const renderStatusChip = (statusStr: string | undefined) => {
     const status = (statusStr || "N/A").toLowerCase();
@@ -343,20 +377,57 @@ const ViewOrder: React.FC = () => {
     <TableContainer
       sx={{
         overflowX: "auto",
+        overflowY: "auto",
         flexGrow: 1,
       }}
     >
       <Table stickyHeader size="small" sx={{ width: "100%" }}>
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Sr</TableCell>
-            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Item Code</TableCell>
-            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Part Number</TableCell>
-            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Unit</TableCell>
-            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Qty / Assembly</TableCell>
-            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Total Req Qty</TableCell>
-            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Total QR Qty</TableCell>
-            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Available Store Qty</TableCell>
+            <SortableTableHeader label="Sr No" align="center" isSortable={false} />
+            <SortableTableHeader
+              label="Item Code"
+              columnKey="lnitemcode"
+              activeSortColumn={sortColumn}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              align="center"
+              isSortable={true}
+            />
+            <SortableTableHeader
+              label="Part Number"
+              columnKey="drawingNumber"
+              activeSortColumn={sortColumn}
+              sortDirection={sortDirection}
+              onSort={handleSort}
+              align="center"
+              isSortable={true}
+            />
+            <SortableTableHeader
+              label="Unit"
+              align="center"
+              isSortable={false}
+            />
+            <SortableTableHeader
+              label="Qty / Assembly"
+              align="center"
+              isSortable={false}
+            />
+            <SortableTableHeader
+              label="Total Req Qty"
+              align="center"
+              isSortable={false}
+            />
+            <SortableTableHeader
+              label="Total QR Qty"
+              align="center"
+              isSortable={false}
+            />
+            <SortableTableHeader
+              label="Available Store Qty"
+              align="center"
+              isSortable={false}
+            />
           </TableRow>
         </TableHead>
         <TableBody>
@@ -376,23 +447,13 @@ const ViewOrder: React.FC = () => {
                     hover
                     onClick={() => handleBomRowClick(item, index)}
                     sx={{
+                      ...commonTableRowStyle,
                       cursor: "pointer",
-                      height: 40,
                       backgroundColor: isSelected ? "rgba(107, 40, 138, 0.06)" : "inherit",
-                      "&:hover": {
-                        backgroundColor: "#f9fafb",
-                      },
-                      "& td": {
-                        borderBottom: "1px solid #F2F4F7",
-                        fontSize: "0.775rem",
-                        color: "#344054",
-                        py: 0.75,
-                        px: 1.5,
-                      },
                     }}
                   >
                     <TableCell align="center">{item.sr}</TableCell>
-                    <TableCell sx={{ fontWeight: 600, color: "#101828" }} align="center">{item.lnitemcode}</TableCell>
+                    <TableCell sx={{ color: "#101828" }} align="center">{item.lnitemcode}</TableCell>
                     <TableCell align="center">{item.drawingNumber}</TableCell>
                     <TableCell align="center">{item.unit || "-"}</TableCell>
                     <TableCell align="center">{item.qty}</TableCell>
@@ -425,46 +486,18 @@ const ViewOrder: React.FC = () => {
       sx={{
         py: { xs: 0.75, sm: 1 },
         px: { xs: 1.25, sm: 1.5 },
-        minHeight: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#FAFAFA",
         width: "100%",
         boxSizing: "border-box",
       }}
     >
       {/* Header Section */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        spacing={2}
-        sx={{ mb: 1 }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <IconButton
-            onClick={() => navigate(-1)}
-            sx={{
-              color: "primary.main",
-              p: 0.5,
-              ml: -1,
-              "&:hover": { backgroundColor: "grey.100" },
-            }}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-            }}
-          >
-            View Available QR Codes {poFromState ? `— ${poFromState}` : ""}
-          </Typography>
-        </Box>
-      </Stack>
+      <PageHeader
+        title={`View Available QR Codes ${poFromState ? `— ${poFromState}` : ""}`}
+        subtitle="View available QR codes for part verification."
+        onBack={() => navigate(-1)}
+      />
 
       {error && (
         <Alert
@@ -546,11 +579,11 @@ const ViewOrder: React.FC = () => {
             }}
             ListboxProps={{ style: { maxHeight: "300px" } }}
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 180px", md: 1.4 },
-              minWidth: 150,
+              flex: { xs: "1 1 100%", sm: "1 1 200px", md: 1.6 },
+              minWidth: 175,
             }}
             renderInput={(params) => (
-              <TextField {...params} label="Production Order Number *" size="small" placeholder="Select PO" />
+              <TextField {...params} label="Production Order Number" size="small" placeholder="Select PO" />
             )}
           />
 
@@ -567,8 +600,8 @@ const ViewOrder: React.FC = () => {
               style: { backgroundColor: "#F9FAFB" },
             }}
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 160px", md: 1.2 },
-              minWidth: 140,
+              flex: { xs: "1 1 100%", sm: "1 1 140px", md: 1.1 },
+              minWidth: 130,
             }}
           />
 
@@ -585,8 +618,8 @@ const ViewOrder: React.FC = () => {
               style: { backgroundColor: "#F9FAFB" },
             }}
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 160px", md: 1.2 },
-              minWidth: 140,
+              flex: { xs: "1 1 100%", sm: "1 1 140px", md: 1.1 },
+              minWidth: 130,
             }}
           />
 
@@ -603,168 +636,157 @@ const ViewOrder: React.FC = () => {
               style: { backgroundColor: "#F9FAFB" },
             }}
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 120px", md: 1.0 },
-              minWidth: 100,
+              flex: { xs: "1 1 100%", sm: "1 1 90px", md: 0.7 },
+              minWidth: 85,
             }}
           />
 
           {/* ID Number Field */}
           <TextField
             size="small"
-            label="ID Number"
+            label="ID"
             value={idNumber}
             onChange={(e) => setIdNumber(e.target.value)}
-            placeholder="Enter ID"
+            placeholder="ID"
             variant="outlined"
             fullWidth
             sx={{
-              flex: { xs: "1 1 100%", sm: "1 1 110px", md: 0.9 },
-              minWidth: 95,
+              flex: { xs: "1 1 100%", sm: "1 1 75px", md: 0.5 },
+              minWidth: 75,
             }}
           />
 
           {/* Actions */}
           <Stack direction="row" spacing={1} alignItems="center" sx={{ ml: "auto", flex: "0 0 auto" }}>
-            <Button
-              size="small"
-              variant="contained"
+            <ActionButton
+              variant="primary"
+              size="standard"
               onClick={handleApplyFilters}
               disabled={!isApplyEnabled || bomLoading}
-              sx={{
-                height: 38,
-                minWidth: 70,
-                px: 2,
-                borderRadius: "6px",
-                backgroundColor: "primary.main",
-                color: "#FFFFFF",
-                fontWeight: 600,
-                fontSize: "0.82rem",
-                textTransform: "none",
-                boxShadow: "none",
-                "&:hover": {
-                  backgroundColor: "primary.dark",
-                  boxShadow: "none",
-                },
-                "&.Mui-disabled": {
-                  backgroundColor: "#EAECF0",
-                  color: "#98A2B3",
-                },
-              }}
             >
               Apply
-            </Button>
-            <Button
-              size="small"
-              variant="outlined"
+            </ActionButton>
+            <ActionButton
+              variant="secondary"
+              size="standard"
               onClick={handleClearFilters}
-              sx={{
-                height: 38,
-                minWidth: 70,
-                px: 2,
-                borderRadius: "6px",
-                borderColor: "#D0D5DD",
-                backgroundColor: "#ffffff",
-                color: "#667085",
-                fontWeight: 600,
-                fontSize: "0.82rem",
-                textTransform: "none",
-                boxShadow: "none",
-                "&:hover": {
-                  borderColor: "#98A2B3",
-                  backgroundColor: "#F9FAFB",
-                  color: "#101828",
-                },
-              }}
             >
               Clear
-            </Button>
+            </ActionButton>
           </Stack>
         </Box>
       </Paper>
 
       {/* Main Content Area: BOM Details & Available QRs */}
-      <Grid container spacing={1.5} sx={{ flexGrow: 1 }}>
+      <Grid container spacing={1} sx={{ flexGrow: 1 }}>
         {/* Left Panel: BOM Details */}
         <Grid item xs={12} lg={selectedBomRow !== null ? 6 : 12}>
-          <Paper
-            elevation={0}
-            sx={{
-              borderRadius: "12px",
-              border: "1px solid #eaecf0",
-              backgroundColor: "#ffffff",
-              overflow: "hidden",
-              minHeight: "450px",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Box sx={{ height: 48, px: 1.5, borderBottom: "1px solid #eaecf0", display: "flex", alignItems: "center", justifyContent: "space-between", boxSizing: "border-box" }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                <Typography variant="body2" sx={{ color: "#475467", fontSize: "0.85rem", fontWeight: 600 }}>
-                  Material available in store
-                </Typography>
-                <Typography variant="caption" sx={{ color: "#98A2B3", fontSize: "0.75rem", fontStyle: "italic" }}>
-                  (Click a row to view available QR codes)
-                </Typography>
-              </Box>
-              <Stack direction="row" alignItems="center" spacing={0.5}>
-                <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.85rem", fontWeight: 500 }}>
-                  {bomData.length} {bomData.length === 1 ? "item" : "items"}
-                </Typography>
-              </Stack>
-            </Box>
+          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column"}}>
+            <TableCardHeader
+              title={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "0.9rem",
+                      fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      color: "#1F2937",
+                      
+                    }}
+                  >
+                    Material available in store
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    component="span"
+                    sx={{
+                      color: "#98A2B3",
+                      fontSize: "0.75rem",
+                      fontStyle: "italic",
+                      fontWeight: 400,
+                      fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    }}
+                  >
+                    (Click a row to view available QR codes)
+                  </Typography>
+                </Box>
+              }
+              
+            />
 
             {renderBomTable()}
-          </Paper>
+          </TableCard>
         </Grid>
 
         {/* Right Panel: Available QR Codes (Shown only when a row is clicked) */}
         {selectedBomRow !== null && (
           <Grid item xs={12} lg={6}>
-            <Paper
-              elevation={0}
-              sx={{
-                borderRadius: "12px",
-                border: "1px solid #eaecf0",
-                backgroundColor: "#ffffff",
-                overflow: "hidden",
-                minHeight: "450px",
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              <Box sx={{ height: 48, px: 1.5, borderBottom: "1px solid #eaecf0", display: "flex", alignItems: "center", justifyContent: "space-between", boxSizing: "border-box" }}>
-                <Typography variant="body2" sx={{ color: "#475467", fontSize: "0.85rem", fontWeight: 600 }}>
-                  Available QR Codes
-                </Typography>
-                <Stack direction="row" alignItems="center" spacing={1}>
-                  <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.85rem", fontWeight: 500 }}>
-                    {qrCodeData.length} {qrCodeData.length === 1 ? "QR code" : "QR codes"}
-                  </Typography>
-                  <IconButton
-                    size="small"
-                    onClick={() => {
-                      setSelectedBomRow(null);
-                      setQrCodeData([]);
+          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
+            <TableCardHeader
+              title={
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                  <Typography
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "0.9rem",
+                      fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      color: "#1F2937",
                     }}
-                    title="Close QR details"
-                    sx={{ p: 0.25, color: "#667085", "&:hover": { color: "#101828", backgroundColor: "#F2F4F7" } }}
                   >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Stack>
-              </Box>
+                    Available QR Codes
+                  </Typography>
+                </Box>
+              }
+              count={qrCodeData.length}
+              actions={
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setSelectedBomRow(null);
+                    setQrCodeData([]);
+                  }}
+                  title="Close QR details"
+                  sx={{ p: 0.25, color: "#667085", "&:hover": { color: "#101828", backgroundColor: "#F2F4F7" } }}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              }
+            />
 
               <TableContainer sx={{ overflowX: "auto", flexGrow: 1 }}>
                 <Table stickyHeader size="small" sx={{ width: "100%" }}>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">QR Code Number</TableCell>
-                      <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">ID</TableCell>
-                      <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Qty</TableCell>
-                      <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Status</TableCell>
-                      <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Location</TableCell>
-                      <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Remarks</TableCell>
+                      <SortableTableHeader
+                        label="QR Code Number"
+                        align="center"
+                        isSortable={false}
+                      />
+                      <SortableTableHeader
+                        label="ID"
+                        align="center"
+                        isSortable={false}
+                      />
+                      <SortableTableHeader
+                        label="Qty"
+                        align="center"
+                        isSortable={false}
+                      />
+                      <SortableTableHeader
+                        label="Status"
+                        align="center"
+                        isSortable={false}
+                      />
+                      <SortableTableHeader
+                        label="Location"
+                        align="center"
+                        isSortable={false}
+                      />
+                      <SortableTableHeader
+                        label="Remarks"
+                        align="center"
+                        isSortable={false}
+                      />
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -780,19 +802,9 @@ const ViewOrder: React.FC = () => {
                           <TableRow
                             key={index}
                             hover
-                            sx={{
-                              height: 40,
-                              "&:hover": { backgroundColor: "#F9FAFB" },
-                              "& td": {
-                                borderBottom: "1px solid #F2F4F7",
-                                fontSize: "0.775rem",
-                                color: "#344054",
-                                py: 0.75,
-                                px: 1.5,
-                              },
-                            }}
+                            sx={commonTableRowStyle}
                           >
-                            <TableCell sx={{ fontWeight: 600, color: "#101828" }} align="center">
+                            <TableCell sx={{ color: "#101828" }} align="center">
                               {item.qrCodeNumber || "N/A"}
                             </TableCell>
                             <TableCell align="center">{item.id || "N/A"}</TableCell>
@@ -830,7 +842,7 @@ const ViewOrder: React.FC = () => {
                 }}
               />
 
-            </Paper>
+            </TableCard>
           </Grid>
         )}
       </Grid>

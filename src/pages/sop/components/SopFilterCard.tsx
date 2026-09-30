@@ -3,12 +3,13 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   Grid,
   Autocomplete,
   CircularProgress,
   Paper,
 } from "@mui/material";
+import ActionButton from "../../../components/ui/ActionButton";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 import {
   Search as SearchIcon,
   Refresh as ResetIcon,
@@ -62,14 +63,11 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
   hasAssemblyData,
 }) => {
   return (
-    <Paper
-      elevation={0}
+    <Box
       sx={{
-        p: 1.25,
-        mb: 1.5,
-        borderRadius: "10px",
-        border: "1px solid #EAECF0",
-        backgroundColor: "#ffffff",
+        p: 1.5,
+        pb: 1.25,
+        borderBottom: "1px solid #EAECF0",
       }}
     >
       <Grid container spacing={1.25} alignItems="center">
@@ -163,11 +161,12 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
                     );
                   }}
                   renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Prod. Series *"
-                      placeholder="Select series..."
-                    />
+                      <TextField
+                        {...params}
+                        label={<RequiredLabel text="Prod. Series" required />}
+                       
+                        placeholder="Select series..."
+                      />
                   )}
                 />
               );
@@ -199,19 +198,9 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Assembly No / Item Code *"
+                label={<RequiredLabel text="Assembly No / Item Code" required />}
+             
                 placeholder="Type 3+ chars (e.g. CK310)..."
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <>
-                      {isDrawingNumbersLoading ? (
-                        <CircularProgress color="inherit" size={16} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </>
-                  ),
-                }}
               />
             )}
             ListboxProps={{
@@ -275,6 +264,7 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
                 placeholder="ID number..."
                 fullWidth
                 size="small"
+              
               />
             )}
           />
@@ -283,63 +273,25 @@ export const SopFilterCard: React.FC<SopFilterCardProps> = ({
         {/* Action Buttons */}
         <Grid item xs={12} md={2.5}>
           <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end", alignItems: "center" }}>
-            <Button
-              variant="contained"
-              size="small"
+            <ActionButton
+              variant="primary"
+              size="standard"
               onClick={executeSearch}
               disabled={isLoading || !isSearchAndResetEnabled}
-              sx={{
-                height: 38,
-                minWidth: 65,
-                px: 2,
-                borderRadius: "6px",
-                backgroundColor: "primary.main",
-                color: "#FFFFFF",
-                fontWeight: 600,
-                fontSize: "0.82rem",
-                textTransform: "none",
-                boxShadow: "none",
-                "&:hover": {
-                  backgroundColor: "primary.dark",
-                  boxShadow: "none",
-                },
-                "&.Mui-disabled": {
-                  backgroundColor: "#EAECF0",
-                  color: "#98A2B3",
-                },
-              }}
             >
-              {isLoading ? "Applying..." : "Apply"}
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
+              {isLoading ? "Apply" : "Apply"}
+            </ActionButton>
+            <ActionButton
+              variant="secondary"
+              size="standard"
               onClick={executeReset}
               disabled={!isSearchAndResetEnabled}
-              sx={{
-                height: 38,
-                minWidth: 55,
-                px: 1.5,
-                borderRadius: "6px",
-                borderColor: "#D0D5DD",
-                backgroundColor: "#ffffff",
-                color: "#667085",
-                fontWeight: 600,
-                fontSize: "0.82rem",
-                textTransform: "none",
-                boxShadow: "none",
-                "&:hover": {
-                  borderColor: "#98A2B3",
-                  backgroundColor: "#F9FAFB",
-                  color: "#101828",
-                },
-              }}
             >
               Clear
-            </Button>
+            </ActionButton>
           </Box>
         </Grid>
       </Grid>
-    </Paper>
+    </Box>
   );
 };

@@ -30,6 +30,9 @@ import {
   CallSplit as CallSplitIcon,
 } from "@mui/icons-material";
 import { CustomPagination } from "../../../components/CustomPagination";
+import SortableTableHeader from "../../../components/ui/SortableTableHeader";
+import { TableCard, TableCardHeader } from "../../../components/ui/TableCard";
+import { commonTableCellCompactCheckbox, commonTableHeaderStyle, commonTableRowStyle } from "../../../components/tableStyles";
 
 interface QRCodesTableProps {
   displayedQRCodes: any[];
@@ -76,6 +79,33 @@ const QRCodesTable = ({
   const [actionMenuItem, setActionMenuItem] = useState<any | null>(null);
   const [actionMenuIndex, setActionMenuIndex] = useState<number | null>(null);
 
+  const [sortColumn, setSortColumn] = useState<string | null>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      setSortColumn("");
+      setSortDirection("asc");
+    } else if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedQRCodes = React.useMemo(() => {
+    if (!sortColumn) return displayedQRCodes;
+    return [...displayedQRCodes].sort((a: any, b: any) => {
+      let valA = a[sortColumn] ?? "";
+      let valB = b[sortColumn] ?? "";
+      if (typeof valA === "string") valA = valA.toLowerCase();
+      if (typeof valB === "string") valB = valB.toLowerCase();
+      const cmp = String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [displayedQRCodes, sortColumn, sortDirection]);
+
   const handleActionMenuOpen = (
     event: React.MouseEvent<HTMLElement>,
     item: any,
@@ -99,33 +129,12 @@ const QRCodesTable = ({
   };
 
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        borderRadius: "10px",
-        borderColor: "#EAECF0",
-        backgroundColor: "#FFFFFF",
-        mt: 2,
-        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-      }}
-    >
-      <CardContent sx={{ p: { xs: 2, sm: 2.5 } }}>
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={1.5}
-          sx={{ mb: 2 }}
-        >
-          <Box flex={1}>
-            <Typography variant="h6" sx={{ fontWeight: 700, color: "#1E293B" }}>
-              Generated QR Codes
-            </Typography>
-            <Typography variant="caption" sx={{ color: "#64748B" }}>
-              Total {displayedQRCodes.length} item(s) available
-            </Typography>
-          </Box>
-          <Stack direction="row" spacing={1} flexWrap="wrap" alignItems="center">
+    <TableCard sx={{ mt: 2 }}>
+      <TableCardHeader
+        title="Generated QR Codes"
+        count={displayedQRCodes.length > 0 ? displayedQRCodes.length : undefined}
+        actions={
+          <>
             {canSplitAny && (
               <Button
                 variant="outlined"
@@ -158,16 +167,16 @@ const QRCodesTable = ({
             >
               Bulk Edit ({selectedBarcodes.length})
             </Button>
-          </Stack>
-        </Stack>
+          </>
+        }
+      />
 
-        <TableContainer component={Paper} variant="outlined">
+      <TableContainer>
           <Table stickyHeader size="small">
             <TableHead>
-              <TableRow sx={{ height: 40 }}>
+              <TableRow>
                 <TableCell
-                  padding="checkbox"
-                  sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 0.75, px: 1.25 }}
+                  sx={{ ...commonTableHeaderStyle, ...commonTableCellCompactCheckbox }}
                 >
                   <Checkbox
                     checked={
@@ -182,43 +191,46 @@ const QRCodesTable = ({
                     size="small"
                   />
                 </TableCell>
-                <TableCell
-                  sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 0.75, px: 1.25 }}
-                >
-                  Sr. No
-                </TableCell>
-                <TableCell
-                  sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 0.75, px: 1.25 }}
-                >
-                  QR Code
-                </TableCell>
-                <TableCell
-                  sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 0.75, px: 1.25 }}
-                >
-                  ID Number
-                </TableCell>
+                <SortableTableHeader label="Sr. No" isSortable={false} />
+                <SortableTableHeader
+                  label="QR Code"
+                  columnKey="qrCodeNumber"
+                  activeSortColumn={sortColumn}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  isSortable={true}
+                />
+                <SortableTableHeader
+                  label="ID Number"
+                  columnKey="idNumber"
+                  activeSortColumn={sortColumn}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  isSortable={true}
+                />
                 {showBatchIdColumn && (
-                  <TableCell
-                    sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 0.75, px: 1.25 }}
-                  >
-                    Batch ID
-                  </TableCell>
+                  <SortableTableHeader
+                    label="Batch ID"
+                    columnKey="batchId"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    isSortable={true}
+                  />
                 )}
-                <TableCell
-                  sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 0.75, px: 1.25 }}
-                >
-                  Status
-                </TableCell>
-                <TableCell
-                  align="center"
-                  sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 0.75, px: 1.25 }}
-                >
-                  Actions
-                </TableCell>
+                <SortableTableHeader
+                  label="Status"
+                  columnKey="isNewQrCode"
+                  activeSortColumn={sortColumn}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                  isSortable={true}
+                />
+                <SortableTableHeader label="Actions" align="center" isSortable={false} />
               </TableRow>
             </TableHead>
             <TableBody>
-              {displayedQRCodes
+              {sortedQRCodes
                 .slice(
                   page * rowsPerPage,
                   page * rowsPerPage + rowsPerPage
@@ -230,9 +242,8 @@ const QRCodesTable = ({
                     }
                     hover
                     sx={{
-                      height: 36,
+                      ...commonTableRowStyle,
                       backgroundColor: item.isSplitRow ? "#f5f5f5" : "inherit",
-                      "& td": { borderBottom: "1px solid #F2F4F7", fontSize: "0.775rem", color: "#344054", py: 0.5, px: 1.25 },
                     }}
                   >
                     <TableCell padding="checkbox">
@@ -256,7 +267,7 @@ const QRCodesTable = ({
                     <TableCell>
                       <Typography
                         variant="body2"
-                        sx={{ fontFamily: "monospace", fontSize: "0.775rem", fontWeight: 600, color: "#101828" }}
+                        sx={{ fontSize: "0.775rem", fontWeight: 600, color: "#101828" }}
                       >
                         {item.qrCodeNumber || item.serialNumber}
                       </Typography>
@@ -392,8 +403,7 @@ const QRCodesTable = ({
           }}
         />
 
-      </CardContent>
-    </Card>
+    </TableCard>
   );
 };
 

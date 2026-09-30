@@ -14,6 +14,8 @@ import {
   Clear as ClearIcon,
 } from "@mui/icons-material";
 import type { ProductionOrderMaster } from "../../../hooks/usePONumbers";
+import ActionButton from "../../../components/ui/ActionButton";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 
 interface PrecheckFormControlsProps {
   // PO Number
@@ -60,9 +62,6 @@ interface PrecheckFormControlsProps {
   selectedPOStartIdNumber?: number;
   selectedPOQuantity?: number;
 
-  // Remaining Precheck and Export props (optional)
-  filterRemainingOnly?: boolean;
-  onToggleFilter?: () => void;
   onExport?: () => void;
   isSubmitEnabled?: boolean;
   isSidebarOpen?: boolean;
@@ -100,8 +99,6 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
   selectedPOStartIdNumber,
   selectedPOQuantity,
   isSubmitEnabled,
-  filterRemainingOnly,
-  onToggleFilter,
   onExport,
   isSidebarOpen = false,
 }) => {
@@ -195,11 +192,11 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
         display: "flex",
         alignItems: "center",
         p: 2,
-        mb: 0.75,
-        borderRadius: "12px",
-        border: "1px solid #EAECF0",
-        backgroundColor: "#FFFFFF",
-        boxShadow: "0 1px 3px rgba(20, 3, 3, 0.04)",
+        mb: 0,
+        borderRadius: 0,
+        border: "none",
+        backgroundColor: "transparent",
+        boxShadow: "none",
         gap: 1.5,
         flexWrap: { xs: "wrap", lg: "nowrap" },
         width: "100%",
@@ -265,8 +262,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { maxHeight: "300px" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 160px", lg: 1.2 },
-          minWidth: { xs: "100%", sm: 140 },
+          flex: { xs: "1 1 100%", sm: "1 1 250px", lg: 1.8 },
+          minWidth: { xs: "100%", sm: 230 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             backgroundColor: "#FFFFFF",
@@ -278,7 +275,13 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           },
         }}
         renderInput={(params) => (
-          <TextField {...params} label="Production Order No *" fullWidth size="small" />
+          <TextField
+            {...params}
+            label={<RequiredLabel text="Production Order No" required />}
+            fullWidth
+            size="small"
+            InputLabelProps={{ shrink: true }}
+          />
         )}
       />
 
@@ -295,8 +298,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { backgroundColor: "#F9FAFB" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 160px", lg: 1.2 },
-          minWidth: { xs: "100%", sm: 140 },
+          flex: { xs: "1 1 100%", sm: "1 1 150px", lg: 1.1 },
+          minWidth: { xs: "100%", sm: 130 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             borderRadius: "6px",
@@ -323,8 +326,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { backgroundColor: "#F9FAFB" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 160px", lg: 1.2 },
-          minWidth: { xs: "100%", sm: 140 },
+          flex: { xs: "1 1 100%", sm: "1 1 150px", lg: 1.1 },
+          minWidth: { xs: "100%", sm: 130 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             borderRadius: "6px",
@@ -351,8 +354,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { backgroundColor: "#F9FAFB" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 110px", lg: 0.9 },
-          minWidth: { xs: "100%", sm: 95 },
+          flex: { xs: "1 1 100%", sm: "1 1 100px", lg: 0.8 },
+          minWidth: { xs: "100%", sm: 90 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             borderRadius: "6px",
@@ -385,8 +388,8 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
           style: { maxHeight: "300px" },
         }}
         sx={{
-          flex: { xs: "1 1 100%", sm: "1 1 120px", lg: 0.9 },
-          minWidth: { xs: "100%", sm: 100 },
+          flex: { xs: "1 1 100%", sm: "1 1 110px", lg: 0.8 },
+          minWidth: { xs: "100%", sm: 105 },
           "& .MuiOutlinedInput-root": {
             height: 38,
             backgroundColor: "#FFFFFF",
@@ -400,68 +403,31 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="ID Number *"
+            label={<RequiredLabel text="ID " required />}
             variant="outlined"
+            InputLabelProps={{ shrink: true }}
           />
         )}
       />
 
       {/* Apply Button */}
-      <Button
-        variant="contained"
-        size="small"
+      <ActionButton
+        variant="primary"
+        size="standard"
         onClick={onApply || onReset}
         disabled={!isApplyEnabled}
-        sx={{
-          height: 38,
-          minWidth: 65,
-          px: 2,
-          borderRadius: "6px",
-          backgroundColor: "primary.main",
-          color: "#FFFFFF",
-          fontWeight: 600,
-          fontSize: "0.82rem",
-          textTransform: "none",
-          boxShadow: "none",
-          "&:hover": {
-            backgroundColor: "primary.dark",
-            boxShadow: "none",
-          },
-          "&.Mui-disabled": {
-            backgroundColor: "#EAECF0",
-            color: "#98A2B3",
-          },
-        }}
       >
         Apply
-      </Button>
+      </ActionButton>
 
       {/* Clear Button */}
-      <Button
-        variant="outlined"
-        size="small"
+      <ActionButton
+        variant="secondary"
+        size="standard"
         onClick={onClear || onReset}
-        sx={{
-          height: 38,
-          minWidth: 55,
-          px: 1.5,
-          borderRadius: "6px",
-          borderColor: "#D0D5DD",
-          backgroundColor: "#ffffff",
-          color: "#667085",
-          fontWeight: 600,
-          fontSize: "0.82rem",
-          textTransform: "none",
-          boxShadow: "none",
-          "&:hover": {
-            borderColor: "#98A2B3",
-            backgroundColor: "#F9FAFB",
-            color: "#101828",
-          },
-        }}
       >
         Clear
-      </Button>
+      </ActionButton>
     </Paper>
   );
 };

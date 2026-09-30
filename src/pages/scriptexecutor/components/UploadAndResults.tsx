@@ -10,6 +10,7 @@ import {
   IconButton,
   Grid,
 } from "@mui/material";
+import ActionButton from "../../../components/ui/ActionButton";
 import {
   CloudUpload as UploadIcon,
   PlayArrow as PlayIcon,
@@ -68,13 +69,13 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
       sx={{
         border: "2px dashed",
         borderColor: isDragOver ? "primary.main" : (theme) => theme.palette.primary.light + "60",
-        borderRadius: 3,
+        borderRadius: 1,
         bgcolor: isDragOver ? (theme) => theme.palette.primary.main + "0A" : (theme) => theme.palette.primary.main + "04",
         transition: "all 0.25s ease",
         p: 2,
         cursor: "pointer",
         textAlign: "center",
-        mb: 2,
+        mb: 0,
         "&:hover": {
           borderColor: "primary.main",
           bgcolor: (theme) => theme.palette.primary.main + "06",
@@ -106,7 +107,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
               sx={{
                 width: 48,
                 height: 48,
-                borderRadius: "50%",
+                borderRadius: 1,
                 bgcolor: "background.paper",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                 display: "flex",
@@ -118,7 +119,7 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
             </Box>
             <Box>
               <Typography variant="subtitle1" sx={{ fontWeight: 700, color: "text.primary" }}>
-                Drag & drop your Excel file here
+                Drag and drop your Excel file here
               </Typography>
               <Typography variant="body2" sx={{ color: "primary.main", fontWeight: 700, mt: 0.25 }}>
                 or browse files
@@ -223,42 +224,36 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                 {!isFileUploadedToServer && (
-                  <Button
-                    variant="contained"
+                  <ActionButton
+                    variant="primary"
+                    size="compact"
                     onClick={onConfirmUpload}
                     disabled={isUploading || !isFileValid || hasInvalidFile}
-                    color="success"
-                    size="small"
                     startIcon={<CheckIcon sx={{ fontSize: 14 }} />}
-                    sx={{ height: 32, fontSize: "0.775rem" }}
                   >
                     {isUploading ? `Uploading (${selectedFiles.length})...` : "Confirm & Upload"}
-                  </Button>
+                  </ActionButton>
                 )}
 
                 {isFileUploadedToServer && (
-                  <Button
-                    variant="contained"
+                  <ActionButton
+                    variant="primary"
+                    size="compact"
                     onClick={onExecuteScript}
                     disabled={isExecuting || !isFileValid || hasInvalidFile}
-                    color="primary"
-                    size="small"
                     startIcon={<PlayIcon sx={{ fontSize: 14 }} />}
-                    sx={{ height: 32, fontSize: "0.775rem" }}
                   >
                     {isExecuting ? "Executing..." : "Execute Script"}
-                  </Button>
+                  </ActionButton>
                 )}
 
-                <Button
-                  variant="outlined"
-                  color="inherit"
-                  size="small"
+                <ActionButton
+                  variant="secondary"
+                  size="compact"
                   onClick={onCancel}
-                  sx={{ height: 32, fontSize: "0.775rem", borderColor: "grey.300" }}
                 >
                   Cancel
-                </Button>
+                </ActionButton>
               </Box>
             </Box>
           </Box>
@@ -347,40 +342,21 @@ export const PostUploadSummaryCard: React.FC<PostUploadSummaryCardProps> = ({
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Button
-            variant="outlined"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="compact"
             startIcon={<DownloadIcon sx={{ fontSize: 15 }} />}
             onClick={onDownloadErrorReport}
-            sx={{
-              height: 34,
-              px: 1.75,
-              borderRadius: 2,
-              borderColor: "neutral.border",
-              color: "text.primary",
-              fontWeight: 600,
-              textTransform: "none",
-              fontSize: "0.8rem",
-              bgcolor: "background.paper",
-              "&:hover": { borderColor: "grey.400", bgcolor: "neutral.hoverBg" },
-            }}
           >
-            Download error report
-          </Button>
-          <Button
-            variant="text"
-            size="small"
+            Download Error Report
+          </ActionButton>
+          <ActionButton
+            variant="secondary"
+            size="compact"
             onClick={onResetUpload}
-            sx={{
-              color: "text.primary",
-              fontWeight: 600,
-              textTransform: "none",
-              fontSize: "0.8rem",
-              "&:hover": { bgcolor: "transparent", textDecoration: "underline" },
-            }}
           >
-            Upload another file
-          </Button>
+            Upload Another File
+          </ActionButton>
         </Box>
       </Box>
 
@@ -388,7 +364,7 @@ export const PostUploadSummaryCard: React.FC<PostUploadSummaryCardProps> = ({
 
       <Grid container spacing={2} sx={{ mb: 1.5 }}>
         <Grid item xs={4}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: "success.main", fontSize: "1.65rem" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: "success.main", fontSize: "1.65rem" }}>
             {executionStats.success.toLocaleString()}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.75rem" }}>
@@ -396,7 +372,7 @@ export const PostUploadSummaryCard: React.FC<PostUploadSummaryCardProps> = ({
           </Typography>
         </Grid>
         <Grid item xs={4}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: executionStats.errors > 0 ? "error.main" : "text.secondary", fontSize: "1.65rem" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: executionStats.errors > 0 ? "error.main" : "text.secondary", fontSize: "1.65rem" }}>
             {executionStats.errors.toLocaleString()}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.75rem" }}>
@@ -404,7 +380,7 @@ export const PostUploadSummaryCard: React.FC<PostUploadSummaryCardProps> = ({
           </Typography>
         </Grid>
         <Grid item xs={4}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: "grey.500", fontSize: "1.65rem" }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, color: "grey.500", fontSize: "1.65rem" }}>
             {executionStats.warnings.toLocaleString()}
           </Typography>
           <Typography variant="caption" sx={{ color: "text.secondary", fontWeight: 600, fontSize: "0.75rem" }}>

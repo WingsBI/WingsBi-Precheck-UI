@@ -23,6 +23,8 @@ import {
 import { Controller } from "react-hook-form";
 import { Add as AddIcon } from "@mui/icons-material";
 import StepHeader from "./StepHeader";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
+import { commonTableHeaderStyle, commonTableRowStyle } from "../../../components/tableStyles";
 
 interface ComponentTypeStepProps {
   control: any;
@@ -87,10 +89,7 @@ function ComponentTypeStep({
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
     >
-      <StepHeader
-        number={2}
-        title="ID range"
-      />
+      <StepHeader title="ID range" />
 
       {componentType === "ID" && (
         <>
@@ -197,11 +196,12 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label="Start ID *"
+                      label={<RequiredLabel text="Start ID" required />}
                       type="number"
                       placeholder="e.g. 301"
                       fullWidth
                       size="small"
+                      InputLabelProps={{ shrink: true }}
                       error={!!error}
                       helperText={error?.message || idRangeNotice}
                     />
@@ -227,11 +227,12 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label="End ID *"
+                      label={<RequiredLabel text="End ID" required />}
                       type="number"
                       placeholder="e.g. 320"
                       fullWidth
                       size="small"
+                      InputLabelProps={{ shrink: true }}
                       error={!!error}
                       helperText={error?.message || idRangeNotice}
                     />
@@ -298,9 +299,10 @@ function ComponentTypeStep({
                   render={({ field, fieldState: { error } }) => (
                     <TextField
                       {...field}
-                      label="ID Range *"
+                      label={<RequiredLabel text="ID Range" required />}
                       fullWidth
                       size="small"
+                      InputLabelProps={{ shrink: true }}
                       placeholder="e.g., 301, 302, 305-310"
                       error={!!error}
                       helperText={error?.message || idRangeNotice}
@@ -478,9 +480,10 @@ function ComponentTypeStep({
               render={({ field, fieldState: { error } }) => (
                 <TextField
                   {...field}
-                  label="ID Range *"
+                  label={<RequiredLabel text="ID Range" required />}
                   fullWidth
                   size="small"
+                  InputLabelProps={{ shrink: true }}
                   placeholder="e.g., 1,2,3,4-7"
                   error={!!error}
                   helperText={error?.message || idRangeNotice}
@@ -520,30 +523,30 @@ function ComponentTypeStep({
           >
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ backgroundColor: "#F9FAFB" }}>
-                  <TableCell>
-                    <b>Sr.No</b>
+                <TableRow>
+                  <TableCell sx={commonTableHeaderStyle}>
+                    Sr.No
                   </TableCell>
-                  <TableCell>
-                    <b>ID No</b>
+                  <TableCell sx={commonTableHeaderStyle}>
+                    ID No
                   </TableCell>
-                  <TableCell>
-                    <b>Quantity</b>
+                  <TableCell sx={commonTableHeaderStyle}>
+                    Quantity
                   </TableCell>
-                  <TableCell>
-                    <b>Size</b>
+                  <TableCell sx={commonTableHeaderStyle}>
+                    Size
                   </TableCell>
-                  <TableCell>
-                    <b>MRIR</b>
+                  <TableCell sx={commonTableHeaderStyle}>
+                    MRIR
                   </TableCell>
-                  <TableCell>
-                    <b>HEAT / LOT / BATCH No</b>
+                  <TableCell sx={commonTableHeaderStyle}>
+                    HEAT / LOT / BATCH No
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {QrTableRows.map((row, index) => (
-                  <TableRow key={row.srNo}>
+                  <TableRow key={row.srNo} sx={commonTableRowStyle}>
                     <TableCell>{row.srNo}</TableCell>
                     <TableCell>
                       <TextField
@@ -551,6 +554,10 @@ function ComponentTypeStep({
                         value={row.idNo}
                         size="small"
                         fullWidth
+                        sx={{
+                          "& .MuiOutlinedInput-root": { height: 26 },
+                          "& .MuiOutlinedInput-input": { py: "2px", px: 1, fontSize: "0.75rem" },
+                        }}
                         onChange={(e) =>
                           handleQrTableChange(index, "idNo", e.target.value)
                         }
@@ -564,6 +571,10 @@ function ComponentTypeStep({
                         type="number"
                         size="small"
                         fullWidth
+                        sx={{
+                          "& .MuiOutlinedInput-root": { height: 26 },
+                          "& .MuiOutlinedInput-input": { py: "2px", px: 1, fontSize: "0.75rem" },
+                        }}
                         onFocus={(e) => e.target.select()}
                         onChange={(e) =>
                           handleQrTableChange(index, "quantity", e.target.value)
@@ -577,6 +588,10 @@ function ComponentTypeStep({
                         value={row.size}
                         size="small"
                         fullWidth
+                        sx={{
+                          "& .MuiOutlinedInput-root": { height: 26 },
+                          "& .MuiOutlinedInput-input": { py: "2px", px: 1, fontSize: "0.75rem" },
+                        }}
                         onChange={(e) =>
                           handleQrTableChange(index, "size", e.target.value)
                         }
@@ -589,6 +604,10 @@ function ComponentTypeStep({
                         value={row.mirir}
                         size="small"
                         fullWidth
+                        sx={{
+                          "& .MuiOutlinedInput-root": { height: 26 },
+                          "& .MuiOutlinedInput-input": { py: "2px", px: 1, fontSize: "0.75rem" },
+                        }}
                         onChange={(e) =>
                           handleQrTableChange(index, "mirir", e.target.value)
                         }
@@ -601,6 +620,10 @@ function ComponentTypeStep({
                         value={row.heatLotBatchNo}
                         size="small"
                         fullWidth
+                        sx={{
+                          "& .MuiOutlinedInput-root": { height: 26 },
+                          "& .MuiOutlinedInput-input": { py: "2px", px: 1, fontSize: "0.75rem" },
+                        }}
                         onChange={(e) =>
                           handleQrTableChange(
                             index,

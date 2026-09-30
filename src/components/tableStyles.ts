@@ -1,92 +1,215 @@
+export const TABLE_TOKENS = {
+  // Header Tokens
+  headerBg: "#F9FAFB",
+  headerColor: "#475467",
+  headerFontSize: "0.8rem",
+  headerFontWeight: 700,
+  headerHeight: "40px",
+  headerHeightNum: 40,
+  headerPy: 0.75,
+  headerPx: 1.25,
+
+  // Body Tokens
+  bodyFontSize: "0.775rem",
+  bodyTextColor: "#1F2937",
+  rowHeight: 40,
+  cellPy: 0.15,
+  cellPx: 0.75,
+  rowBorderColor: "#E5E7EB",
+  rowHoverColor: "transparent !important",
+
+  // Special Column & Expanded Row Tokens
+  stickyColumnBg: "#FFFFFF",
+  expandedRowBg: "#F8FAFC",
+  expandedRowBorder: "#EAECF0",
+  loadingRowHeight: 280,
+  emptyStateHeight: 260,
+
+  // Footer / Pagination Tokens
+  footerBorderColor: "#EAECF0",
+  footerPy: 0.75,
+  footerPx: 2,
+  footerHeight: "44px",
+  footerFontSize: "0.775rem",
+  footerTextColor: "#475467",
+
+  // Status Row Highlight Tokens
+  statusRowRejected: "transparent",
+  statusRowUpdated: "transparent",
+  statusRowShort: "transparent",
+};
+
+export const DATAGRID_DEFAULT_PROPS = {
+  rowHeight: TABLE_TOKENS.rowHeight,
+  columnHeaderHeight: TABLE_TOKENS.headerHeightNum,
+};
+
+export const STATUS_ROW_TOKENS = {
+  rejected: "transparent",
+  updated: "transparent",
+  short: "transparent",
+  default: "transparent",
+};
+
 export const COLOUR_ROLES = {
   primary: "#6D2A8F",
   primaryHover: "#571F73",
   primaryTint: "#F3E8F8",
   destructive: "#B91C1C",
   link: "#2563EB",
-  textMain: "#1F2937",
-  textSecondary: "#4B5563",
+  textMain: TABLE_TOKENS.bodyTextColor,
+  textSecondary: TABLE_TOKENS.headerColor,
   placeholder: "#6B7280",
   borderStrong: "#D1D5DB",
-  hairline: "#E5E7EB",
+  hairline: TABLE_TOKENS.rowBorderColor,
   canvas: "#F4F4F6",
-  headerBg: "#F9FAFB",
-  rowHover: "#F9FAFB",
+  headerBg: TABLE_TOKENS.headerBg,
+  rowHover: TABLE_TOKENS.rowHoverColor,
 };
 
 export const commonTableHeaderStyle = {
-  fontWeight: 700,
-  backgroundColor: COLOUR_ROLES.headerBg,
-  color: COLOUR_ROLES.textSecondary,
-  fontSize: "0.8rem",
-  borderBottom: `1px solid ${COLOUR_ROLES.hairline}`,
-  py: 0.75,
-  px: 1.25,
+  fontWeight: TABLE_TOKENS.headerFontWeight,
+  backgroundColor: TABLE_TOKENS.headerBg,
+  color: TABLE_TOKENS.headerColor,
+  fontSize: TABLE_TOKENS.headerFontSize,
+  borderBottom: `1px solid ${TABLE_TOKENS.rowBorderColor}`,
+  py: TABLE_TOKENS.headerPy,
+  px: TABLE_TOKENS.headerPx,
 };
 
 export const commonTableRowStyle = {
-  height: 32,
-  "&:hover": { backgroundColor: `${COLOUR_ROLES.rowHover} !important` },
+  height: TABLE_TOKENS.rowHeight,
+  "&:hover": { backgroundColor: TABLE_TOKENS.rowHoverColor },
   "& td, & th": {
-    borderBottom: `1px solid ${COLOUR_ROLES.hairline}`,
-    fontSize: "0.775rem",
-    color: COLOUR_ROLES.textMain,
-    py: 0.15,
-    px: 0.75,
+    borderBottom: `1px solid ${TABLE_TOKENS.rowBorderColor}`,
+    fontSize: TABLE_TOKENS.bodyFontSize,
+    color: TABLE_TOKENS.bodyTextColor,
+    py: TABLE_TOKENS.cellPy,
+    px: TABLE_TOKENS.cellPx,
   },
 };
 
-export const commonTableContainerStyle = {
-  borderRadius: "12px",
-  border: `1px solid ${COLOUR_ROLES.hairline}`,
-  backgroundColor: "#ffffff",
-  boxShadow: "0px 1px 3px rgba(16, 24, 40, 0.05)",
-  overflow: "hidden",
+export const commonExpandedRowStyle = {
+  height: "auto",
+  "& > td": {
+    padding: "0 !important",
+    borderBottom: "none !important",
+  },
+  "& .MuiCollapse-wrapperInner": {
+    backgroundColor: TABLE_TOKENS.expandedRowBg,
+    borderTop: `1px solid ${TABLE_TOKENS.expandedRowBorder}`,
+    borderBottom: `1px solid ${TABLE_TOKENS.expandedRowBorder}`,
+  },
+};
+
+export const commonTableCellCompactCheckbox = {
+  padding: "checkbox",
+  textAlign: "center",
+  py: 0,
+  px: 0.5,
+  height: TABLE_TOKENS.rowHeight,
+  "& .MuiCheckbox-root": {
+    p: 0.5,
+    height: 28,
+    width: 28,
+    color: "#D0D5DD",
+    "&.Mui-checked, &.MuiCheckbox-indeterminate": {
+      color: "primary.main",
+    },
+  },
+};
+
+export const commonTableLoadingRowSx = {
+  height: TABLE_TOKENS.loadingRowHeight,
+  borderBottom: "none",
 };
 
 export const commonDataGridSx = {
-  border: `1px solid ${COLOUR_ROLES.hairline}`,
+  border: `1px solid ${TABLE_TOKENS.rowBorderColor}`,
   borderRadius: "12px",
   backgroundColor: "#FFFFFF",
   "& .MuiDataGrid-columnHeaders": {
-    backgroundColor: COLOUR_ROLES.headerBg,
-    color: COLOUR_ROLES.textSecondary,
-    fontWeight: 700,
-    fontSize: "0.8rem",
-    borderBottom: `1px solid ${COLOUR_ROLES.hairline}`,
-    minHeight: "40px !important",
-    maxHeight: "40px !important",
-    lineHeight: "40px !important",
+    backgroundColor: TABLE_TOKENS.headerBg,
+    color: TABLE_TOKENS.headerColor,
+    fontWeight: TABLE_TOKENS.headerFontWeight,
+    fontSize: TABLE_TOKENS.headerFontSize,
+    borderBottom: `1px solid ${TABLE_TOKENS.rowBorderColor}`,
+    minHeight: `${TABLE_TOKENS.headerHeight} !important`,
+    maxHeight: `${TABLE_TOKENS.headerHeight} !important`,
+    lineHeight: `${TABLE_TOKENS.headerHeight} !important`,
   },
   "& .MuiDataGrid-columnHeader": {
-    paddingLeft: "16px !important",
-    paddingRight: "16px !important",
+    paddingLeft: `${TABLE_TOKENS.cellPx * 8}px !important`,
+    paddingRight: `${TABLE_TOKENS.cellPx * 8}px !important`,
   },
   "& .MuiDataGrid-columnHeaderTitleContainer": {
     padding: "0 !important",
     marginLeft: "0 !important",
   },
   "& .MuiDataGrid-cell": {
-    fontSize: "0.775rem",
-    color: COLOUR_ROLES.textMain,
-    borderBottom: `1px solid ${COLOUR_ROLES.hairline}`,
+    fontSize: TABLE_TOKENS.bodyFontSize,
+    color: TABLE_TOKENS.bodyTextColor,
+    borderBottom: `1px solid ${TABLE_TOKENS.rowBorderColor}`,
     display: "flex",
     alignItems: "center",
-    paddingLeft: "16px !important",
-    paddingRight: "16px !important",
+    paddingLeft: `${TABLE_TOKENS.cellPx * 8}px !important`,
+    paddingRight: `${TABLE_TOKENS.cellPx * 8}px !important`,
     py: "2px",
   },
   "& .MuiDataGrid-row": {
-    minHeight: "32px !important",
-    maxHeight: "32px !important",
-    "&:hover": { backgroundColor: `${COLOUR_ROLES.rowHover} !important` },
+    minHeight: `${TABLE_TOKENS.rowHeight}px !important`,
+    maxHeight: `${TABLE_TOKENS.rowHeight}px !important`,
+    "&:hover": { backgroundColor: TABLE_TOKENS.rowHoverColor },
   },
-  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-columnHeader:focus": {
+  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus-visible, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader:focus-visible, & .MuiDataGrid-columnHeader--focused, & .MuiDataGrid-columnHeaderTitleContainer:focus, & .MuiDataGrid-columnHeaderTitleContainer:focus-within": {
     outline: "none !important",
+    boxShadow: "none !important",
+    border: "none !important",
+  },
+  "& .MuiDataGrid-sortIcon": {
+    color: "#6D2A8F !important",
+    fontSize: "1rem !important",
+  },
+  "& .MuiDataGrid-columnHeader--sortable .MuiDataGrid-iconButtonContainer": {
+    color: "#6D2A8F !important",
+    visibility: "visible !important",
+    opacity: "1 !important",
+    width: "auto !important",
+    "& .MuiIconButton-root": {
+      color: "#6D2A8F !important",
+      padding: "2px !important",
+      opacity: "1 !important",
+    },
+  },
+  "& .MuiDataGrid-columnHeader:not(.MuiDataGrid-columnHeader--sortable) .MuiDataGrid-iconButtonContainer": {
+    display: "none !important",
+    visibility: "hidden !important",
+    width: "0 !important",
+  },
+  "& .MuiDataGrid-columnHeader--sortable:not(.MuiDataGrid-columnHeader--sorted) .MuiDataGrid-sortIcon": {
+    opacity: "0.45 !important",
+    color: "#6D2A8F !important",
+  },
+  "& .MuiDataGrid-overlayWrapper": {
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-overlayWrapperInner": {
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-overlay": {
+    backgroundColor: "#ffffff !important",
+    display: "flex !important",
+    alignItems: "center !important",
+    justifyContent: "center !important",
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon": {
+    opacity: "1 !important",
+    color: "#6D2A8F !important",
   },
   "& .MuiDataGrid-footerContainer": {
-    borderTop: `1px solid ${COLOUR_ROLES.hairline}`,
-    minHeight: "40px !important",
+    borderTop: `1px solid ${TABLE_TOKENS.footerBorderColor}`,
+    minHeight: `${TABLE_TOKENS.footerHeight} !important`,
     "& .MuiTablePagination-root": {
       width: "100%",
     },
@@ -94,20 +217,20 @@ export const commonDataGridSx = {
       display: "flex",
       justifyContent: "space-between !important",
       width: "100%",
-      px: 2,
+      px: TABLE_TOKENS.footerPx,
     },
     "& .MuiTablePagination-spacer": {
       display: "none !important",
     },
     "& .MuiTablePagination-selectLabel": {
       margin: 0,
-      fontSize: "0.775rem",
-      color: "#475467",
+      fontSize: TABLE_TOKENS.footerFontSize,
+      color: TABLE_TOKENS.footerTextColor,
       fontWeight: 500,
     },
-    "& .MuiTablePagination-displayedRows": {
-      fontSize: "0.775rem",
-      color: "#475467",
+    "& .MuiDataGrid-displayedRows, & .MuiTablePagination-displayedRows": {
+      fontSize: TABLE_TOKENS.footerFontSize,
+      color: TABLE_TOKENS.footerTextColor,
       fontWeight: 500,
       marginLeft: "auto !important",
     },
@@ -126,37 +249,37 @@ export const adminDataGridSx = {
     borderRadius: "0px",
   },
   "& .MuiDataGrid-columnHeaders": {
-    backgroundColor: "#F8FAFC !important",
-    color: "#475467 !important",
-    fontWeight: "700 !important",
-    fontSize: "0.8rem !important",
-    borderBottom: "1px solid #EAECF0 !important",
-    minHeight: "40px !important",
-    maxHeight: "40px !important",
-    lineHeight: "40px !important",
+    backgroundColor: `${TABLE_TOKENS.headerBg} !important`,
+    color: `${TABLE_TOKENS.headerColor} !important`,
+    fontWeight: `${TABLE_TOKENS.headerFontWeight} !important`,
+    fontSize: `${TABLE_TOKENS.headerFontSize} !important`,
+    borderBottom: `1px solid ${TABLE_TOKENS.expandedRowBorder} !important`,
+    minHeight: `${TABLE_TOKENS.headerHeight} !important`,
+    maxHeight: `${TABLE_TOKENS.headerHeight} !important`,
+    lineHeight: `${TABLE_TOKENS.headerHeight} !important`,
   },
   "& .MuiDataGrid-columnHeader": {
-    backgroundColor: "#F8FAFC !important",
-    color: "#475467 !important",
-    fontWeight: "700 !important",
-    fontSize: "0.8rem !important",
-    borderBottom: "1px solid #EAECF0 !important",
-    minHeight: "40px !important",
-    maxHeight: "40px !important",
-    paddingLeft: "16px !important",
-    paddingRight: "16px !important",
+    backgroundColor: `${TABLE_TOKENS.headerBg} !important`,
+    color: `${TABLE_TOKENS.headerColor} !important`,
+    fontWeight: `${TABLE_TOKENS.headerFontWeight} !important`,
+    fontSize: `${TABLE_TOKENS.headerFontSize} !important`,
+    borderBottom: `1px solid ${TABLE_TOKENS.expandedRowBorder} !important`,
+    minHeight: `${TABLE_TOKENS.headerHeight} !important`,
+    maxHeight: `${TABLE_TOKENS.headerHeight} !important`,
+    paddingLeft: `${TABLE_TOKENS.cellPx * 8}px !important`,
+    paddingRight: `${TABLE_TOKENS.cellPx * 8}px !important`,
   },
   "& .MuiDataGrid-columnHeaderTitleContainer": {
     padding: "0 !important",
     marginLeft: "0 !important",
   },
   "& .MuiDataGrid-columnHeadersInner, & .MuiDataGrid-columnHeaderRow, & .MuiDataGrid-columnHeaderTitleContainerContent": {
-    backgroundColor: "#F8FAFC !important",
+    backgroundColor: `${TABLE_TOKENS.headerBg} !important`,
   },
   "& .MuiDataGrid-columnHeaderTitle": {
-    fontWeight: "700 !important",
-    fontSize: "0.8rem !important",
-    color: "#475467 !important",
+    fontWeight: `${TABLE_TOKENS.headerFontWeight} !important`,
+    fontSize: `${TABLE_TOKENS.headerFontSize} !important`,
+    color: `${TABLE_TOKENS.headerColor} !important`,
   },
   "& .MuiDataGrid-columnSeparator, & .MuiDataGrid-iconSeparator": {
     display: "none !important",
@@ -164,27 +287,70 @@ export const adminDataGridSx = {
     visibility: "hidden !important",
   },
   "& .MuiDataGrid-cell": {
-    fontSize: "0.775rem",
-    color: "#1E293B",
-    borderBottom: "1px solid #F1F5F9",
+    fontSize: TABLE_TOKENS.bodyFontSize,
+    color: TABLE_TOKENS.bodyTextColor,
+    borderBottom: `1px solid ${TABLE_TOKENS.expandedRowBorder}`,
     display: "flex",
     alignItems: "center",
-    paddingLeft: "16px !important",
-    paddingRight: "16px !important",
+    paddingLeft: `${TABLE_TOKENS.cellPx * 8}px !important`,
+    paddingRight: `${TABLE_TOKENS.cellPx * 8}px !important`,
   },
   "& .MuiDataGrid-row": {
-    minHeight: "42px !important",
-    maxHeight: "42px !important",
-    "&:hover": { backgroundColor: "#F8FAFC !important" },
+    minHeight: `${TABLE_TOKENS.rowHeight}px !important`,
+    maxHeight: `${TABLE_TOKENS.rowHeight}px !important`,
+    "&:hover": { backgroundColor: TABLE_TOKENS.rowHoverColor },
     "&.Mui-selected": { backgroundColor: "#F1F5F9 !important" },
-    "&.Mui-selected:hover": { backgroundColor: "#E2E8F0 !important" },
+    "&.Mui-selected:hover": { backgroundColor: "#F1F5F9 !important" },
   },
-  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within": {
+  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus-visible, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader:focus-visible, & .MuiDataGrid-columnHeader--focused, & .MuiDataGrid-columnHeaderTitleContainer:focus, & .MuiDataGrid-columnHeaderTitleContainer:focus-within": {
     outline: "none !important",
+    boxShadow: "none !important",
+    border: "none !important",
+  },
+  "& .MuiDataGrid-sortIcon": {
+    color: "#6D2A8F !important",
+    fontSize: "1rem !important",
+  },
+  "& .MuiDataGrid-columnHeader--sortable .MuiDataGrid-iconButtonContainer": {
+    color: "#6D2A8F !important",
+    visibility: "visible !important",
+    opacity: "1 !important",
+    width: "auto !important",
+    "& .MuiIconButton-root": {
+      color: "#6D2A8F !important",
+      padding: "2px !important",
+      opacity: "1 !important",
+    },
+  },
+  "& .MuiDataGrid-columnHeader:not(.MuiDataGrid-columnHeader--sortable) .MuiDataGrid-iconButtonContainer": {
+    display: "none !important",
+    visibility: "hidden !important",
+    width: "0 !important",
+  },
+  "& .MuiDataGrid-columnHeader--sortable:not(.MuiDataGrid-columnHeader--sorted) .MuiDataGrid-sortIcon": {
+    opacity: "0.45 !important",
+    color: "#6D2A8F !important",
+  },
+  "& .MuiDataGrid-columnHeader--sorted .MuiDataGrid-sortIcon": {
+    opacity: "1 !important",
+    color: "#6D2A8F !important",
+  },
+  "& .MuiDataGrid-overlayWrapper": {
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-overlayWrapperInner": {
+    minHeight: "260px !important",
+  },
+  "& .MuiDataGrid-overlay": {
+    backgroundColor: "#ffffff !important",
+    display: "flex !important",
+    alignItems: "center !important",
+    justifyContent: "center !important",
+    minHeight: "260px !important",
   },
   "& .MuiDataGrid-footerContainer": {
-    borderTop: "1px solid #EAECF0 !important",
-    minHeight: "44px !important",
+    borderTop: `1px solid ${TABLE_TOKENS.footerBorderColor} !important`,
+    minHeight: `${TABLE_TOKENS.footerHeight} !important`,
     backgroundColor: "#FFFFFF",
     "& .MuiTablePagination-root": {
       width: "100%",
@@ -193,20 +359,20 @@ export const adminDataGridSx = {
       display: "flex",
       justifyContent: "space-between !important",
       width: "100%",
-      px: 2,
+      px: TABLE_TOKENS.footerPx,
     },
     "& .MuiTablePagination-spacer": {
       display: "none !important",
     },
     "& .MuiTablePagination-selectLabel": {
       margin: 0,
-      fontSize: "0.8rem",
-      color: "#475467",
+      fontSize: TABLE_TOKENS.footerFontSize,
+      color: TABLE_TOKENS.footerTextColor,
       fontWeight: 500,
     },
-    "& .MuiTablePagination-displayedRows": {
-      fontSize: "0.8rem",
-      color: "#475467",
+    "& .MuiDataGrid-displayedRows, & .MuiTablePagination-displayedRows": {
+      fontSize: TABLE_TOKENS.footerFontSize,
+      color: TABLE_TOKENS.footerTextColor,
       fontWeight: 500,
       marginLeft: "auto !important",
     },
@@ -216,5 +382,3 @@ export const adminDataGridSx = {
     },
   },
 };
-
-

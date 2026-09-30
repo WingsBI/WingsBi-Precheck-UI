@@ -1,7 +1,6 @@
 import { useState, forwardRef, useImperativeHandle, useRef, useMemo } from "react";
 import {
   Box,
-  Typography,
   CircularProgress,
   Alert,
   Button,
@@ -15,13 +14,13 @@ import {
   Stack,
   Tab,
   Tabs,
-  Snackbar,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
   Paper,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import {
   Add as AddIcon,
@@ -32,7 +31,7 @@ import {
   MoreVert as MoreVertIcon,
 
 } from "@mui/icons-material";
-import { adminDataGridSx } from "../../components/tableStyles";
+import { adminDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../components/tableStyles";
 import { DataGridCustomPagination } from "../../components/CustomPagination";
 import {
   useUserRoles,
@@ -50,6 +49,9 @@ import { isPageAccessible } from "../../utils/accessUtils";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import EditRoleDrawer from "./components/EditRoleDrawer";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import { TableCard } from "../../components/ui/TableCard";
 
 const getUserName = (userId: number | null | undefined, usersList: any[]) => {
   if (!userId) return "-";
@@ -306,22 +308,25 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
     {
       field: "srNo",
       headerName: "Sr No",
-      width: 100,
+      width: 80,
       type: "number",
-      headerAlign: "left",
-      align: "left",
+      headerAlign: "center",
+      align: "center",
+      sortable: false,
     },
     {
       field: "role",
       headerName: "Role Name",
       flex: 1,
       minWidth: 150,
+      sortable: true,
     },
     {
       field: "description",
       headerName: "Description",
       flex: 1.2,
       minWidth: 160,
+      sortable: false,
       renderCell: (params) => params.value || "-",
     },
     {
@@ -329,12 +334,19 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
       headerName: "Created By",
       flex: 1,
       minWidth: 130,
+      sortable: false,
       renderCell: (params) => getUserName(params.row.createdBy, users),
     },
     {
       field: "createdDate",
       headerName: "Created Date",
       width: 135,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        const val = row.createdDate;
+        return val ? new Date(val).getTime() : 0;
+      },
       renderCell: (params) => formatDate(params.row.createdDate),
     },
     {
@@ -342,12 +354,19 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
       headerName: "Modified By",
       flex: 1,
       minWidth: 130,
+      sortable: false,
       renderCell: (params) => getUserName(params.row.modifiedBy, users),
     },
     {
       field: "modifiedDate",
       headerName: "Modified Date",
       width: 135,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        const val = row.modifiedDate;
+        return val ? new Date(val).getTime() : 0;
+      },
       renderCell: (params) => formatDate(params.row.modifiedDate),
     },
     {
@@ -386,9 +405,8 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
     <>
       <Box sx={{ width: "100%" }}>
         <DataGrid
+          {...DATAGRID_DEFAULT_PROPS}
           autoHeight
-          rowHeight={42}
-          columnHeaderHeight={40}
           rows={rows}
           columns={columns}
           initialState={{
@@ -396,7 +414,7 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
               paginationModel: { pageSize: 10 },
             },
             sorting: {
-              sortModel: [{ field: "srNo", sort: "asc" }],
+              sortModel: [{ field: "role", sort: "asc" }],
             },
           }}
           pageSizeOptions={[10, 20, 50]}
@@ -570,16 +588,22 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
     {
       field: "srNo",
       headerName: "Sr No",
-      width: 100,
+      width: 80,
       type: "number",
-      headerAlign: "left",
-      align: "left",
+      headerAlign: "center",
+      align: "center",
+      sortable: false,
     },
     {
       field: "name",
       headerName: "Department Name",
       flex: 1,
       minWidth: 150,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        return row.name || row.departmentName || "";
+      },
       renderCell: (params) => params.row.name || params.row.departmentName || "-",
     },
     {
@@ -587,6 +611,7 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
       headerName: "Description",
       flex: 1,
       minWidth: 150,
+      sortable: false,
       renderCell: (params) => params.row.description || "-",
     },
     {
@@ -594,12 +619,19 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
       headerName: "Created By",
       flex: 1,
       minWidth: 150,
+      sortable: false,
       renderCell: (params) => getUserName(params.row.createdBy, users),
     },
     {
       field: "createdDate",
       headerName: "Created Date",
       width: 135,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        const val = row.createdDate;
+        return val ? new Date(val).getTime() : 0;
+      },
       renderCell: (params) => formatDate(params.row.createdDate),
     },
     {
@@ -607,12 +639,19 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
       headerName: "Modified By",
       flex: 1,
       minWidth: 150,
+      sortable: false,
       renderCell: (params) => getUserName(params.row.modifiedBy, users),
     },
     {
       field: "modifiedDate",
       headerName: "Modified Date",
       width: 135,
+      sortable: true,
+      valueGetter: (params: any) => {
+        const row = params.row || params;
+        const val = row.modifiedDate;
+        return val ? new Date(val).getTime() : 0;
+      },
       renderCell: (params) => formatDate(params.row.modifiedDate),
     },
     {
@@ -657,9 +696,8 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
 
       <Box sx={{ width: "100%" }}>
         <DataGrid
+          {...DATAGRID_DEFAULT_PROPS}
           autoHeight
-          rowHeight={42}
-          columnHeaderHeight={40}
           rows={activeDepartments}
           columns={columns}
           initialState={{
@@ -667,7 +705,7 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
               paginationModel: { pageSize: 10 },
             },
             sorting: {
-              sortModel: [{ field: "srNo", sort: "asc" }],
+              sortModel: [{ field: "name", sort: "asc" }],
             },
           }}
           pageSizeOptions={[10, 20, 50]}
@@ -788,68 +826,35 @@ export default function RoleManagement() {
   return (
     <Box sx={{ py: { xs: 1.5, sm: 2 }, px: { xs: 1.5, sm: 2.5 } }}>
       {/* Top Header Bar */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        spacing={2}
-        sx={{ mb: 1.5 }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-            }}
+      <PageHeader
+        title="Role Management"
+        subtitle="Configure user roles, department structures and page access permissions."
+        actions={
+          <Tooltip
+            title={
+              !isAdmin
+                ? "Only administrators can add or edit roles/departments"
+                : !hasRoleManagementAccess
+                ? `You do not have access to manage ${TAB_LABELS[activeTab].toLowerCase()}`
+                : ""
+            }
+            arrow
           >
-            Role Management
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-            Configure user roles, department structures and page access permissions.
-          </Typography>
-        </Box>
-
-        <Tooltip
-          title={
-            !isAdmin
-              ? "Only administrators can add or edit roles/departments"
-              : !hasRoleManagementAccess
-              ? `You do not have access to manage ${TAB_LABELS[activeTab].toLowerCase()}`
-              : ""
-          }
-          arrow
-        >
-          <span>
-            <Button
-              id="btn-add-role-dept"
-              variant="contained"
-              size="small"
-              onClick={handleOpenAdd}
-              disabled={!isAdmin || !hasRoleManagementAccess}
-              startIcon={<AddIcon fontSize="small" />}
-              sx={{
-                height: 34,
-                borderRadius: "6px",
-                backgroundColor: "primary.main",
-                color: "#ffffff",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.8rem",
-                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                "&:hover": { backgroundColor: "primary.dark" },
-                "&.Mui-disabled": {
-                  backgroundColor: "#EAECF0",
-                  color: "#98A2B3",
-                },
-              }}
-            >
-              Add {TAB_LABELS[activeTab]}
-            </Button>
-          </span>
-        </Tooltip>
-      </Stack>
+            <span>
+              <ActionButton
+                id="btn-add-role-dept"
+                variant="primary"
+                size="standard"
+                onClick={handleOpenAdd}
+                disabled={!isAdmin || !hasRoleManagementAccess}
+                startIcon={<AddIcon fontSize="small" />}
+              >
+                Add {TAB_LABELS[activeTab]}
+              </ActionButton>
+            </span>
+          </Tooltip>
+        }
+      />
 
       {/* 2. Tabs Bar */}
       <Box
@@ -892,35 +897,22 @@ export default function RoleManagement() {
       </Box>
 
       {/* 3. Main Single Container Card */}
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: "12px",
-          border: "1px solid #EAECF0",
-          backgroundColor: "#ffffff",
-          overflow: "hidden",
-          mb: 2,
-        }}
-      >
+      <TableCard sx={{ mb: 2 }}>
         <TabPanel value={activeTab} index={0}>
           <RoleTab ref={roleRef} showSnackbar={showSnackbar} />
         </TabPanel>
         <TabPanel value={activeTab} index={1}>
           <DepartmentTab ref={deptRef} showSnackbar={showSnackbar} />
         </TabPanel>
-      </Paper>
+      </TableCard>
 
       {/* Global Snackbar Notification */}
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={snackbar.severity === "error" ? null : 6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 }

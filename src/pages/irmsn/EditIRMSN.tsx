@@ -36,6 +36,8 @@ import {
   type ProductionOrderMaster,
 } from "../../hooks/usePONumbers";
 import { useDebounce } from "../../hooks/useDebounce";
+import PageHeader from "../../components/ui/PageHeader";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 
 interface EditIRMSNFormData {
   id: number;
@@ -321,49 +323,25 @@ export default function EditIRMSN() {
       sx={{
         py: { xs: 1, sm: 1.25 },
         px: { xs: 1.5, sm: 2 },
-        minHeight: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "background.default",
         width: "100%",
         boxSizing: "border-box",
       }}
     >
-      {/* Header Section */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-        <IconButton
-          onClick={() => navigate(-1)}
-          sx={{
-            color: "primary.main",
-            p: 0.5,
-            ml: -1,
-            "&:hover": { backgroundColor: "grey.100" },
-          }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            fontSize: { xs: "1.25rem", sm: "1.5rem" },
-          }}
-        >
-          Edit {isIR ? "IR" : "MSN"} Number: {id}
-        </Typography>
-      </Box>
+      {/* Page Header */}
+      <PageHeader
+        title={`Edit ${isIR ? "IR" : "MSN"} Number: ${id}`}
+        onBack={() => navigate(-1)}
+      />
 
-      {/* Error Alert */}
-      {apiError && (
-        <Alert
-          severity="error"
-          sx={{ mb: 2, borderRadius: "6px" }}
-          onClose={() => dispatch(clearIrmsnError())}
-        >
-          {apiError}
-        </Alert>
-      )}
+      {/* Toast Notification */}
+      <ToastSnackbar
+        open={Boolean(apiError)}
+        message={apiError || ""}
+        severity="error"
+        onClose={() => dispatch(clearIrmsnError())}
+      />
 
       {/* Main Content Card */}
       <Paper

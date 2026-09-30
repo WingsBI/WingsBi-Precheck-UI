@@ -15,9 +15,7 @@ import {
   InputAdornment,
   IconButton,
   Collapse,
-  Chip,
   Alert,
-  Snackbar,
   CircularProgress,
   Button,
   Dialog,
@@ -37,7 +35,15 @@ import {
   Menu,
   ListItemIcon,
   ListItemText,
+  Chip,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import SearchBar from "../../components/ui/SearchBar";
+import SortableTableHeader from "../../components/ui/SortableTableHeader";
+import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
 import {
   QrCodeScanner as QrCodeScannerIcon,
   ExpandMore as ExpandMoreIcon,
@@ -49,7 +55,6 @@ import {
   UploadFile as UploadFileIcon,
   FlashOn as FlashOnIcon,
   FlashOff as FlashOffIcon,
-  CropFree as CropFreeIcon,
   Search as SearchIcon,
   KeyboardArrowUp as KeyboardArrowUpIcon,
   CalendarToday as CalendarTodayIcon,
@@ -57,9 +62,12 @@ import {
   FileDownload as FileDownloadIcon,
   CloudUpload as CloudUploadIcon,
   Inventory as InventoryIcon,
+  CheckCircleOutline as CheckCircleOutlineIcon,
+  ErrorOutline as ErrorOutlineIcon,
 } from "@mui/icons-material";
 import { getStoreInData } from "../../store/slices/precheckSlice";
 import { format } from "date-fns";
+import { ExpandedDetailsTable } from "../../components/ui/ExpandedDetailsTable";
 import {
   updateQrCodeDetails,
   bulkStoreInFromExcel,
@@ -69,15 +77,10 @@ import type { AppDispatch, RootState } from "../../store/store";
 import { Html5Qrcode } from "html5-qrcode";
 import { usePageAccess, useProductionSeries } from "../../hooks/useMasterData";
 import { getErrorMessage } from "../../utils/errorUtils";
-import { isPageAccessible } from "../../utils/accessUtils";
 import { useHasPermission } from "../../hooks/useHasPermission";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { CustomPagination } from "../../components/CustomPagination";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
 import { EmptyState } from "../../components/EmptyState";
-import { ClearIcon } from "@mui/x-date-pickers";
 import AvailableInStore from "./AvailableInStore";
 
 interface QRCodeDetailsResponse {
@@ -155,6 +158,43 @@ const StoreIn: React.FC = () => {
   const [qrCodeList, setQrCodeList] = useState<QRCodeDetailsResponse[]>([]);
   const [storeInList, setStoreInList] = useState<StoreInResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Sorting state for tables
+  const [sortColumn, setSortColumn] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      // 3rd click: clear sort
+      setSortColumn("");
+      setSortDirection("asc");
+    } else if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedQrCodeList = useMemo(() => {
+    if (!sortColumn) return qrCodeList;
+    return [...qrCodeList].sort((a: any, b: any) => {
+      const valA = String(a[sortColumn] || "").toLowerCase();
+      const valB = String(b[sortColumn] || "").toLowerCase();
+      const cmp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [qrCodeList, sortColumn, sortDirection]);
+
+  const sortedStoreInList = useMemo(() => {
+    if (!sortColumn) return storeInList;
+    return [...storeInList].sort((a: any, b: any) => {
+      const valA = String(a[sortColumn] || a.qrCode || "").toLowerCase();
+      const valB = String(b[sortColumn] || b.qrCode || "").toLowerCase();
+      const cmp = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [storeInList, sortColumn, sortDirection]);
 
   // Awaiting Precheck Filter States
   const [searchTerm, setSearchTerm] = useState("");
@@ -269,6 +309,15 @@ const StoreIn: React.FC = () => {
   const [bulkMenuAnchor, setBulkMenuAnchor] = useState<null | HTMLElement>(null);
   const isBulkMenuOpen = Boolean(bulkMenuAnchor);
 
+  // Bulk Store In Results Dialog state
+  const [bulkResultsOpen, setBulkResultsOpen] = useState(false);
+  const [bulkResults, setBulkResults] = useState<{
+    results: Array<{ qrCodeNumber: string; success: boolean; message: string; data: any }>;
+    totalCount: number;
+    successCount: number;
+    failureCount: number;
+  } | null>(null);
+
   const handleBulkMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setBulkMenuAnchor(event.currentTarget);
   };
@@ -370,21 +419,90 @@ const StoreIn: React.FC = () => {
 
     try {
       const result = await dispatch(bulkStoreInFromExcel(file)).unwrap();
-      const messageStr =
-        typeof result === "string"
-          ? result
-          : result?.message || `Bulk Store In file ${file.name} imported successfully.`;
-      setAlertMessage({
-        message: messageStr,
-        type: "success",
-      });
+
+      // Check if the response has the detailed results structure
+      if (result && result.results && Array.isArray(result.results)) {
+        setBulkResults({
+          results: result.results,
+          totalCount: result.totalCount ?? result.results.length,
+          successCount: result.successCount ?? result.results.filter((r: any) => r.success).length,
+          failureCount: result.failureCount ?? result.results.filter((r: any) => !r.success).length,
+        });
+        setBulkResultsOpen(true);
+
+        const successCount = result.successCount ?? result.results.filter((r: any) => r.success).length;
+        const failureCount = result.failureCount ?? result.results.filter((r: any) => !r.success).length;
+
+        if (failureCount === 0) {
+          setAlertMessage({
+            message: `Bulk Store In completed. All ${successCount} QR code(s) processed successfully.`,
+            type: "success",
+          });
+        } else if (successCount === 0) {
+          setAlertMessage({
+            message: `Bulk Store In completed. All ${failureCount} QR code(s) failed.`,
+            type: "error",
+          });
+        } else {
+          setAlertMessage({
+            message: `Bulk Store In completed. ${successCount} succeeded, ${failureCount} failed.`,
+            type: "info",
+          });
+        }
+      } else {
+        const messageStr =
+          typeof result === "string"
+            ? result
+            : result?.message || `Bulk Store In file ${file.name} imported successfully.`;
+        setAlertMessage({
+          message: messageStr,
+          type: "success",
+        });
+      }
       fetchStoreInData();
     } catch (err: any) {
       console.error("Error performing bulk store in:", err);
-      setAlertMessage({
-        message: getErrorMessage(err, "Failed to process Bulk Store In Excel file"),
-        type: "error",
-      });
+
+      // Check if the rejected error contains detailed results (non-2xx response with results body)
+      const errorData = typeof err === "object" && err !== null ? err : null;
+      const responseResults = errorData?.results || errorData?.response?.data?.results;
+
+      if (responseResults && Array.isArray(responseResults)) {
+        const totalCount = errorData.totalCount ?? errorData?.response?.data?.totalCount ?? responseResults.length;
+        const successCount = errorData.successCount ?? errorData?.response?.data?.successCount ?? responseResults.filter((r: any) => r.success).length;
+        const failureCount = errorData.failureCount ?? errorData?.response?.data?.failureCount ?? responseResults.filter((r: any) => !r.success).length;
+
+        setBulkResults({
+          results: responseResults,
+          totalCount,
+          successCount,
+          failureCount,
+        });
+        setBulkResultsOpen(true);
+
+        if (failureCount === 0) {
+          setAlertMessage({
+            message: `Bulk Store In completed. All ${successCount} QR code(s) processed successfully.`,
+            type: "success",
+          });
+        } else if (successCount === 0) {
+          setAlertMessage({
+            message: `Bulk Store In completed. All ${failureCount} QR code(s) failed.`,
+            type: "error",
+          });
+        } else {
+          setAlertMessage({
+            message: `Bulk Store In completed. ${successCount} succeeded, ${failureCount} failed.`,
+            type: "info",
+          });
+        }
+        fetchStoreInData();
+      } else {
+        setAlertMessage({
+          message: getErrorMessage(err, "Failed to process Bulk Store In Excel file"),
+          type: "error",
+        });
+      }
     } finally {
       setIsLoading(false);
       if (event.target) event.target.value = "";
@@ -804,8 +922,8 @@ const StoreIn: React.FC = () => {
   return (
     <Box
       sx={{
-        py: { xs: 1.5, sm: 2 },
-        px: { xs: 1.5, sm: 2.5 },
+        py: 1,
+        px: { xs: 1, sm: 2 },
         maxWidth: 1600,
         mx: "auto",
         width: "100%",
@@ -813,47 +931,31 @@ const StoreIn: React.FC = () => {
       }}
     >
       {/* 1. Page Header */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        spacing={2}
-        sx={{ mb: 2 }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-            }}
-          >
-            {storeTab === "store-in"
-              ? "Store In"
-              : "Stored Components"}
-          </Typography>
-          <Typography
-            variant="body2"
-            sx={{ color: "#667085", mt: 0.5 }}
-          >
-            {storeTab === "store-in"
-              ? "Scan verified components to receive them into store inventory locations."
-              : "View and filter available components and QR codes in store."}
-          </Typography>
-        </Box>
+      <PageHeader
+        title="Store In"
+        mb={0.5}
+        subtitle={
+          storeTab === "store-in"
+            ? "Scan verified components to receive them into store inventory locations."
+            : "View and filter available components and QR codes in store."
+        }
+      />
 
+      {/* Navigation Tabs Bar */}
+      <Box sx={{ borderBottom: "1px solid #EAECF0", mb: 1 }}>
         <Tabs
           value={storeTab}
           onChange={(_, newValue) => setStoreTab(newValue)}
           textColor="primary"
           indicatorColor="primary"
           sx={{
+            minHeight: 34,
             "& .MuiTab-root": {
               fontWeight: 600,
-              fontSize: "0.875rem",
+              fontSize: "0.85rem",
               textTransform: "none",
-              minWidth: 120,
+              minWidth: 100,
+              py: 0.5,
             },
             "& .MuiTab-root.Mui-selected": { color: "primary.main" },
             "& .MuiTabs-indicator": {
@@ -866,7 +968,7 @@ const StoreIn: React.FC = () => {
           <Tab label="Store In" value="store-in" />
           <Tab label="Stored Components" value="available" />
         </Tabs>
-      </Stack>
+      </Box>
 
       <Box sx={{ display: storeTab === "available" ? "block" : "none" }}>
         <AvailableInStore hideHeader />
@@ -875,27 +977,19 @@ const StoreIn: React.FC = () => {
       <Box sx={{ display: storeTab === "store-in" ? "block" : "none" }}>
 
         {/* Alert Message Toast */}
-        <Snackbar
+        <ToastSnackbar
           open={Boolean(alertMessage.message)}
-          autoHideDuration={4000}
+          message={alertMessage.message}
+          severity={alertMessage.type}
           onClose={() => setAlertMessage({ message: "", type: "info" })}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        >
-          <Alert
-            severity={alertMessage.type}
-            sx={{ width: "100%", borderRadius: "8px", boxShadow: 3 }}
-            onClose={() => setAlertMessage({ message: "", type: "info" })}
-          >
-            {alertMessage.message}
-          </Alert>
-        </Snackbar>
+        />
 
         {/* 2. Hero Scan QR Panel */}
         <Paper
           elevation={0}
           sx={{
             p: 2,
-            mb: 3,
+            mb: 1.5,
             borderRadius: "12px",
             border: "1px solid #EAECF0",
             backgroundColor: "#ffffff",
@@ -922,6 +1016,10 @@ const StoreIn: React.FC = () => {
               <Box
                 sx={{
                   flexGrow: 1,
+                  height: "44px !important",
+                  minHeight: "44px !important",
+                  maxHeight: "44px !important",
+                  boxSizing: "border-box !important",
                   display: "flex",
                   alignItems: "center",
                   borderRadius: "10px",
@@ -929,11 +1027,11 @@ const StoreIn: React.FC = () => {
                   borderColor: "primary.main",
                   backgroundColor: "#FFFFFF",
                   px: 1.5,
-                  py: 0.75,
+                  py: "0 !important",
                   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                 }}
               >
-                <CropFreeIcon sx={{ color: "primary.main", mr: 1.25, fontSize: 22 }} />
+
                 <TextField
                   inputRef={scanInputRef}
                   fullWidth
@@ -951,7 +1049,10 @@ const StoreIn: React.FC = () => {
                     sx: {
                       fontSize: "0.9375rem",
                       color: "#1E293B",
-                      fontFamily: "monospace, Courier, monospace",
+                      "& input": {
+                        py: "0 !important",
+                        height: "auto",
+                      },
                       "& input::placeholder": {
                         color: "#94A3B8",
                         opacity: 1,
@@ -964,32 +1065,29 @@ const StoreIn: React.FC = () => {
                 />
               </Box>
 
-              {/* Scan QR Button with thick purple border and camera icon */}
-              <Button
-                variant="outlined"
+              {/* Scan QR Button */}
+              <ActionButton
+                variant="secondary"
+                size="hero"
                 onClick={handleOpenScanner}
-                startIcon={<QrCodeScannerIcon />}
+                startIcon={<QrCodeScannerIcon sx={{ color: "primary.main" }} />}
                 sx={{
-                  height: 48,
-                  px: 2.5,
                   borderRadius: "10px",
+                  minWidth: "120px",
+                  height: "44px !important",
                   border: "2px solid",
                   borderColor: "primary.main",
                   color: "primary.main",
                   fontWeight: 700,
-                  fontSize: "0.9375rem",
-                  textTransform: "none",
-                  backgroundColor: "#FFFFFF",
-                  whiteSpace: "nowrap",
                   "&:hover": {
                     border: "2px solid",
-                    borderColor: "primary.main",
-                    backgroundColor: "action.hover",
+                    borderColor: "primary.dark",
+                    backgroundColor: "#F3E8F8",
                   },
                 }}
               >
                 Scan QR
-              </Button>
+              </ActionButton>
             </Stack>
 
             {/* Bulk Store In Menu Button */}
@@ -1001,32 +1099,30 @@ const StoreIn: React.FC = () => {
                 borderLeft: { xs: "none", md: "1px solid #EAECF0" },
               }}
             >
-              <Button
-                variant="outlined"
+              <ActionButton
+                variant="secondary"
+                size="hero"
                 onClick={handleBulkMenuOpen}
-                endIcon={<KeyboardArrowDownIcon />}
-
+                endIcon={<KeyboardArrowDownIcon sx={{ color: "primary.main" }} />}
                 sx={{
-                  height: 48,
-                  px: 2.5,
                   borderRadius: "10px",
+                  whiteSpace: "nowrap",
+                  minWidth: "175px",
+                  height: "44px !important",
+                  px: 2,
                   border: "2px solid",
                   borderColor: "primary.main",
                   color: "primary.main",
                   fontWeight: 700,
-                  fontSize: "0.9375rem",
-                  textTransform: "none",
-                  backgroundColor: "#FFFFFF",
-                  whiteSpace: "nowrap",
                   "&:hover": {
                     border: "2px solid",
-                    borderColor: "primary.main",
-                    backgroundColor: "action.hover",
+                    borderColor: "primary.dark",
+                    backgroundColor: "#F3E8F8",
                   },
                 }}
               >
                 Bulk Store In
-              </Button>
+              </ActionButton>
 
               <Menu
                 anchorEl={bulkMenuAnchor}
@@ -1044,27 +1140,31 @@ const StoreIn: React.FC = () => {
                   },
                 }}
               >
-                <MenuItem
-                  onClick={() => {
-                    handleBulkMenuClose();
-                    bulkStoreInFileInputRef.current?.click();
-                  }}
-                  sx={{ py: 1, px: 2, fontSize: "0.875rem", fontWeight: 600, color: "#344054" }}
-                >
-                  <ListItemIcon sx={{ color: "#D97706", minWidth: 32 }}>
-                    <CloudUploadIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary="Import" primaryTypographyProps={{ fontWeight: 600, fontSize: "0.875rem" }} />
-                </MenuItem>
-                <MenuItem
-                  onClick={handleDownloadStoreInTemplate}
-                  sx={{ py: 1, px: 2, fontSize: "0.875rem", fontWeight: 600, color: "#344054" }}
-                >
-                  <ListItemIcon sx={{ color: "#4B5563", minWidth: 32 }}>
-                    <FileDownloadIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary="Template" primaryTypographyProps={{ fontWeight: 600, fontSize: "0.875rem" }} />
-                </MenuItem>
+                <Tooltip title="Import Excel file to bulk store in QR codes" placement="left" arrow>
+                  <MenuItem
+                    onClick={() => {
+                      handleBulkMenuClose();
+                      bulkStoreInFileInputRef.current?.click();
+                    }}
+                    sx={{ py: 1, px: 2, fontSize: "0.875rem", fontWeight: 600, color: "#344054" }}
+                  >
+                    <ListItemIcon sx={{ color: "#D97706", minWidth: 32 }}>
+                      <CloudUploadIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Import" primaryTypographyProps={{ fontWeight: 600, fontSize: "0.875rem" }} />
+                  </MenuItem>
+                </Tooltip>
+                <Tooltip title="Download Excel template for bulk store in QR codes" placement="left" arrow>
+                  <MenuItem
+                    onClick={handleDownloadStoreInTemplate}
+                    sx={{ py: 1, px: 2, fontSize: "0.875rem", fontWeight: 600, color: "#344054" }}
+                  >
+                    <ListItemIcon sx={{ color: "#4B5563", minWidth: 32 }}>
+                      <FileDownloadIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Template" primaryTypographyProps={{ fontWeight: 600, fontSize: "0.875rem" }} />
+                  </MenuItem>
+                </Tooltip>
               </Menu>
 
               {/* Hidden file input for Bulk Store In import */}
@@ -1102,80 +1202,44 @@ const StoreIn: React.FC = () => {
         </Paper>
 
         {/* 3. "Scanned this session" Table Section */}
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: "12px",
-            border: "1px solid #EAECF0",
-            backgroundColor: "#ffffff",
-            overflow: "hidden",
-            mb: 3,
-            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05)",
-          }}
-        >
-          <Box
-            sx={{
-              p: 2,
-              borderBottom: "1px solid #EAECF0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{ fontSize: "0.875rem", fontWeight: 600, color: "primary.main" }}
-            >
-              Scanned this session
-            </Typography>
-          </Box>
+        <TableCard sx={{ mb: 3 }}>
+          <TableCardHeader
+            title="Scanned this session"
+            count={sortedQrCodeList.length > 0 ? sortedQrCodeList.length : undefined}
+          />
 
           <TableContainer sx={{ overflowX: "auto", maxHeight: 200 }}>
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow sx={{ height: 42 }}>
-                  {[
-                    "QRCode ID",
-                    "PO Number",
-                    "Project Number",
-                    "Prod Series",
-                    "Part Number",
-                    "ID",
-                    "Qty",
-                    "Item Description",
-                    "Details",
-                  ].map((col) => (
-                    <TableCell
-                      key={col}
-                      align={
-                        col === "Qty" || col === "Details"
-                          ? "center"
-                          : "left"
-                      }
-                      sx={{
-                        fontWeight: 700,
-                        backgroundColor: "#F9FAFB",
-                        color: "#475467",
-                        fontSize: "0.8rem",
-                        borderBottom: "1px solid #EAECF0",
-                        py: 1,
-                        px: 1.5,
-                      }}
-                    >
-                      {col === "PO Number" ? (
-                        <Tooltip title="Production Order Number" arrow placement="bottom">
-                          <span>{col}</span>
-                        </Tooltip>
-                      ) : (
-                        col
-                      )}
-                    </TableCell>
-                  ))}
+                  <SortableTableHeader
+                    label="QRCode ID"
+                    columnKey="qrCodeNumber"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    isSortable={true}
+                  />
+                  <SortableTableHeader label="PO Number" isSortable={false} tooltip="Production Order Number" />
+                  <SortableTableHeader label="Project Number" isSortable={false} />
+                  <SortableTableHeader label="Prod Series" isSortable={false} />
+                  <SortableTableHeader
+                    label="Part Number"
+                    columnKey="drawingNumber"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    isSortable={true}
+                  />
+                  <SortableTableHeader label="ID" isSortable={false} />
+                  <SortableTableHeader label="Qty" align="center" isSortable={false} />
+                  <SortableTableHeader label="Item Description" isSortable={false} />
+                  <SortableTableHeader label="Details" align="center" isSortable={false} />
                 </TableRow>
               </TableHead>
               <TableBody>
-                {qrCodeList.length > 0 ? (
-                  qrCodeList.map((row, idx) => (
+                {sortedQrCodeList.length > 0 ? (
+                  sortedQrCodeList.map((row, idx) => (
                     <React.Fragment key={idx}>
                       <TableRow
                         hover
@@ -1185,7 +1249,7 @@ const StoreIn: React.FC = () => {
                           "& td": { borderBottom: "1px solid #F2F4F7", fontSize: "0.825rem" },
                         }}
                       >
-                        <TableCell sx={{ fontWeight: 600, color: "#101828" }}>
+                        <TableCell sx={{ color: "#101828" }}>
                           {row.qrCodeNumber}
                         </TableCell>
                         <TableCell>{row.productionOrderNumber || "-"}</TableCell>
@@ -1214,85 +1278,44 @@ const StoreIn: React.FC = () => {
                       <TableRow sx={{ height: "auto" }}>
                         <TableCell style={{ padding: 0 }} colSpan={9}>
                           <Collapse in={expandedRow === row.qrCodeNumber} timeout="auto" unmountOnExit>
-                            <Box
-                              sx={{
-                                width: "100%",
-                                backgroundColor: "#F8FAFC",
-                                borderTop: "1px solid #EAECF0",
-                                borderBottom: "1px solid #EAECF0",
-                              }}
-                            >
-                              <Table size="small" sx={{ width: "100%" }}>
-                                <TableHead>
-                                  <TableRow sx={{ backgroundColor: "#F2F4F7" }}>
-                                    {[
-                                      "Consumed in Part",
-                                      "Status",
-                                      "IR Number",
-                                      "MSN Number",
-                                      "MRIR Number",
-                                      "Disposition",
-                                      "Username",
-                                      "Created Date",
-                                    ].map((subCol) => (
-                                      <TableCell
-                                        key={subCol}
-                                        align={subCol === "Consumed in Part" ? "left" : "center"}
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        {subCol}
-                                      </TableCell>
-                                    ))}
-                                  </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                  <TableRow sx={{ backgroundColor: "#FFFFFF" }}>
-                                    <TableCell sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.consumedInDrawing || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ py: 1, px: 1 }}>
-                                      <Chip
-                                        label={row.qrCodeStatus || "N/A"}
-                                        size="small"
-                                        color={
-                                          row.qrCodeStatus?.toLowerCase() === "available"
-                                            ? "success"
-                                            : "default"
-                                        }
-                                        variant="outlined"
-                                        sx={{ height: 20, fontSize: "0.7rem", fontWeight: 600 }}
-                                      />
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.irNumber || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.msnNumber || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.mrirNumber || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.desposition || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.users || "-"}
-                                    </TableCell>
-                                    <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                      {row.createdDate ? formatDate(row.createdDate) : "-"}
-                                    </TableCell>
-                                  </TableRow>
-                                </TableBody>
-                              </Table>
-                            </Box>
+                            <ExpandedDetailsTable
+                              columns={[
+                                { key: "consumedInDrawing", label: "Consumed in Part", align: "left", render: (r) => r.consumedInDrawing || "-" },
+                                {
+                                  key: "qrCodeStatus",
+                                  label: "Status",
+                                  align: "center",
+                                  render: (r) => (
+                                    <Chip
+                                      label={r.qrCodeStatus || "N/A"}
+                                      size="small"
+                                      color={r.qrCodeStatus?.toLowerCase() === "available" ? "success" : "default"}
+                                      variant="outlined"
+                                      sx={{ height: 20, fontSize: "0.7rem", fontWeight: 600 }}
+                                    />
+                                  ),
+                                },
+                                { key: "irNumber", label: (<Tooltip title="Inspection Report Number" arrow placement="bottom"><span>IR Number</span></Tooltip>), align: "center", render: (r) => r.irNumber || "-" },
+                                { key: "msnNumber", label: (<Tooltip title="Memo Stage Number" arrow placement="bottom"><span>MSN Number</span></Tooltip>), align: "center", render: (r) => r.msnNumber || "-" },
+                                { key: "mrirNumber", label: "MRIR Number", align: "center", render: (r) => r.mrirNumber || "-" },
+                                { key: "desposition", label: "Disposition", align: "center", render: (r) => r.desposition || "-" },
+                                { key: "users", label: "Username", align: "center", render: (r) => r.users || "-" },
+                                {
+                                  key: "createdDate",
+                                  label: "Created Date",
+                                  align: "center",
+                                  render: (r) =>
+                                    r.createdDate
+                                      ? new Date(r.createdDate).toLocaleDateString("en-GB", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                      })
+                                      : "-",
+                                },
+                              ]}
+                              rows={[row]}
+                            />
                           </Collapse>
                         </TableCell>
                       </TableRow>
@@ -1304,45 +1327,14 @@ const StoreIn: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-        </Paper>
+        </TableCard>
 
         {/* 4. "Awaiting precheck" Table Section */}
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: "12px",
-            border: "1px solid #EAECF0",
-            backgroundColor: "#ffffff",
-            overflow: "hidden",
-            mb: 2,
-            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05)",
-          }}
-        >
-          {/* Card Header */}
-          <Box
-            sx={{
-              p: 2,
-              borderBottom: "1px solid #EAECF0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-              <Typography
-                variant="h6"
-                sx={{ fontSize: "0.875rem", fontWeight: 600, color: "primary.main" }}
-              >
-                Awaiting precheck
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{ color: "#667085", fontSize: "0.8rem", fontWeight: 500 }}
-              >
-                {storeInList.length} orders
-              </Typography>
-            </Box>
-          </Box>
+        <TableCard sx={{ mb: 2 }}>
+          <TableCardHeader
+            title="Awaiting precheck"
+            count={storeInList.length}
+          />
 
           {/* Filter Controls Bar */}
           <Box
@@ -1369,35 +1361,16 @@ const StoreIn: React.FC = () => {
                 "&::-webkit-scrollbar": { display: "none" },
               }}
             >
-              <TextField
-                size="small"
+              <SearchBar
                 placeholder="Search PO, Part Number, ID Number..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setPage(0);
                 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: "#98A2B3", fontSize: 18 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: searchTerm ? (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setSearchTerm("");
-                          setPage(0);
-                        }}
-                        edge="end"
-                        sx={{ p: 0.25, color: "#98A2B3", "&:hover": { color: "#344054" } }}
-                      >
-                        <ClearIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null,
+                onClear={() => {
+                  setSearchTerm("");
+                  setPage(0);
                 }}
                 sx={{
                   flex: "1 1 340px",
@@ -1631,109 +1604,28 @@ const StoreIn: React.FC = () => {
                 }}
               />
 
-              <Button
-                size="small"
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="standard"
                 onClick={() => {
                   setPage(0);
                   fetchStoreInData({ pageNumber: 0 });
                 }}
                 disabled={!isDropdownFilterSelected || isLoading}
-                sx={{
-                  flex: "0 0 auto",
-                  backgroundColor: "primary.main",
-                  color: "#ffffff",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  borderRadius: "6px",
-                  px: 2,
-                  height: 38,
-                  textTransform: "none",
-                  boxShadow: "none",
-                  minWidth: 65,
-                  "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#EAECF0",
-                    color: "#98A2B3",
-                  },
-                }}
               >
                 Apply
-              </Button>
+              </ActionButton>
 
-              <Button
-                size="small"
-                variant="outlined"
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleClearFilters}
-                sx={{
-                  flex: "0 0 auto",
-                  color: "#667085",
-                  borderColor: "#D0D5DD",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "6px",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  height: 38,
-                  px: 1.5,
-                  minWidth: 55,
-                  textTransform: "none",
-                  "&:hover": {
-                    borderColor: "#98A2B3",
-                    backgroundColor: "#F9FAFB",
-                    color: "#101828",
-                  },
-                }}
               >
                 Clear
-              </Button>
+              </ActionButton>
             </Box>
 
-            {/* Active Chips Row */}
-            {activeChips.length > 0 && (
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mt: 1,
-                  pt: 0.75,
-                  borderTop: "1px solid #F2F4F7",
-                  flexWrap: "wrap",
-                  gap: 0.75,
-                }}
-              >
-                {activeChips.map((chip) => (
-                  <Chip
-                    key={chip.id}
-                    label={chip.label}
-                    onDelete={chip.onRemove}
-                    size="small"
-                    sx={{
-                      backgroundColor: "#F2F4F7",
-                      color: "#344054",
-                      fontWeight: 600,
-                      fontSize: "0.775rem",
-                      height: 24,
-                      borderRadius: "14px",
-                      border: "1px solid #E9EAEB",
-                    }}
-                  />
-                ))}
-                <Button
-                  variant="text"
-                  size="small"
-                  onClick={handleClearFilters}
-                  sx={{
-                    color: "#6D2A8F",
-                    fontWeight: 600,
-                    fontSize: "0.775rem",
-                    textTransform: "none",
-                    p: 0,
-                  }}
-                >
-                  Clear all
-                </Button>
-              </Box>
-            )}
+            <ActiveFilterChips chips={activeChips} onClearAll={handleClearFilters} />
           </Box>
 
           {/* Table */}
@@ -1741,48 +1633,24 @@ const StoreIn: React.FC = () => {
             <Table size="small" stickyHeader>
               <TableHead>
                 <TableRow sx={{ height: 42 }}>
-                  {[
-                    "S.No.",
-                    "Part Number",
-                    "PO Number",
-                    "Prod Series",
-                    "ID Number",
-                    "Quantity",
-                    "Project Number",
-                    "Created By",
-                    "Created Date",
-                    "Precheck Status",
-                    "Action",
-                  ].map((col) => (
-                    <TableCell
-                      key={col}
-                      align={
-                        col === "S.No." ||
-                          col === "Quantity" ||
-                          col === "Precheck Status" ||
-                          col === "Action"
-                          ? "center"
-                          : "left"
-                      }
-                      sx={{
-                        fontWeight: 700,
-                        backgroundColor: "#F9FAFB",
-                        color: "#475467",
-                        fontSize: "0.8rem",
-                        borderBottom: "1px solid #EAECF0",
-                        py: 1,
-                        px: 1.5,
-                      }}
-                    >
-                      {col === "PO Number" ? (
-                        <Tooltip title="Production Order Number" arrow placement="bottom">
-                          <span>{col}</span>
-                        </Tooltip>
-                      ) : (
-                        col
-                      )}
-                    </TableCell>
-                  ))}
+                  <SortableTableHeader label="S.No." align="center" isSortable={false} />
+                  <SortableTableHeader
+                    label="Part Number"
+                    columnKey="drawingNumber"
+                    activeSortColumn={sortColumn}
+                    sortDirection={sortDirection}
+                    onSort={handleSort}
+                    isSortable={true}
+                  />
+                  <SortableTableHeader label="PO Number" isSortable={false} tooltip="Production Order Number" />
+                  <SortableTableHeader label="Prod Series" isSortable={false} />
+                  <SortableTableHeader label="ID Number" isSortable={false} />
+                  <SortableTableHeader label="Quantity" align="center" isSortable={false} />
+                  <SortableTableHeader label="Project Number" isSortable={false} />
+                  <SortableTableHeader label="Created By" isSortable={false} />
+                  <SortableTableHeader label="Created Date" isSortable={false} />
+                  <SortableTableHeader label="Precheck Status" align="center" isSortable={false} />
+                  <SortableTableHeader label="Action" align="center" isSortable={false} />
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1792,8 +1660,8 @@ const StoreIn: React.FC = () => {
                       <CircularProgress size={32} />
                     </TableCell>
                   </TableRow>
-                ) : storeInList.length > 0 ? (
-                  storeInList.map((row, index) => (
+                ) : sortedStoreInList.length > 0 ? (
+                  sortedStoreInList.map((row, index) => (
                     <TableRow
                       key={index}
                       hover
@@ -1806,7 +1674,7 @@ const StoreIn: React.FC = () => {
                       <TableCell align="center">
                         {page * rowsPerPage + index + 1}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600, color: "#101828" }}>
+                      <TableCell sx={{ color: "#101828" }}>
                         {row.drawingNumber}
                       </TableCell>
                       <TableCell sx={{ fontWeight: 500 }}>
@@ -1840,31 +1708,16 @@ const StoreIn: React.FC = () => {
                           arrow
                         >
                           <span>
-                            <Button
-                              variant="outlined"
-                              size="small"
+                            <ActionButton
+                              variant="secondary"
+                              size="compact"
                               onClick={() =>
                                 navigate("/verification/parts", { state: row })
                               }
                               disabled={!hasMakeAccess}
-                              sx={{
-                                borderColor: "#6D2A8F",
-                                color: "#6D2A8F",
-                                fontWeight: 600,
-                                fontSize: "0.775rem",
-                                borderRadius: "6px",
-                                py: 0.25,
-                                px: 1.5,
-                                height: 28,
-                                textTransform: "none",
-                                "&:hover": {
-                                  borderColor: "#551F6F",
-                                  backgroundColor: "#F5EEF8",
-                                },
-                              }}
                             >
                               Part Verification
-                            </Button>
+                            </ActionButton>
                           </span>
                         </Tooltip>
                       </TableCell>
@@ -1895,7 +1748,7 @@ const StoreIn: React.FC = () => {
             }}
             pageSizeOptions={[10, 25, 50, 100]}
           />
-        </Paper>
+        </TableCard>
       </Box>
 
 
@@ -1922,15 +1775,14 @@ const StoreIn: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-          <Button
+          <ActionButton
             onClick={() => setShowPermissionDialog(false)}
-            variant="outlined"
-            color="inherit"
-            sx={{ borderRadius: 2, textTransform: "none", px: 3 }}
+            variant="secondary"
+            size="compact"
           >
             Deny
-          </Button>
-          <Button
+          </ActionButton>
+          <ActionButton
             onClick={async () => {
               setShowPermissionDialog(false);
               const granted = await handleRequestPermission();
@@ -1940,13 +1792,11 @@ const StoreIn: React.FC = () => {
                 setOpenScanner(true);
               }
             }}
-            color="primary"
-            variant="contained"
-            autoFocus
-            sx={{ borderRadius: 2, textTransform: "none", px: 3, boxShadow: 2 }}
+            variant="primary"
+            size="compact"
           >
             Allow
-          </Button>
+          </ActionButton>
         </DialogActions>
       </Dialog>
 
@@ -2114,13 +1964,13 @@ const StoreIn: React.FC = () => {
               <Alert severity="error" sx={{ mb: 3, maxWidth: 340 }}>
                 {scannerError}
               </Alert>
-              <Button
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="compact"
                 onClick={() => setOpenScanner(false)}
-                sx={{ borderRadius: 6, px: 4, textTransform: "none", fontWeight: 600 }}
               >
                 Close
-              </Button>
+              </ActionButton>
             </Box>
           )}
 
@@ -2231,6 +2081,240 @@ const StoreIn: React.FC = () => {
             sx={{ visibility: "hidden", position: "absolute", width: 0, height: 0 }}
           />
         </Box>
+      </Dialog>
+
+      {/* Bulk Store In Results Dialog */}
+      <Dialog
+        open={bulkResultsOpen}
+        onClose={() => setBulkResultsOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            overflow: "hidden",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontWeight: 700,
+            fontSize: "1rem",
+            color: "primary.main",
+            borderBottom: "1px solid #EAECF0",
+            py: 1.5,
+            px: 2.5,
+          }}
+        >
+          Bulk Store In Results
+          <IconButton
+            size="small"
+            onClick={() => setBulkResultsOpen(false)}
+            sx={{ color: "#667085", "&:hover": { backgroundColor: "#F2F4F7" } }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0 }}>
+          {bulkResults && (
+            <>
+              {/* Summary Chips */}
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1.5,
+                  px: 2.5,
+                  py: 1.5,
+                  borderBottom: "1px solid #EAECF0",
+                  backgroundColor: "#F9FAFB",
+                  flexWrap: "wrap",
+                }}
+              >
+                <Chip
+                  label={`Total: ${bulkResults.totalCount}`}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "0.78rem",
+                    backgroundColor: "#F3E8F8",
+                    color: "#6D2A8F",
+                    height: 26,
+                  }}
+                />
+                <Chip
+                  icon={<CheckCircleOutlineIcon sx={{ fontSize: 16 }} />}
+                  label={`Success: ${bulkResults.successCount}`}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "0.78rem",
+                    backgroundColor: "#f0fdf4",
+                    color: "#15803d",
+                    height: 26,
+                    "& .MuiChip-icon": { color: "#16a34a" },
+                  }}
+                />
+                <Chip
+                  icon={<ErrorOutlineIcon sx={{ fontSize: 16 }} />}
+                  label={`Failed: ${bulkResults.failureCount}`}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "0.78rem",
+                    backgroundColor: bulkResults.failureCount > 0 ? "#fef2f2" : "#f9fafb",
+                    color: bulkResults.failureCount > 0 ? "#b91c1c" : "#667085",
+                    height: 26,
+                    "& .MuiChip-icon": { color: bulkResults.failureCount > 0 ? "#dc2626" : "#98A2B3" },
+                  }}
+                />
+              </Box>
+
+              {/* Results Table */}
+              <TableContainer sx={{ maxHeight: 360, overflowY: "auto" }}>
+                <Table stickyHeader size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          fontWeight: 700,
+                          backgroundColor: "#F9FAFB !important",
+                          color: "#475467",
+                          fontSize: "0.78rem",
+                          borderBottom: "1px solid #EAECF0",
+                          py: 1,
+                          px: 1,
+                          width: 50,
+                          textAlign: "center",
+                        }}
+                      >
+                        Sr No
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 700,
+                          backgroundColor: "#F9FAFB !important",
+                          color: "#475467",
+                          fontSize: "0.78rem",
+                          borderBottom: "1px solid #EAECF0",
+                          py: 1,
+                          px: 1.5,
+                        }}
+                      >
+                        QR Code Number
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 700,
+                          backgroundColor: "#F9FAFB !important",
+                          color: "#475467",
+                          fontSize: "0.78rem",
+                          borderBottom: "1px solid #EAECF0",
+                          py: 1,
+                          px: 1,
+                          width: 90,
+                          textAlign: "center",
+                        }}
+                      >
+                        Status
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 700,
+                          backgroundColor: "#F9FAFB !important",
+                          color: "#475467",
+                          fontSize: "0.78rem",
+                          borderBottom: "1px solid #EAECF0",
+                          py: 1,
+                          px: 1.5,
+                        }}
+                      >
+                        Message
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {bulkResults.results.map((row, idx) => (
+                      <TableRow
+                        key={idx}
+                        sx={{
+                          "&:hover": { backgroundColor: "#F9FAFB" },
+                          "& td": {
+                            fontSize: "0.8rem",
+                            color: "#344054",
+                            py: 0.75,
+                            borderBottom: "1px solid #F2F4F7",
+                          },
+                        }}
+                      >
+                        <TableCell sx={{ textAlign: "center", color: "#98A2B3", fontWeight: 500, px: 1 }}>
+                          {idx + 1}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontSize: "0.78rem", px: 1.5 }}>
+                          {row.qrCodeNumber}
+                        </TableCell>
+                        <TableCell sx={{ textAlign: "center", px: 1 }}>
+                          <Box
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              px: 1,
+                              py: 0.25,
+                              borderRadius: "12px",
+                              fontSize: "0.7rem",
+                              fontWeight: 600,
+                              backgroundColor: row.success ? "#f0fdf4" : "#fef2f2",
+                              color: row.success ? "#15803d" : "#b91c1c",
+                              border: `1px solid ${row.success ? "#bbf7d0" : "#fecaca"}`,
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                width: 6,
+                                height: 6,
+                                borderRadius: "50%",
+                                backgroundColor: row.success ? "#16a34a" : "#dc2626",
+                                flexShrink: 0,
+                              }}
+                            />
+                            {row.success ? "Success" : "Failed"}
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ color: row.success ? "#344054" : "#b91c1c", whiteSpace: "normal", wordBreak: "break-word" }}>
+                          {row.message}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 2.5, py: 1.5, borderTop: "1px solid #EAECF0" }}>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => setBulkResultsOpen(false)}
+            sx={{
+              backgroundColor: "primary.main",
+              color: "#FFFFFF",
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: "0.82rem",
+              borderRadius: "6px",
+              px: 2.5,
+              boxShadow: "none",
+              "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

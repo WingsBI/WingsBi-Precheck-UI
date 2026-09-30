@@ -19,11 +19,9 @@ import {
   Tab,
   Grid,
   InputAdornment,
-  Snackbar,
-  Alert,
-  Paper,
-
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import {
   Edit as EditIcon,
@@ -33,7 +31,7 @@ import {
   Search as SearchIcon,
   MoreVert as MoreVertIcon,
 } from "@mui/icons-material";
-import { adminDataGridSx } from "../../components/tableStyles";
+import { adminDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../components/tableStyles";
 import { DataGridCustomPagination } from "../../components/CustomPagination";
 import {
   useUserRoles,
@@ -56,6 +54,9 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import type { UserRole, User } from "../../types";
 import { EmptyState } from "../../components/EmptyState";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import { TableCard } from "../../components/ui/TableCard";
 
 function UserActionMenu({
   row,
@@ -186,6 +187,18 @@ export default function UserManagement() {
       (u.departmentName && String(u.departmentName).toLowerCase().includes(q))
     );
   });
+
+  const activeChips = useMemo(() => {
+    const chips = [];
+    if (searchQuery.trim()) {
+      chips.push({
+        id: "search",
+        label: `Search: "${searchQuery}"`,
+        onRemove: () => setSearchQuery(""),
+      });
+    }
+    return chips;
+  }, [searchQuery]);
 
   // Active/Deactive Confirmation Dialog State
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -409,20 +422,21 @@ export default function UserManagement() {
       field: "srNo",
       headerName: "Sr No",
       width: 80,
-      align: "left",
-      headerAlign: "left",
+      align: "center",
+      headerAlign: "center",
       renderCell: (params: any) =>
         params.api.getSortedRowIds().indexOf(params.id) + 1,
     },
     { field: "userName", headerName: "Full Name", flex: 1.5, minWidth: 150, align: "left", headerAlign: "left" },
     { field: "email", headerName: "User Email", width: 200, align: "left", headerAlign: "left" },
-    { field: "userId", headerName: "User ID", width: 150, align: "left", headerAlign: "left" },
+    { field: "userId", headerName: "User ID", width: 150, align: "left", headerAlign: "left", sortable: false },
     {
       field: "plantName",
       headerName: "Plant",
       width: 120,
       align: "left",
       headerAlign: "left",
+      sortable: false,
       valueGetter: (params: any) => {
         const row = params.row || params;
         const plant = plants.find((p: any) => p.id === row.plantId);
@@ -433,6 +447,7 @@ export default function UserManagement() {
       field: "role",
       headerName: "Role",
       width: 120,
+      sortable: false,
       align: "left",
       headerAlign: "left",
       valueGetter: (params: any) => {
@@ -446,6 +461,7 @@ export default function UserManagement() {
       field: "departmentName",
       headerName: "Department",
       width: 150,
+      sortable: false,
       align: "left",
       headerAlign: "left",
       valueGetter: (params: any) => {
@@ -459,6 +475,7 @@ export default function UserManagement() {
       field: "isActive",
       headerName: "Status",
       width: 150,
+      sortable: false,
       align: "center",
       headerAlign: "center",
       renderCell: () => (
@@ -521,14 +538,15 @@ export default function UserManagement() {
       field: "srNo",
       headerName: "Sr No",
       width: 80,
-      align: "left",
-      headerAlign: "left",
+      align: "center",
+      headerAlign: "center",
+      sortable: false,
       renderCell: (params: any) =>
         params.api.getSortedRowIds().indexOf(params.id) + 1,
     },
     {
       field: "userName",
-      headerName: "User",
+      headerName: "Full Name",
       flex: 1.5,
       minWidth: 180,
       align: "left",
@@ -558,6 +576,7 @@ export default function UserManagement() {
       width: 140,
       align: "left",
       headerAlign: "left",
+      sortable: false,
       renderCell: (params: any) => (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {params.value || "-"}
@@ -570,6 +589,7 @@ export default function UserManagement() {
       width: 150,
       align: "left",
       headerAlign: "left",
+      sortable: false,
       renderCell: (params: any) => (
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {params.value || "-"}
@@ -582,6 +602,7 @@ export default function UserManagement() {
       width: 140,
       align: "left",
       headerAlign: "left",
+
       renderCell: (params: any) => {
         const val = params.row.modifiedDate || params.row.createdDate;
         return (
@@ -594,6 +615,7 @@ export default function UserManagement() {
     {
       field: "isActive",
       headerName: "Active",
+      sortable: false,
       width: 100,
       align: "center",
       headerAlign: "center",
@@ -656,75 +678,33 @@ export default function UserManagement() {
   return (
     <Box sx={{ py: { xs: 1, sm: 1.25 }, px: { xs: 1.5, sm: 2 } }}>
       {/* Top Header Bar */}
-      <Stack
-        direction={{ xs: "column", sm: "row" }}
-        justifyContent="space-between"
-        alignItems={{ xs: "flex-start", sm: "center" }}
-        spacing={2}
-        sx={{ mb: 1.5 }}
-      >
-        <Box>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: "primary.main",
-              fontSize: { xs: "1.25rem", sm: "1.5rem" },
-            }}
-          >
-            Users Management
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-            Manage system users, credentials, role assignments, and permissions.
-          </Typography>
-        </Box>
-
-        {userRole === "Admin" && (
-          <Tooltip
-            title={!hasUserManagementAccess ? "You do not have access to manage users" : ""}
-            arrow
-          >
-            <span>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={handleAddUserOpen}
-                disabled={!hasUserManagementAccess}
-                startIcon={<AddIcon fontSize="small" />}
-                sx={{
-                  height: 34,
-                  borderRadius: "6px",
-                  backgroundColor: "primary.main",
-                  color: "#ffffff",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.8rem",
-                  boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                  "&:hover": { backgroundColor: "primary.dark" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#EAECF0",
-                    color: "#98A2B3",
-                  },
-                }}
-              >
-                Add User
-              </Button>
-            </span>
-          </Tooltip>
-        )}
-      </Stack>
+      <PageHeader
+        title="User Management"
+        subtitle="Manage system users, credentials, role assignments, and permissions."
+        actions={
+          userRole === "Admin" ? (
+            <Tooltip
+              title={!hasUserManagementAccess ? "You do not have access to manage users" : ""}
+              arrow
+            >
+              <span>
+                <ActionButton
+                  variant="primary"
+                  size="standard"
+                  onClick={handleAddUserOpen}
+                  disabled={!hasUserManagementAccess}
+                  startIcon={<AddIcon fontSize="small" />}
+                >
+                  Add User
+                </ActionButton>
+              </span>
+            </Tooltip>
+          ) : undefined
+        }
+      />
 
       {/* Main Single Container Card */}
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: "12px",
-          border: "1px solid #EAECF0",
-          backgroundColor: "#ffffff",
-          overflow: "hidden",
-          mb: 2,
-        }}
-      >
+      <TableCard sx={{ mb: 2 }}>
         {/* Controls Bar: Tabs and Search */}
         <Box
           sx={{
@@ -779,12 +759,16 @@ export default function UserManagement() {
           />
         </Box>
 
+        <ActiveFilterChips
+          chips={activeChips}
+          onClearAll={() => setSearchQuery("")}
+        />
+
         {/* DataGrid Container */}
         <Box sx={{ width: "100%" }}>
           <DataGrid
+            {...DATAGRID_DEFAULT_PROPS}
             autoHeight
-            rowHeight={42}
-            columnHeaderHeight={40}
             rows={displayedUsers}
             columns={mainTab === 0 ? userColumns : pendingColumns}
             loading={mainTab === 0 ? isUsersLoading : isPendingUsersLoading}
@@ -805,7 +789,7 @@ export default function UserManagement() {
             sx={adminDataGridSx}
           />
         </Box>
-      </Paper>
+      </TableCard>
 
       <Dialog
         open={userDialogOpen}
@@ -1366,22 +1350,12 @@ export default function UserManagement() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={snackbar.severity === "error" ? null : 6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        sx={{ zIndex: 1500 }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%", fontWeight: 500 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 }

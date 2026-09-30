@@ -9,6 +9,7 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import ActionButton from "../../../components/ui/ActionButton";
 import type { QuantityDialogProps } from "./types";
 
 const QuantityDialog: React.FC<QuantityDialogProps> = ({
@@ -153,10 +154,10 @@ const QuantityDialog: React.FC<QuantityDialogProps> = ({
         />
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} variant="outlined" sx={{ minWidth: 100 }}>
+        <ActionButton onClick={onClose} variant="secondary" size="compact">
           Cancel
-        </Button>
-        <Button
+        </ActionButton>
+        <ActionButton
           onClick={handleConfirm}
           disabled={
             !!error ||
@@ -164,11 +165,11 @@ const QuantityDialog: React.FC<QuantityDialogProps> = ({
             Number(quantity) < 0 ||
             Number(quantity) > maxQuantity
           }
-          variant="contained"
-          sx={{ minWidth: 100 }}
+          variant="primary"
+          size="compact"
         >
           Confirm
-        </Button>
+        </ActionButton>
       </DialogActions>
     </Dialog>
   );

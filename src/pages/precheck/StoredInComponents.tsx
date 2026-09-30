@@ -37,6 +37,7 @@ import {
   Chip,
   Grid,
   FormControl,
+  Tooltip,
 } from '@mui/material';
 import { CustomPagination } from '../../components/CustomPagination';
 
@@ -54,9 +55,14 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from '../../store/store';
 import { getStoredComponentsByDate, exportStoredComponents, clearStoredComponents } from '../../store/slices/qrcodeSlice';
 import { format } from 'date-fns';
+import { ExpandedDetailsTable } from "../../components/ui/ExpandedDetailsTable";
 import api from '../../services/api';
 import debounce from 'lodash/debounce';
-import { SortableTableHeader } from '../../components/SortableTableHeader';
+import PageHeader from '../../components/ui/PageHeader';
+import ActionButton from '../../components/ui/ActionButton';
+import ToastSnackbar from '../../components/ui/ToastSnackbar';
+import ActiveFilterChips from '../../components/ui/ActiveFilterChips';
+import { SortableTableHeader, TableCard, TableCardHeader } from '../../components/ui';
 import { commonTableHeaderStyle, commonTableRowStyle } from '../../components/tableStyles';
 
 // Types for stored components
@@ -214,7 +220,7 @@ const Row = ({ component, sr }: { component: StoredComponent; sr: number }) => {
         }}
       >
         <TableCell sx={{ textAlign: 'center', width: '45px', color: 'text.muted', fontSize: '0.775rem' }}>{sr}</TableCell>
-        <TableCell sx={{ textAlign: 'center', fontWeight: 600, color: '#101828' }}>{component?.qrCodeNumber || 'N/A'}</TableCell>
+        <TableCell sx={{ textAlign: 'center', color: '#101828' }}>{component?.qrCodeNumber || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.productionOrderNumber || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.projectNumber || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.productionSeries || 'N/A'}</TableCell>
@@ -222,41 +228,21 @@ const Row = ({ component, sr }: { component: StoredComponent; sr: number }) => {
         <TableCell sx={{ textAlign: 'center' }}>{component?.idNumber || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.quantity || 'N/A'}</TableCell>
         <TableCell sx={{ textAlign: 'center' }}>{component?.nomenclature || 'N/A'}</TableCell>
-        <TableCell sx={{ textAlign: 'center', width: '60px' }}>
-          <IconButton
-            size="small"
-            onClick={handleOpenMenu}
-            sx={{
-              color: 'text.muted',
-              p: 0.5,
-              '&:hover': { backgroundColor: 'grey.100', color: 'text.primary' },
-            }}
-          >
-            <MoreVertIcon fontSize="small" />
-          </IconButton>
-
-          <Menu
-            anchorEl={menuAnchorEl}
-            open={isMenuOpen}
-            onClose={handleCloseMenu}
-            transitionDuration={0}
-            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-            PaperProps={{
-              elevation: 3,
-              sx: { minWidth: 110, borderRadius: '6px', py: 0.25 },
-            }}
-          >
-            <MenuItem onClick={handleToggleDetails} sx={{ py: 0.35, px: 1, minHeight: 28 }}>
-              <ListItemIcon sx={{ minWidth: 20, '& .MuiSvgIcon-root': { fontSize: 15 } }}>
-                {open ? <KeyboardArrowUpIcon color="primary" /> : <KeyboardArrowDownIcon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={open ? 'Hide Details' : 'View Details'}
-                primaryTypographyProps={{ fontSize: '0.725rem', fontWeight: 500 }}
-              />
-            </MenuItem>
-          </Menu>
+        <TableCell sx={{ textAlign: 'center', width: '70px' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.25 }}>
+            <IconButton
+              size="small"
+              onClick={handleToggleDetails}
+              sx={{
+                color: open ? 'primary.main' : '#667085',
+                p: 0.25,
+                '&:hover': { backgroundColor: 'grey.100', color: '#101828' },
+              }}
+              title={open ? "Hide Details" : "View Details"}
+            >
+              {open ? <KeyboardArrowUpIcon fontSize="small" /> : <KeyboardArrowDownIcon fontSize="small" />}
+            </IconButton>
+          </Box>
         </TableCell>
       </TableRow>
       <TableRow sx={{ height: 'auto' }}>
@@ -290,45 +276,19 @@ const Row = ({ component, sr }: { component: StoredComponent; sr: number }) => {
                 >
                   Additional Details
                 </Typography>
-                <IconButton
-                  size="small"
-                  onClick={handleToggleDetails}
-                  title="Close Additional Details"
-                  sx={{
-                    p: 0.25,
-                    color: "#667085",
-                    "&:hover": { color: "#101828", backgroundColor: "grey.200" },
-                  }}
-                >
-                  <KeyboardArrowUpIcon fontSize="small" />
-                </IconButton>
               </Box>
-              <Table size="small" sx={{ width: '100%' }}>
-                <TableHead>
-                  <TableRow sx={{ backgroundColor: 'grey.100' }}>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>Consumed in Drawing</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>IR Number</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>MSN Number</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>MRIR Number</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>Disposition</TableCell>
-                    <TableCell sx={{ fontWeight: 600, fontSize: '0.75rem', py: 0.5, textAlign: 'center' }}>Username</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.consumedInDrawing || '-'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', py: 0.5 }}>
-                      {renderStatusBadge(component?.qrCodeStatus)}
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.irNumber || 'N/A'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.msnNumber || 'N/A'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.mrirNumber || 'N/A'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.desposition || 'N/A'}</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontSize: '0.75rem', py: 0.5 }}>{component?.users || 'N/A'}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+              <ExpandedDetailsTable
+                columns={[
+                  { key: "consumedInDrawing", label: "Consumed in Drawing", render: (r) => r.consumedInDrawing || '-' },
+                  { key: "qrCodeStatus", label: "Status", render: (r) => renderStatusBadge(r.qrCodeStatus) },
+                  { key: "irNumber", label: (<Tooltip title="Inspection Report Number" arrow placement="bottom"><span>IR Number</span></Tooltip>), render: (r) => r.irNumber || 'N/A' },
+                  { key: "msnNumber", label: (<Tooltip title="Memo Stage Number" arrow placement="bottom"><span>MSN Number</span></Tooltip>), render: (r) => r.msnNumber || 'N/A' },
+                  { key: "mrirNumber", label: "MRIR Number", render: (r) => r.mrirNumber || 'N/A' },
+                  { key: "desposition", label: "Disposition", render: (r) => r.desposition || 'N/A' },
+                  { key: "users", label: "Username", render: (r) => r.users || 'N/A' },
+                ]}
+                rows={component ? [component] : []}
+              />
             </Box>
           </Collapse>
         </TableCell>
@@ -415,11 +375,39 @@ const StoredInComponents: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = f
     }));
   }, [storedComponents, searchQuery]);
 
+  const activeChips = React.useMemo(() => {
+    const chips: Array<{ id: string; label: string; onRemove: () => void }> = [];
+    if (selectedDate && hasValidDate) {
+      chips.push({
+        id: "date",
+        label: `Date: ${format(selectedDate, "dd/MM/yyyy")}`,
+        onRemove: () => {
+          setSelectedDate(null);
+          fetchStoredComponents(null, searchQuery);
+        },
+      });
+    }
+    if (searchQuery.trim()) {
+      chips.push({
+        id: "search",
+        label: `Part: ${searchQuery.trim()}`,
+        onRemove: () => {
+          setSearchQuery("");
+          fetchStoredComponents(selectedDate, "");
+        },
+      });
+    }
+    return chips;
+  }, [selectedDate, hasValidDate, searchQuery]);
+
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (col: string) => {
-    if (sortColumn === col) {
+  const handleSort = (col: string | null) => {
+    if (col === null) {
+      setSortColumn(null);
+      setSortDirection("asc");
+    } else if (sortColumn === col) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(col);
@@ -598,55 +586,37 @@ const StoredInComponents: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = f
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ py: hideHeader ? 0 : 1.5, px: hideHeader ? 0 : { xs: 1.5, sm: 2.5 }, bgcolor: "#fcfcfd", minHeight: hideHeader ? "auto" : "100vh" }}>
+      <Box sx={{ py: hideHeader ? 0 : 1.5, px: hideHeader ? 0 : { xs: 1.5, sm: 2.5 } }}>
         {!hideHeader && (
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            justifyContent="space-between"
-            alignItems={{ xs: "flex-start", sm: "center" }}
-            spacing={2}
-            sx={{ mb: 2 }}
-          >
-            <Box>
-              <Typography
-                variant="h5"
+          <PageHeader
+            title={storeTab === "available" ? "Available In Store" : "Stored In Components"}
+            subtitle="View and filter stored components in the system."
+            actions={
+              <Tabs
+                value={storeTab}
+                onChange={(_, newValue) => setStoreTab(newValue)}
+                textColor="primary"
+                indicatorColor="primary"
                 sx={{
-                  fontWeight: 700,
-                  color: "primary.main",
-                  fontSize: { xs: "1.25rem", sm: "1.5rem" },
+                  "& .MuiTab-root": {
+                    fontWeight: 600,
+                    fontSize: "0.875rem",
+                    textTransform: "none",
+                    minWidth: 140,
+                  },
+                  "& .MuiTab-root.Mui-selected": { color: "primary.main" },
+                  "& .MuiTabs-indicator": {
+                    backgroundColor: "primary.main",
+                    height: 3,
+                    borderRadius: "3px 3px 0 0",
+                  },
                 }}
               >
-                {storeTab === "available" ? "Available In Store" : "Stored In Components"}
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#667085", mt: 0.5, fontSize: "0.85rem" }}>
-                View and filter stored components in the system.
-              </Typography>
-            </Box>
-
-            <Tabs
-              value={storeTab}
-              onChange={(_, newValue) => setStoreTab(newValue)}
-              textColor="primary"
-              indicatorColor="primary"
-              sx={{
-                "& .MuiTab-root": {
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  textTransform: "none",
-                  minWidth: 140,
-                },
-                "& .MuiTab-root.Mui-selected": { color: "primary.main" },
-                "& .MuiTabs-indicator": {
-                  backgroundColor: "primary.main",
-                  height: 3,
-                  borderRadius: "3px 3px 0 0",
-                },
-              }}
-            >
-              <Tab label="Available In Store" value="available" />
-              <Tab label="Stored In Components" value="stored" />
-            </Tabs>
-          </Stack>
+                <Tab label="Available In Store" value="available" />
+                <Tab label="Stored In Components" value="stored" />
+              </Tabs>
+            }
+          />
         )}
 
         {storeTab === "available" ? (
@@ -760,52 +730,28 @@ const StoredInComponents: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = f
                   }}
                 />
 
-                <Button
-                  variant="outlined"
-                  size="small"
+                <ActionButton
+                  variant="secondary"
+                  size="standard"
                   onClick={handleClearFilter}
-                  sx={{
-                    height: 38,
-                    minWidth: 55,
-                    px: 1.5,
-                    borderRadius: "6px",
-                    borderColor: "#D0D5DD",
-                    backgroundColor: "#ffffff",
-                    color: "#667085",
-                    fontWeight: 600,
-                    fontSize: "0.82rem",
-                    textTransform: "none",
-                    boxShadow: "none",
-                    "&:hover": {
-                      borderColor: "#98A2B3",
-                      backgroundColor: "#F9FAFB",
-                      color: "#101828",
-                    },
-                  }}
                 >
                   Clear
-                </Button>
+                </ActionButton>
 
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="small"
+                <ActionButton
+                  variant="primary"
+                  size="standard"
                   onClick={handleOpenExportDialog}
                   disabled={!filteredComponents.length || isDownloading}
                   startIcon={isDownloading ? <CircularProgress size={16} color="inherit" /> : <DownloadIcon fontSize="small" />}
-                  sx={{
-                    height: 36,
-                    borderRadius: "6px",
-                    fontWeight: 600,
-                    fontSize: "0.8rem",
-                    textTransform: "none",
-                    boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                  }}
                 >
-                  Export Excel
-                </Button>
+                  Export
+                </ActionButton>
               </Box>
             </Paper>
+
+            {/* Active Filter Chips */}
+            <ActiveFilterChips chips={activeChips} onClearAll={handleClearFilter} />
 
             {/* Results Count Display & Summary Bar */}
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1, px: 0.5 }}>
@@ -824,8 +770,9 @@ const StoredInComponents: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = f
               </Typography>
             </Box>
 
-            {/* Data Table Paper Container */}
-            <Paper elevation={0} sx={{ borderRadius: "12px", border: "1px solid #eaecf0", backgroundColor: "#ffffff", boxShadow: "0px 1px 3px rgba(16, 24, 40, 0.05)", overflow: "hidden", mb: 2 }}>
+            {/* Data Table TableCard Container */}
+            <TableCard sx={{ mb: 2 }}>
+              <TableCardHeader title="Stored Components" count={filteredComponents.length} />
               <TableContainer sx={{ overflowX: "auto", maxHeight: "calc(100vh - 290px)" }}>
                 <Table stickyHeader size="small">
                   <TableHead>
@@ -914,19 +861,15 @@ const StoredInComponents: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = f
                   }}
                 />
               )}
-            </Paper>
+            </TableCard>
 
-            {/* Snackbar for notifications */}
-            <Snackbar
+            {/* ToastSnackbar for notifications */}
+            <ToastSnackbar
               open={snackbar.open}
-              autoHideDuration={snackbar.severity === 'error' ? null : 6000}
+              message={snackbar.message}
+              severity={snackbar.severity}
               onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-              <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%', borderRadius: "8px" }}>
-                {snackbar.message}
-              </Alert>
-            </Snackbar>
+            />
 
             {/* Export Column Selection Dialog */}
             <Dialog

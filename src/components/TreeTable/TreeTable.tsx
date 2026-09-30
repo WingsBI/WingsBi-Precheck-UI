@@ -14,16 +14,19 @@ import {
   useTheme,
 } from "@mui/material";
 import {
-  ExpandMore as ExpandMoreIcon,
-  ChevronRight as ChevronRightIcon,
+  KeyboardArrowDown,
+  KeyboardArrowRight,
   AccountTree as TreeIcon,
 } from "@mui/icons-material";
 import { FixedSizeList as List } from "react-window";
 import { useTreeData } from "../../hooks/useTreeData";
+import { TABLE_TOKENS, COLOUR_ROLES, commonTableHeaderStyle } from "../tableStyles";
+import { EmptyState } from "../EmptyState";
 
 interface TreeTableColumn {
   id: string;
   label: string;
+  tooltip?: string;
   minWidth?: number;
   align?: "left" | "center" | "right";
   format?: (value: any, row: any, index?: number) => React.ReactNode;
@@ -88,12 +91,9 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
       onClick={handleRowClick}
       style={{
         cursor: onRowClick ? "pointer" : "default",
-        backgroundColor:
-          node.level > 0
-            ? `rgba(37, 99, 235, 0.02)`
-            : "inherit",
+        backgroundColor: "inherit",
         transition: "background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
-        height: 42,
+        height: TABLE_TOKENS.rowHeight,
         display: "table-row",
         verticalAlign: "middle",
         outline: 0,
@@ -109,47 +109,62 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
               width: column.minWidth,
               minWidth: column.minWidth,
               maxWidth: column.minWidth,
-              paddingLeft: isExpander ? "24px" : "16px",
-              paddingRight: "16px",
-              paddingTop: "6px",
-              paddingBottom: "6px",
+              paddingLeft: "12px",
+              paddingRight: "12px",
+              paddingTop: `${TABLE_TOKENS.cellPy * 8}px`,
+              paddingBottom: `${TABLE_TOKENS.cellPy * 8}px`,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               boxSizing: "border-box",
-              borderBottom: isVirtualized ? "none" : "1px solid #e2e8f0",
-              fontFamily: 'Inter, "Helvetica Neue", Arial, sans-serif',
-              fontSize: '0.8rem',
-              color: '#334155',
+              borderBottom: isVirtualized ? "none" : `1px solid ${TABLE_TOKENS.rowBorderColor}`,
+              fontSize: TABLE_TOKENS.bodyFontSize,
+              color: COLOUR_ROLES.textSecondary,
               textAlign: column.align || "left",
               verticalAlign: "middle",
-              height: 42,
+              height: TABLE_TOKENS.rowHeight,
             }}
           >
             {isExpander && (
-              <Stack direction="row" alignItems="center" spacing={1} sx={{ width: "100%", overflow: "hidden" }}>
-                {node.hasChildren ? (
-                  <IconButton
-                    size="small"
-                    onClick={handleToggleClick}
-                    sx={{
-                      p: 0,
-                      width: 24,
-                      height: 24,
-                      color: theme.palette.primary.main,
-                      flexShrink: 0,
-                      "& .MuiSvgIcon-root": { fontSize: 20 },
-                    }}
-                  >
-                    {node.isExpanded ? (
-                      <ExpandMoreIcon />
-                    ) : (
-                      <ChevronRightIcon />
-                    )}
-                  </IconButton>
-                ) : (
-                  <Box sx={{ width: 24, height: 24, flexShrink: 0 }} />
-                )}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  pl: (node.level || 0) * 2.5,
+                  width: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 20,
+                    height: 20,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mr: 0.5,
+                    flexShrink: 0,
+                  }}
+                >
+                  {node.hasChildren && (
+                    <IconButton
+                      size="small"
+                      onClick={handleToggleClick}
+                      sx={{
+                        p: 0,
+                        width: 18,
+                        height: 18,
+                        color: COLOUR_ROLES.textSecondary,
+                        "&:hover": { color: COLOUR_ROLES.textMain },
+                      }}
+                    >
+                      {node.isExpanded ? (
+                        <KeyboardArrowDown sx={{ fontSize: 18 }} />
+                      ) : (
+                        <KeyboardArrowRight sx={{ fontSize: 18 }} />
+                      )}
+                    </IconButton>
+                  )}
+                </Box>
                 <Box
                   sx={{
                     flex: 1,
@@ -162,7 +177,7 @@ const TreeRow: React.FC<TreeRowProps> = React.memo(({
                     ? column.format(node[column.id], node, rowIndex)
                     : node[column.id]}
                 </Box>
-              </Stack>
+              </Box>
             )}
             {!isExpander && (
               <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "100%" }}>
@@ -413,17 +428,6 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
     return nonSrIndex !== -1 ? nonSrIndex : 0;
   }, [columns]);
 
-  if (!data || data.length === 0) {
-    return (
-      <Box sx={{ p: 3, textAlign: "center" }}>
-        <TreeIcon sx={{ fontSize: 48, color: "grey.400", mb: 2 }} />
-        <Typography variant="h6" color="textSecondary">
-          No data available
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
     <Box sx={{ width: "100%", overflow: "hidden" }}>
       {/* Table Container */}
@@ -447,56 +451,45 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
                     <TableCell
                       key={column.id}
                       align={column.align || "left"}
-                      onMouseDown={(e) => handleResizeStart(e, column.id)}
                       sx={{
+                        ...commonTableHeaderStyle,
                         width: colWidth,
                         minWidth: colWidth,
-                        fontWeight: 700,
-                        background: "linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)",
-                        borderBottom: "2px solid #cbd5e1",
-                        boxShadow: "0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-                        borderRadius: "0 !important",
-                        borderTopLeftRadius: "0 !important",
-                        borderTopRightRadius: "0 !important",
-                        borderBottomLeftRadius: "0 !important",
-                        borderBottomRightRadius: "0 !important",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                         boxSizing: "border-box",
-                        paddingLeft: isExpanderCol ? "28px" : "16px",
-                        paddingRight: "16px",
-                        paddingTop: "11px",
-                        paddingBottom: "11px",
+                        pl: isExpanderCol ? "36px !important" : "12px !important",
+                        pr: "12px !important",
                         position: "relative",
-                        cursor: "col-resize",
+                        cursor: "default",
                         userSelect: "none",
                         zIndex: 3,
                         transition: "background-color 0.15s ease",
                         "&:hover": {
-                          background: "#e2e8f0",
-                        },
-                        "&:hover .col-resizer-line": {
-                          backgroundColor: "#6D2A8F",
-                          width: 3,
-                        },
-                        "&:first-of-type": {
-                          borderRadius: "0 !important",
-                        },
-                        "&:last-of-type": {
-                          borderRadius: "0 !important",
+                          backgroundColor: "#f2f4f7",
                         },
                       }}
                     >
-                      <Tooltip title={`Click and drag to resize column`} arrow placement="top">
-                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: column.align === "center" ? "center" : column.align === "right" ? "flex-end" : "flex-start", width: "100%", pr: 0.5 }}>
+                      <Tooltip title={column.tooltip} arrow placement="top">
+                        <Box
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 0.4,
+                            justifyContent: column.align === "center" ? "center" : column.align === "right" ? "flex-end" : "flex-start",
+                            width: "100%",
+                            pr: 0.5,
+                          }}
+                        >
                           <Typography
                             variant="caption"
                             sx={{
                               fontWeight: 700,
-                              fontSize: "0.75rem",
-                              color: "#334155",
-                              letterSpacing: "0.5px",
+                              fontSize: "0.8rem",
+                              fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                              color: COLOUR_ROLES.textSecondary,
+                              letterSpacing: "0.2px",
                               textTransform: "none",
                               overflow: "hidden",
                               textOverflow: "ellipsis",
@@ -507,43 +500,64 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
                           </Typography>
                         </Box>
                       </Tooltip>
-                      {/* Visual Drag Divider Line */}
-                      <Box
-                        className="col-resizer-line"
-                        sx={{
-                          position: "absolute",
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                          width: 2,
-                          backgroundColor: "#cbd5e1",
-                          transition: "background-color 0.15s, width 0.15s",
-                          zIndex: 2,
-                        }}
-                      />
+                      {/* Visible Drag Divider Line with Tooltip */}
+                      <Tooltip title="Drag to resize column width" arrow placement="top">
+                        <Box
+                          className="col-resizer-line"
+                          onMouseDown={(e) => handleResizeStart(e, column.id)}
+                          sx={{
+                            position: "absolute",
+                            right: 0,
+                            top: "30%",
+                            bottom: "30%",
+                            width: 2,
+                            borderRadius: "1px",
+                            cursor: "col-resize",
+                            backgroundColor: "#94A3B8",
+                            opacity: 0.4,
+                            transition: "all 0.15s ease",
+                            zIndex: 5,
+                            "&:hover": {
+                              backgroundColor: "#6D2A8F",
+                              opacity: 1,
+                              width: 3,
+                              top: "10%",
+                              bottom: "10%",
+                            },
+                          }}
+                        />
+                      </Tooltip>
                     </TableCell>
                   );
                 })}
               </TableRow>
             </TableHead>
-            {!enableVirtualization && (
+            {(!enableVirtualization || flattenedData.length === 0) && (
               <TableBody>
-                {flattenedData.map((node, index) => (
-                  <TreeRow
-                    key={node.id}
-                    node={node}
-                    columns={effectiveColumns}
-                    onToggle={handleToggle}
-                    onRowClick={onRowClick}
-                    renderRowActions={renderRowActions}
-                    rowIndex={index}
+                {flattenedData.length > 0 ? (
+                  flattenedData.map((node, index) => (
+                    <TreeRow
+                      key={node.id}
+                      node={node}
+                      columns={effectiveColumns}
+                      onToggle={handleToggle}
+                      onRowClick={onRowClick}
+                      renderRowActions={renderRowActions}
+                      rowIndex={index}
+                    />
+                  ))
+                ) : (
+                  <EmptyState
+                    colSpan={effectiveColumns.length}
+                    title="Apply filters to search"
+                    height={260}
                   />
-                ))}
+                )}
               </TableBody>
             )}
           </Table>
 
-          {enableVirtualization && (
+          {enableVirtualization && flattenedData.length > 0 && (
             <List
               height={height - 44}
               width="100%"

@@ -37,9 +37,11 @@ import {
   RadioGroup,
   Radio,
   Checkbox,
-  Snackbar,
   Alert,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import {
   Visibility as VisibilityIcon,
   FileDownload as FileDownloadIcon,
@@ -57,8 +59,11 @@ import {
 import { CustomPagination } from "../../components/CustomPagination";
 import { EmptyState } from "../../components/EmptyState";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
-import { COLOUR_ROLES, commonTableRowStyle } from "../../components/tableStyles";
-import { SortableTableHeader } from "../../components/SortableTableHeader";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import SearchBar from "../../components/ui/SearchBar";
+import { SortableTableHeader, TableCard, ExpandedDetailsTable, type ExpandedTableColumn } from "../../components/ui";
+import { COLOUR_ROLES, commonTableRowStyle, STATUS_ROW_TOKENS } from "../../components/tableStyles";
 import { ComponentTypeChip } from "../../components/ComponentTypeChip";
 import { StatusChip } from "../../components/StatusChip";
 
@@ -91,6 +96,7 @@ interface ColumnDef {
   minWidth?: number;
   align?: "left" | "center" | "right";
   sortable?: boolean;
+  tooltip?: string;
 }
 
 const PRECHECK_COLUMNS: ColumnDef[] = [
@@ -101,8 +107,8 @@ const PRECHECK_COLUMNS: ColumnDef[] = [
   { field: "productionSeries", headerName: "Prod Series", minWidth: 110, align: "center", sortable: true },
   { field: "quantity", headerName: "Qty", minWidth: 70, align: "center", sortable: true },
   { field: "idNumber", headerName: "ID Number", minWidth: 110, align: "center", sortable: true },
-  { field: "irNumber", headerName: "IR", minWidth: 100, align: "center", sortable: false },
-  { field: "msnNumber", headerName: "MSN", minWidth: 100, align: "center", sortable: false },
+  { field: "irNumber", headerName: "IR", minWidth: 100, align: "center", sortable: false, tooltip: "Inspection Report" },
+  { field: "msnNumber", headerName: "MSN", minWidth: 100, align: "center", sortable: false, tooltip: "Memo Stage Number" },
   { field: "componentType", headerName: "Type", minWidth: 95, align: "center", sortable: false },
   { field: "status", headerName: "Status", minWidth: 110, align: "center", sortable: false },
   { field: "details", headerName: "Details", minWidth: 80, align: "center", sortable: false },
@@ -114,8 +120,8 @@ const CONSUMED_IN_COLUMNS: ColumnDef[] = [
   { field: "consumedInDrawingNumber", headerName: "Consumed IN Part Number", minWidth: 220, align: "left", sortable: true },
   { field: "quantity", headerName: "Quantity", minWidth: 80, align: "center", sortable: true },
   { field: "poNumber", headerName: "PO Number", minWidth: 140, align: "left", sortable: true },
-  { field: "irNumber", headerName: "IR Number", minWidth: 100, align: "center", sortable: false },
-  { field: "msnNumber", headerName: "MSN Number", minWidth: 110, align: "center", sortable: false },
+  { field: "irNumber", headerName: "IR Number", minWidth: 100, align: "center", sortable: false, tooltip: "Inspection Report Number" },
+  { field: "msnNumber", headerName: "MSN Number", minWidth: 110, align: "center", sortable: false, tooltip: "Memo Stage Number" },
   { field: "date", headerName: "Date", minWidth: 140, align: "center", sortable: true },
   { field: "username", headerName: "Username", minWidth: 120, align: "center", sortable: true },
   { field: "isRejected", headerName: "Is Rejected", minWidth: 100, align: "center", sortable: false },
@@ -716,7 +722,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
     return sortedData.slice(start, start + rowsPerPage);
   }, [activeTab, sortedData, page, rowsPerPage]);
 
-  const handleRequestSort = (field: string) => {
+  const handleRequestSort = (field: string | null) => {
+    if (!field) return;
     const isAsc = orderBy === field && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(field);
@@ -863,7 +870,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
   return (
     <Box
       sx={{
-        py: hideHeader ? 0 : 0.5,
+        py: hideHeader ? 0 : 1,
         px: hideHeader ? 0 : { xs: 1, sm: 2 },
         maxWidth: 1600,
         mx: "auto",
@@ -871,71 +878,36 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
         boxSizing: "border-box",
       }}
     >
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={4000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={snackbar.severity}
-          onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
-          sx={{ width: "100%", borderRadius: "8px", boxShadow: 3 }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
       {/* 1. Page Header */}
       {!hideHeader && (
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={1}
-          sx={{ mb: 0.5, mt: 0.5 }}
-        >
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                color: "primary.main",
-                fontSize: { xs: "1.25rem", sm: "1.5rem" },
-                lineHeight: 1.2,
-              }}
-            >
-              Verification History
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-              {activeTab === "consumed"
-                ? "Search, filter, and inspect past precheck inspection records and status reports."
-                : "Search, filter, and inspect precheck inspection records and status reports."}
-            </Typography>
-          </Box>
-
-          {activeTab === "precheck" && (
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <FileDownloadIcon fontSize="small" />}
-              onClick={handleOpenExportDialog}
-              disabled={isExporting || !hasAppliedFilters}
-              sx={{
-                height: 32,
-                borderRadius: "6px",
-                borderColor: "grey.300",
-                color: "text.secondary",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.8rem",
-                backgroundColor: "background.paper",
-                "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-              }}
-            >
-              Export
-            </Button>
-          )}
-        </Stack>
+        <PageHeader
+          title="Verification History"
+          mb={0.5}
+          subtitle={
+            activeTab === "consumed"
+              ? "Search, filter, and inspect past precheck inspection records and status reports."
+              : "Search, filter, and inspect precheck inspection records and status reports."
+          }
+          actions={
+            activeTab === "precheck" ? (
+              <ActionButton
+                variant="secondary"
+                size="standard"
+                startIcon={isExporting ? <CircularProgress size={16} color="inherit" /> : <FileDownloadIcon fontSize="small" />}
+                onClick={handleOpenExportDialog}
+                disabled={isExporting || !hasAppliedFilters}
+              >
+                Export
+              </ActionButton>
+            ) : undefined
+          }
+        />
       )}
 
       {/* 2. Tabs Bar */}
@@ -971,17 +943,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
         </Tabs>
       </Box>
 
-      {/* 3. Unified Single Outer Paper Container */}
-      <Paper
-        elevation={0}
-        sx={{
-          borderRadius: "12px",
-          border: "1px solid #EAECF0",
-          backgroundColor: "#ffffff",
-          overflow: "hidden",
-          mb: 1,
-        }}
-      >
+      {/* 3. Unified Single Outer TableCard Container */}
+      <TableCard sx={{ mb: 1 }}>
         {/* Section 1: Filter Bar & Active Chips */}
         <Box sx={{ pt: 1, px: 1, pb: 0.5, borderBottom: "1px solid #EAECF0" }}>
           {/* ── Precheck Tab Filters ─────────────────────────────────────────── */}
@@ -1002,41 +965,14 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 "&::-webkit-scrollbar": { display: "none" },
               }}
             >
-              {/* Combined Search */}
-              <TextField
-                size="small"
+              <SearchBar
                 placeholder="Search PO No. , Part Number , Item Code…"
                 value={combinedSearch}
                 onChange={(e) => { setCombinedSearch(e.target.value); setPage(0); }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: "#98A2B3", fontSize: 18 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: combinedSearch ? (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={() => { setCombinedSearch(""); setPage(0); }}
-                        edge="end"
-                        sx={{ p: 0.25, color: "#98A2B3", "&:hover": { color: "#344054" } }}
-                      >
-                        <CloseIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null,
-                }}
+                onClear={() => { setCombinedSearch(""); setPage(0); }}
                 sx={{
                   flex: "1 1 340px",
                   minWidth: 260,
-                  "& .MuiOutlinedInput-root": {
-                    fontSize: "0.825rem",
-                    height: 38,
-                    backgroundColor: "background.paper",
-                    borderRadius: "6px",
-                    "& .MuiOutlinedInput-notchedOutline": { borderColor: "#D0D5DD" },
-                  },
                 }}
               />
 
@@ -1243,59 +1179,23 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
               />
 
               {/* Apply Button */}
-              <Button
-                size="small"
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="standard"
                 onClick={handleApplyFilters}
                 disabled={!isPrecheckDropdownSelected || isPrecheckLoading}
-                sx={{
-                  flex: "0 0 auto",
-                  backgroundColor: "primary.main",
-                  color: "#FFFFFF",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  borderRadius: "6px",
-                  px: 2,
-                  height: 38,
-                  textTransform: "none",
-                  boxShadow: "none",
-                  minWidth: 65,
-                  "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#EAECF0",
-                    color: "#98A2B3",
-                  },
-                }}
               >
                 Apply
-              </Button>
+              </ActionButton>
 
               {/* Clear Button */}
-              <Button
-                size="small"
-                variant="outlined"
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleClearAll}
-                sx={{
-                  flex: "0 0 auto",
-                  color: "#667085",
-                  borderColor: "#D0D5DD",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "6px",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  height: 38,
-                  px: 1.5,
-                  minWidth: 55,
-                  textTransform: "none",
-                  "&:hover": {
-                    borderColor: "#98A2B3",
-                    backgroundColor: "#F9FAFB",
-                    color: "#101828",
-                  },
-                }}
               >
                 Clear
-              </Button>
+              </ActionButton>
             </Box>
           )}
 
@@ -1388,7 +1288,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Item Code *"
+                    label={<RequiredLabel text="Item Code" required />}
+                    InputLabelProps={{ shrink: true }}
                     size="small"
                     variant="outlined"
                     sx={{
@@ -1471,7 +1372,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Part Number *"
+                    label={<RequiredLabel text="Part Number" required />}
+                    InputLabelProps={{ shrink: true }}
                     size="small"
                     variant="outlined"
                     sx={{
@@ -1536,7 +1438,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    placeholder="Prod Series *"
+                    label={<RequiredLabel text="Prod Series" required />}
+                    InputLabelProps={{ shrink: true }}
                     size="small"
                     variant="outlined"
                     sx={{
@@ -1555,6 +1458,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
 
               {/* 4. Assembly No (Text Input) */}
               <TextField
+                label="Assembly No"
+                InputLabelProps={{ shrink: true }}
                 placeholder="Assembly No"
                 size="small"
                 variant="outlined"
@@ -1598,6 +1503,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
 
               {/* 5. ID Number */}
               <TextField
+                label="ID Number"
+                InputLabelProps={{ shrink: true }}
                 placeholder="ID Number..."
                 size="small"
                 variant="outlined"
@@ -1631,59 +1538,23 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
               />
 
               {/* Apply Button */}
-              <Button
-                size="small"
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="standard"
                 onClick={handleApplyFilters}
                 disabled={!isConsumedDropdownSelected || isConsumedLoading}
-                sx={{
-                  flex: "0 0 auto",
-                  backgroundColor: "primary.main",
-                  color: "#FFFFFF",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  borderRadius: "6px",
-                  px: 2,
-                  height: 38,
-                  textTransform: "none",
-                  boxShadow: "none",
-                  minWidth: 65,
-                  "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#EAECF0",
-                    color: "#98A2B3",
-                  },
-                }}
               >
                 Apply
-              </Button>
+              </ActionButton>
 
               {/* Clear Button */}
-              <Button
-                size="small"
-                variant="outlined"
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleClearAll}
-                sx={{
-                  flex: "0 0 auto",
-                  color: "#667085",
-                  borderColor: "#D0D5DD",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "6px",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  height: 38,
-                  px: 1.5,
-                  minWidth: 55,
-                  textTransform: "none",
-                  "&:hover": {
-                    borderColor: "#98A2B3",
-                    backgroundColor: "#F9FAFB",
-                    color: "#101828",
-                  },
-                }}
               >
                 Clear
-              </Button>
+              </ActionButton>
             </Box>
           )}
 
@@ -1700,48 +1571,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
               gap: 1,
             }}
           >
-            {activeChips.length > 0 ? (
-              <Stack direction="row" spacing={0.75} flexWrap="wrap" alignItems="center">
-                {activeChips.map((chip) => (
-                  <Chip
-                    key={chip.id}
-                    label={chip.label}
-                    onDelete={chip.onRemove}
-                    size="small"
-                    sx={{
-                      backgroundColor: "#F2F4F7",
-                      color: "#344054",
-                      fontWeight: 600,
-                      fontSize: "0.775rem",
-                      height: 24,
-                      borderRadius: "14px",
-                      border: "1px solid #E9EAEB",
-                      "& .MuiChip-deleteIcon": {
-                        color: "#667085",
-                        fontSize: 13,
-                        "&:hover": { color: "#344054" },
-                      },
-                    }}
-                  />
-                ))}
-                <Button
-                  variant="text"
-                  size="small"
-                  onClick={handleClearAll}
-                  sx={{
-                    color: "primary.main",
-                    fontWeight: 600,
-                    fontSize: "0.775rem",
-                    textTransform: "none",
-                    p: 0,
-                    minWidth: "auto",
-                    "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                  }}
-                >
-                  Clear all
-                </Button>
-              </Stack>
-            ) : <Box />}
+            <ActiveFilterChips chips={activeChips} onClearAll={handleClearAll} />
 
             {/* Results Count Display */}
             <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.8rem", fontWeight: 500, ml: "auto" }}>
@@ -1766,6 +1596,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                   <SortableTableHeader
                     key={col.field}
                     label={col.headerName}
+                    tooltip={col.tooltip}
                     columnKey={col.field}
                     sortColumn={orderBy}
                     sortDirection={order}
@@ -1822,17 +1653,17 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                     !isUpdated &&
                     (statusLower === "short" || statusLower === "partial");
 
-                  let rowBg = "#FFFFFF";
+                  let rowBg = STATUS_ROW_TOKENS.default;
                   let rowHoverBg = "#F8FAFC";
                   if (isRej) {
-                    rowBg = "#FDE8E8";
-                    rowHoverBg = "#FDE8E8";
+                    rowBg = STATUS_ROW_TOKENS.rejected;
+                    rowHoverBg = STATUS_ROW_TOKENS.rejected;
                   } else if (isUpdated) {
-                    rowBg = "#FFF7ED";
-                    rowHoverBg = "#FFF7ED";
+                    rowBg = STATUS_ROW_TOKENS.updated;
+                    rowHoverBg = STATUS_ROW_TOKENS.updated;
                   } else if (isShort) {
-                    rowBg = "#FFFBEB";
-                    rowHoverBg = "#FFFBEB";
+                    rowBg = STATUS_ROW_TOKENS.short;
+                    rowHoverBg = STATUS_ROW_TOKENS.short;
                   }
 
                   return (
@@ -1842,11 +1673,10 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                         hover
                         sx={{
                           ...commonTableRowStyle,
-                          backgroundColor: rowBg,
-                          opacity: isRej ? 0.7 : 1,
+                          backgroundColor: "transparent",
                           transition: "background-color 0.2s ease, opacity 0.4s ease",
                           "&:hover": {
-                            backgroundColor: `${rowHoverBg} !important`,
+                            backgroundColor: "transparent !important",
                           },
                         }}
                       >
@@ -1876,110 +1706,25 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                             style={{ padding: 0 }}
                           >
                             <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                              <Box
-                                sx={{
-                                  width: "100%",
-                                  backgroundColor: "#F8FAFC",
-                                  borderTop: "1px solid #EAECF0",
-                                  borderBottom: "1px solid #EAECF0",
-                                }}
-                              >
-                                <Table size="small" sx={{ width: "100%" }}>
-                                  <TableHead>
-                                    <TableRow sx={{ backgroundColor: "#F2F4F7" }}>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        MRIR Number
-                                      </TableCell>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        Item Description
-                                      </TableCell>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        Remarks
-                                      </TableCell>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        User
-                                      </TableCell>
-                                      <TableCell
-                                        align="center"
-                                        sx={{
-                                          fontWeight: 700,
-                                          color: "#344054",
-                                          fontSize: "0.75rem",
-                                          py: 1,
-                                          px: 1,
-                                          borderBottom: "1px solid #EAECF0",
-                                          whiteSpace: "nowrap",
-                                        }}
-                                      >
-                                        Date
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    <TableRow sx={{ backgroundColor: "#FFFFFF" }}>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.mrirNumber || "-"}
-                                      </TableCell>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.nomenclature || "-"}
-                                      </TableCell>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.remarks || <Typography component="span" sx={{ color: "#98A2B3", fontStyle: "italic", fontSize: "0.75rem" }}>No remarks</Typography>}
-                                      </TableCell>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.username || "-"}
-                                      </TableCell>
-                                      <TableCell align="center" sx={{ fontSize: "0.75rem", color: "#475467", py: 1, px: 1, whiteSpace: "nowrap" }}>
-                                        {row.modifiedDate || "-"}
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableBody>
-                                </Table>
-                              </Box>
+                              <ExpandedDetailsTable
+                                columns={[
+                                  { key: "mrirNumber", label: "MRIR Number" },
+                                  { key: "nomenclature", label: "Item Description" },
+                                  {
+                                    key: "remarks",
+                                    label: "Remarks",
+                                    render: (r) =>
+                                      r.remarks || (
+                                        <Typography component="span" sx={{ color: "text.secondary", fontStyle: "italic", fontSize: "0.75rem" }}>
+                                          No remarks
+                                        </Typography>
+                                      ),
+                                  },
+                                  { key: "username", label: "User" },
+                                  { key: "modifiedDate", label: "Date" },
+                                ]}
+                                rows={[row]}
+                              />
                             </Collapse>
                           </TableCell>
                         </TableRow>
@@ -2014,7 +1759,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
           }}
         />
 
-      </Paper>
+      </TableCard>
 
 
 

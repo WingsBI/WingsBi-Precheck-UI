@@ -70,9 +70,14 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { format } from "date-fns";
 import api from "../../services/api";
 import { MultiSelectFilter } from "../../components/MultiSelectFilter";
-import { SortableTableHeader } from "../../components/SortableTableHeader";
 import { COLOUR_ROLES, commonTableHeaderStyle, commonTableRowStyle } from "../../components/tableStyles";
 import EmptyState from "@/components/EmptyState";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import SearchBar from "../../components/ui/SearchBar";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips, { type FilterChip } from "../../components/ui/ActiveFilterChips";
+import { SortableTableHeader, TableCard } from "../../components/ui";
 
 const ALL_IRMSN_EXPORT_COLUMNS = [
   { key: "displayNumber", label: "IR/MSN No." },
@@ -91,7 +96,7 @@ const ALL_IRMSN_EXPORT_COLUMNS = [
 
 const ViewIRMSN: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { irmsnList, totalCount: reduxTotalCount, loading, lastSearchParams } = useSelector(
+  const { irmsnList, totalCount, loading, lastSearchParams } = useSelector(
     (state: RootState) => state.irmsn
   );
   const navigate = useNavigate();
@@ -124,8 +129,11 @@ const ViewIRMSN: React.FC = () => {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
-  const handleSort = (col: string) => {
-    if (sortColumn === col) {
+  const handleSort = (col: string | null) => {
+    if (col === null) {
+      setSortColumn("");
+      setSortDirection("asc");
+    } else if (sortColumn === col) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortColumn(col);
@@ -521,7 +529,94 @@ const ViewIRMSN: React.FC = () => {
     setPage(0);
   }, [drawingOrLnSearch, selectedDepartments, selectedProductionSeries, typeFilter, fromDate, toDate]);
 
-  const totalCount = reduxTotalCount || displayList.length;
+  const activeChips: FilterChip[] = useMemo(() => {
+    const chips: FilterChip[] = [];
+    if (drawingOrLnSearch.trim()) {
+      chips.push({
+        id: "search",
+        label: `Search: "${drawingOrLnSearch.trim()}"`,
+        onRemove: () => {
+          setDrawingOrLnSearch("");
+          setPage(0);
+          executeFetch(0, rowsPerPage, { search: "" });
+        },
+      });
+    }
+    selectedProductionSeries.forEach((item: any) => {
+      const label = typeof item === "string" ? item : item.productionSeries;
+      chips.push({
+        id: `series-${item.id || label}`,
+        label: `Series: ${label}`,
+        onRemove: () => {
+          const nextSeries = selectedProductionSeries.filter(
+            (s: any) => (s.id || s) !== (item.id || item)
+          );
+          setSelectedProductionSeries(nextSeries);
+          setPage(0);
+          executeFetch(0, rowsPerPage, { series: nextSeries });
+        },
+      });
+    });
+    selectedDepartments.forEach((item: any) => {
+      let label = "";
+      let itemId = item;
+      if (typeof item === "object" && item !== null) {
+        label = item.label || item.name || item.departmentName || "";
+        itemId = item.id;
+      } else {
+        itemId = item;
+        const deptObj: any = departments.find((d: any) => String(d.id) === String(item));
+        label = deptObj ? deptObj.name || deptObj.departmentName || deptObj.label : String(item);
+      }
+      chips.push({
+        id: `dept-${itemId}`,
+        label: `Dept: ${label}`,
+        onRemove: () => {
+          const nextDepts = selectedDepartments.filter((d: any) => {
+            const dId = typeof d === "object" && d !== null ? d.id : d;
+            return String(dId) !== String(itemId);
+          });
+          setSelectedDepartments(nextDepts);
+          setPage(0);
+          executeFetch(0, rowsPerPage, { depts: nextDepts });
+        },
+      });
+    });
+    if (typeFilter !== "All") {
+      chips.push({
+        id: "type",
+        label: `Type: ${typeFilter}`,
+        onRemove: () => {
+          setTypeFilter("All");
+          setPage(0);
+          executeFetch(0, rowsPerPage, { type: "All" });
+        },
+      });
+    }
+    if (fromDate) {
+      chips.push({
+        id: "fromDate",
+        label: `From: ${format(fromDate, "dd/MM/yyyy")}`,
+        onRemove: () => {
+          setFromDate(null);
+          setPage(0);
+          executeFetch(0, rowsPerPage, { fDate: null });
+        },
+      });
+    }
+    if (toDate) {
+      chips.push({
+        id: "toDate",
+        label: `To: ${format(toDate, "dd/MM/yyyy")}`,
+        onRemove: () => {
+          setToDate(null);
+          setPage(0);
+          executeFetch(0, rowsPerPage, { tDate: null });
+        },
+      });
+    }
+    return chips;
+  }, [drawingOrLnSearch, selectedProductionSeries, selectedDepartments, departments, typeFilter, fromDate, toDate, rowsPerPage, executeFetch]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -529,184 +624,124 @@ const ViewIRMSN: React.FC = () => {
         sx={{
           py: { xs: 1, sm: 1.25 },
           px: { xs: 1.5, sm: 2 },
-          minHeight: "calc(100vh - 64px)",
           display: "flex",
           flexDirection: "column",
-          backgroundColor: "#FAFAFA",
           width: "100%",
           boxSizing: "border-box",
         }}
       >
         {/* Page Header */}
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={2}
-          sx={{ mb: 1 }}
-        >
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                color: "primary.main",
-                fontSize: { xs: "1.25rem", sm: "1.5rem" },
-              }}
-            >
-              IR/MSN List
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-              Search, filter, export, and manage Inspection Report (IR) and Memo Stage Number (MSN) records.
-            </Typography>
-          </Box>
-
-          <Stack direction="row" spacing={1.5} alignItems="center">
-            {/* Export Button & Menu */}
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => handleOpenExportDialog("BOTH")}
-              disabled={isExporting}
-              startIcon={
-                isExporting ? (
-                  <CircularProgress size={16} color="inherit" />
-                ) : (
-                  <DownloadIcon fontSize="small" />
-                )
-              }
-              sx={{
-                height: 34,
-                borderRadius: "6px",
-                borderColor: "grey.300",
-                color: "text.secondary",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.8rem",
-                backgroundColor: "background.paper",
-                "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-              }}
-            >
-              Export
-            </Button>
-            <Menu
-              anchorEl={exportMenuAnchor}
-              open={Boolean(exportMenuAnchor)}
-              onClose={handleExportClose}
-              transitionDuration={0}
-              disableRestoreFocus
-              transformOrigin={{ horizontal: "right", vertical: "top" }}
-              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-              PaperProps={{
-                elevation: 0,
-                sx: {
-                  minWidth: 150,
-                  borderRadius: "6px",
-                  py: 0.25,
-                  px: 0.25,
-                  mt: 0.5,
-                  border: "1px solid #EAECF0",
-                  boxShadow: "0px 4px 12px rgba(16, 24, 40, 0.08)",
-                },
-              }}
-            >
-              <MenuItem
-                onClick={() => {
-                  handleExportClose();
-                  handleOpenExportDialog("IR");
-                }}
-                sx={{
-                  borderRadius: "4px",
-                  py: 0.4,
-                  px: 1,
-                  minHeight: "30px !important",
-                  color: "#344054",
-                  "&:hover": { backgroundColor: "#F9FAFB", color: "primary.main" },
-                }}
+        <PageHeader
+          title="IR/MSN List"
+          subtitle="Search, filter, export, and manage Inspection Report (IR) and Memo Stage Number (MSN) records."
+          actions={
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <ActionButton
+                variant="secondary"
+                size="standard"
+                onClick={() => handleOpenExportDialog("BOTH")}
+                disabled={isExporting}
+                startIcon={
+                  isExporting ? (
+                    <CircularProgress size={16} color="inherit" />
+                  ) : (
+                    <DownloadIcon fontSize="small" />
+                  )
+                }
               >
-                <ListItemIcon sx={{ minWidth: "auto !important", mr: 1, color: "primary.main" }}>
-                  <ArticleIcon sx={{ fontSize: 16 }} />
-                </ListItemIcon>
-                <ListItemText primary="Export IR Report" primaryTypographyProps={{ fontSize: "0.8rem", fontWeight: 500 }} />
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  handleExportClose();
-                  handleOpenExportDialog("MSN");
-                }}
-                sx={{
-                  borderRadius: "4px",
-                  py: 0.4,
-                  px: 1,
-                  minHeight: "30px !important",
-                  color: "#344054",
-                  "&:hover": { backgroundColor: "#F9FAFB", color: "#0078D4" },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: "auto !important", mr: 1, color: "#0078D4" }}>
-                  <ArticleIcon sx={{ fontSize: 16 }} />
-                </ListItemIcon>
-                <ListItemText primary="Export MSN Report" primaryTypographyProps={{ fontSize: "0.8rem", fontWeight: 500 }} />
-              </MenuItem>
-            </Menu>
-
-            {/* New IR/MSN Action Button */}
-            <Tooltip
-              title={!hasCreateAccess ? "You do not have access to create IR/MSN page" : ""}
-              arrow
-            >
-              <span>
-                <Button
-                  variant="contained"
-                  size="small"
-                  startIcon={<AddIcon fontSize="small" />}
-                  disabled={!hasCreateAccess}
-                  onClick={() => navigate("/irmsn/new")}
-                  sx={{
-                    height: 34,
+                Export
+              </ActionButton>
+              <Menu
+                anchorEl={exportMenuAnchor}
+                open={Boolean(exportMenuAnchor)}
+                onClose={handleExportClose}
+                transitionDuration={0}
+                disableRestoreFocus
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                PaperProps={{
+                  elevation: 0,
+                  sx: {
+                    minWidth: 150,
                     borderRadius: "6px",
-                    backgroundColor: "primary.main",
-                    color: "#ffffff",
-                    textTransform: "none",
-                    fontWeight: 600,
-                    fontSize: "0.8rem",
-                    boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                    "&:hover": { backgroundColor: "primary.dark" },
-                    "&.Mui-disabled": {
-                      backgroundColor: "#EAECF0",
-                      color: "#98A2B3",
-                    },
+                    py: 0.25,
+                    px: 0.25,
+                    mt: 0.5,
+                    border: "1px solid #EAECF0",
+                    boxShadow: "0px 4px 12px rgba(16, 24, 40, 0.08)",
+                  },
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    handleExportClose();
+                    handleOpenExportDialog("IR");
+                  }}
+                  sx={{
+                    borderRadius: "4px",
+                    py: 0.4,
+                    px: 1,
+                    minHeight: "30px !important",
+                    color: "#344054",
+                    "&:hover": { backgroundColor: "#F9FAFB", color: "primary.main" },
                   }}
                 >
-                  New IR/MSN
-                </Button>
-              </span>
-            </Tooltip>
-          </Stack>
-        </Stack>
+                  <ListItemIcon sx={{ minWidth: "auto !important", mr: 1, color: "primary.main" }}>
+                    <ArticleIcon sx={{ fontSize: 16 }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Export IR Report" primaryTypographyProps={{ fontSize: "0.8rem", fontWeight: 500 }} />
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleExportClose();
+                    handleOpenExportDialog("MSN");
+                  }}
+                  sx={{
+                    borderRadius: "4px",
+                    py: 0.4,
+                    px: 1,
+                    minHeight: "30px !important",
+                    color: "#344054",
+                    "&:hover": { backgroundColor: "#F9FAFB", color: "#0078D4" },
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "auto !important", mr: 1, color: "#0078D4" }}>
+                    <ArticleIcon sx={{ fontSize: 16 }} />
+                  </ListItemIcon>
+                  <ListItemText primary="Export MSN Report" primaryTypographyProps={{ fontSize: "0.8rem", fontWeight: 500 }} />
+                </MenuItem>
+              </Menu>
+
+              <Tooltip
+                title={!hasCreateAccess ? "You do not have access to create IR/MSN page" : ""}
+                arrow
+              >
+                <span>
+                  <ActionButton
+                    variant="primary"
+                    size="standard"
+                    startIcon={<AddIcon fontSize="small" />}
+                    disabled={!hasCreateAccess}
+                    onClick={() => navigate("/irmsn/new")}
+                  >
+                    New IR/MSN
+                  </ActionButton>
+                </span>
+              </Tooltip>
+            </Stack>
+          }
+        />
 
         {/* Status Alert Message */}
-        {statusMessage.type && (
-          <Alert
-            severity={statusMessage.type}
-            sx={{ mb: 1.5, borderRadius: "8px" }}
-            onClose={() => setStatusMessage({ type: null, message: "" })}
-          >
-            {statusMessage.message}
-          </Alert>
-        )}
+        <ToastSnackbar
+          open={Boolean(statusMessage.type)}
+          message={statusMessage.message}
+          severity={statusMessage.type || "info"}
+          onClose={() => setStatusMessage({ type: null, message: "" })}
+        />
 
-        {/* ── Unified Single Paper Container ────────────────────────────── */}
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: "12px",
-            border: "1px solid #EAECF0",
-            backgroundColor: "#ffffff",
-            overflow: "hidden",
-            mb: 2,
-          }}
-        >
+        {/* ── Unified Single TableCard Container ────────────────────────────── */}
+        <TableCard sx={{ mb: 2 }}>
           {/* Section 1: Filter Card / Controls */}
           <Box sx={{ pt: 0.5, px: 1, pb: 0.5, borderBottom: "1px solid #EAECF0" }}>
             <Box
@@ -725,34 +760,14 @@ const ViewIRMSN: React.FC = () => {
                 "&::-webkit-scrollbar": { display: "none" },
               }}
             >
-              {/* Search Bar */}
-              <TextField
-                size="small"
+              <SearchBar
                 placeholder="Search IR/MSN No., PO Number, Item code, Dr..."
                 value={drawingOrLnSearch}
                 onChange={(e) => setDrawingOrLnSearch(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: "#98A2B3", fontSize: 18 }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: drawingOrLnSearch ? (
-                    <InputAdornment position="end">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setDrawingOrLnSearch("");
-                          setPage(0);
-                          executeFetch(0, rowsPerPage, { search: "" });
-                        }}
-                        edge="end"
-                        sx={{ p: 0.25, color: "#98A2B3", "&:hover": { color: "#344054" } }}
-                      >
-                        <ClearIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null,
+                onClear={() => {
+                  setDrawingOrLnSearch("");
+                  setPage(0);
+                  executeFetch(0, rowsPerPage, { search: "" });
                 }}
                 sx={{
                   flex: "1 1 200px",
@@ -1014,58 +1029,22 @@ const ViewIRMSN: React.FC = () => {
               />
 
               {/* Action Buttons: Apply & Clear */}
-              <Button
-                size="small"
-                variant="contained"
+              <ActionButton
+                variant="primary"
+                size="standard"
                 onClick={handleSearch}
                 disabled={!isDropdownFilterSelected || loading}
-                sx={{
-                  flex: "0 0 auto",
-                  backgroundColor: "primary.main",
-                  color: "#ffffff",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  borderRadius: "6px",
-                  px: 2,
-                  height: 38,
-                  textTransform: "none",
-                  boxShadow: "none",
-                  minWidth: 65,
-                  "&:hover": { backgroundColor: "primary.dark", boxShadow: "none" },
-                  "&.Mui-disabled": {
-                    backgroundColor: "#EAECF0",
-                    color: "#98A2B3",
-                  },
-                }}
               >
                 Apply
-              </Button>
-              <Button
-                size="small"
-                variant="outlined"
+              </ActionButton>
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 onClick={handleReset}
                 disabled={!isResetEnabled}
-                sx={{
-                  flex: "0 0 auto",
-                  color: "#667085",
-                  borderColor: "#D0D5DD",
-                  backgroundColor: "#ffffff",
-                  borderRadius: "6px",
-                  fontWeight: 600,
-                  fontSize: "0.82rem",
-                  height: 38,
-                  px: 1.5,
-                  minWidth: 55,
-                  textTransform: "none",
-                  "&:hover": {
-                    borderColor: "#98A2B3",
-                    backgroundColor: "#F9FAFB",
-                    color: "#101828",
-                  },
-                }}
               >
                 Clear
-              </Button>
+              </ActionButton>
             </Box>
 
             {/* Active Filter Chips & Counter Bar */}
@@ -1076,211 +1055,12 @@ const ViewIRMSN: React.FC = () => {
                 alignItems: "center",
                 flexWrap: "wrap",
                 gap: 1,
-                mt: 1.25,
-                pt: 1,
-                borderTop: "1px solid #F2F4F7",
+                mt: activeChips.length > 0 ? 1.25 : 0,
+                pt: activeChips.length > 0 ? 1 : 0,
+                borderTop: activeChips.length > 0 ? "1px solid #F2F4F7" : "none",
               }}
             >
-              {/* Active Chips */}
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.75, alignItems: "center" }}>
-                {drawingOrLnSearch.trim() && (
-                  <Chip
-                    key="chip-search"
-                    label={`Search: "${drawingOrLnSearch.trim()}"`}
-                    size="small"
-                    onDelete={() => {
-                      setDrawingOrLnSearch("");
-                      setPage(0);
-                      executeFetch(0, rowsPerPage, { search: "" });
-                    }}
-                    sx={{
-                      backgroundColor: "#F2F4F7",
-                      color: "#344054",
-                      border: "1px solid #E4E7EC",
-                      fontWeight: 600,
-                      fontSize: "0.8rem",
-                      borderRadius: "16px",
-                      height: "26px",
-                      "& .MuiChip-deleteIcon": {
-                        fontSize: "14px",
-                        color: "#667085",
-                        "&:hover": { color: "#101828" },
-                      },
-                    }}
-                  />
-                )}
-                {selectedProductionSeries.map((item: any) => {
-                  const label = typeof item === "string" ? item : item.productionSeries;
-                  return (
-                    <Chip
-                      key={`series-${item.id || label}`}
-                      label={`Series: ${label}`}
-                      size="small"
-                      onDelete={() => {
-                        const nextSeries = selectedProductionSeries.filter(
-                          (s: any) => (s.id || s) !== (item.id || item)
-                        );
-                        setSelectedProductionSeries(nextSeries);
-                        setPage(0);
-                        executeFetch(0, rowsPerPage, { series: nextSeries });
-                      }}
-                      sx={{
-                        backgroundColor: "#F2F4F7",
-                        color: "#344054",
-                        border: "1px solid #E4E7EC",
-                        fontWeight: 600,
-                        fontSize: "0.8rem",
-                        borderRadius: "16px",
-                        height: "26px",
-                        "& .MuiChip-deleteIcon": {
-                          fontSize: "14px",
-                          color: "#667085",
-                          "&:hover": { color: "#101828" },
-                        },
-                      }}
-                    />
-                  );
-                })}
-                {selectedDepartments.map((item: any) => {
-                  let label = "";
-                  let itemId = item;
-                  if (typeof item === "object" && item !== null) {
-                    label = item.label || item.name || item.departmentName || "";
-                    itemId = item.id;
-                  } else {
-                    itemId = item;
-                    const deptObj: any = departments.find((d: any) => String(d.id) === String(item));
-                    label = deptObj ? (deptObj.name || deptObj.departmentName || deptObj.label) : String(item);
-                  }
-                  return (
-                    <Chip
-                      key={`dept-${itemId}`}
-                      label={`Dept: ${label}`}
-                      size="small"
-                      onDelete={() => {
-                        const nextDepts = selectedDepartments.filter((d: any) => {
-                          const dId = typeof d === "object" && d !== null ? d.id : d;
-                          return String(dId) !== String(itemId);
-                        });
-                        setSelectedDepartments(nextDepts);
-                        setPage(0);
-                        executeFetch(0, rowsPerPage, { depts: nextDepts });
-                      }}
-                      sx={{
-                        backgroundColor: "#F2F4F7",
-                        color: "#344054",
-                        border: "1px solid #E4E7EC",
-                        fontWeight: 600,
-                        fontSize: "0.8rem",
-                        borderRadius: "16px",
-                        height: "26px",
-                        "& .MuiChip-deleteIcon": {
-                          fontSize: "14px",
-                          color: "#667085",
-                          "&:hover": { color: "#101828" },
-                        },
-                      }}
-                    />
-                  );
-                })}
-                {typeFilter !== "All" && (
-                  <Chip
-                    key="type-filter"
-                    label={`Type: ${typeFilter}`}
-                    size="small"
-                    onDelete={() => {
-                      setTypeFilter("All");
-                      setPage(0);
-                      executeFetch(0, rowsPerPage, { type: "All" });
-                    }}
-                    sx={{
-                      backgroundColor: "#F2F4F7",
-                      color: "#344054",
-                      border: "1px solid #E4E7EC",
-                      fontWeight: 600,
-                      fontSize: "0.8rem",
-                      borderRadius: "16px",
-                      height: "26px",
-                      "& .MuiChip-deleteIcon": {
-                        fontSize: "14px",
-                        color: "#667085",
-                        "&:hover": { color: "#101828" },
-                      },
-                    }}
-                  />
-                )}
-                {fromDate && (
-                  <Chip
-                    key="from-date"
-                    label={`From: ${format(fromDate, "dd/MM/yyyy")}`}
-                    size="small"
-                    onDelete={() => {
-                      setFromDate(null);
-                      setPage(0);
-                      executeFetch(0, rowsPerPage, { fDate: null });
-                    }}
-                    sx={{
-                      backgroundColor: "#F2F4F7",
-                      color: "#344054",
-                      border: "1px solid #E4E7EC",
-                      fontWeight: 600,
-                      fontSize: "0.8rem",
-                      borderRadius: "16px",
-                      height: "26px",
-                      "& .MuiChip-deleteIcon": {
-                        fontSize: "14px",
-                        color: "#667085",
-                        "&:hover": { color: "#101828" },
-                      },
-                    }}
-                  />
-                )}
-                {toDate && (
-                  <Chip
-                    key="to-date"
-                    label={`To: ${format(toDate, "dd/MM/yyyy")}`}
-                    size="small"
-                    onDelete={() => {
-                      setToDate(null);
-                      setPage(0);
-                      executeFetch(0, rowsPerPage, { tDate: null });
-                    }}
-                    sx={{
-                      backgroundColor: "#F2F4F7",
-                      color: "#344054",
-                      border: "1px solid #E4E7EC",
-                      fontWeight: 600,
-                      fontSize: "0.8rem",
-                      borderRadius: "16px",
-                      height: "26px",
-                      "& .MuiChip-deleteIcon": {
-                        fontSize: "14px",
-                        color: "#667085",
-                        "&:hover": { color: "#101828" },
-                      },
-                    }}
-                  />
-                )}
-                {isFilterApplied && (
-                  <Button
-                    size="small"
-                    variant="text"
-                    onClick={handleReset}
-                    sx={{
-                      color: "primary.main",
-                      fontWeight: 600,
-                      fontSize: "0.8rem",
-                      textTransform: "none",
-                      p: 0,
-                      height: "26px",
-                      minWidth: "auto",
-                      "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
-                    }}
-                  >
-                    Clear all
-                  </Button>
-                )}
-              </Box>
+              <ActiveFilterChips chips={activeChips} onClearAll={handleReset} />
 
               {/* Results Count Display */}
               <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.85rem", fontWeight: 500, ml: "auto" }}>
@@ -1293,7 +1073,7 @@ const ViewIRMSN: React.FC = () => {
           <TableContainer
             sx={{
               borderTop: "1px solid #EAECF0",
-              minHeight: 320,
+              minHeight: 380,
               maxHeight: "calc(100vh - 310px)",
               overflow: "auto",
             }}
@@ -1303,21 +1083,20 @@ const ViewIRMSN: React.FC = () => {
                 <TableRow>
                   <SortableTableHeader
                     label="Sr.No"
-                    sortKey="id"
-                    activeSortColumn={sortColumn}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
                     align="center"
                     minWidth={60}
+                    isSortable={false}
                   />
                   <SortableTableHeader
                     label="IR/MSN No."
+                    tooltip="Inspection Report / Memo Stage Number"
                     sortKey="displayNumber"
                     activeSortColumn={sortColumn}
                     sortDirection={sortDirection}
                     onSort={handleSort}
                     align="center"
                     minWidth={130}
+                    isSortable={true}
                   />
                   <TableCell align="center" sx={{ ...commonTableHeaderStyle, minWidth: 70 }}>
                     Type
@@ -1330,6 +1109,7 @@ const ViewIRMSN: React.FC = () => {
                     onSort={handleSort}
                     align="left"
                     minWidth={120}
+                    isSortable={true}
                   />
                   <SortableTableHeader
                     label="Item code"
@@ -1339,6 +1119,7 @@ const ViewIRMSN: React.FC = () => {
                     onSort={handleSort}
                     align="left"
                     minWidth={130}
+                    isSortable={true}
                   />
                   <SortableTableHeader
                     label="Part Number"
@@ -1348,6 +1129,7 @@ const ViewIRMSN: React.FC = () => {
                     onSort={handleSort}
                     align="left"
                     minWidth={150}
+                    isSortable={true}
                   />
                   <TableCell align="center" sx={{ ...commonTableHeaderStyle, minWidth: 90 }}>
                     ID Number
@@ -1357,12 +1139,9 @@ const ViewIRMSN: React.FC = () => {
                   </TableCell>
                   <SortableTableHeader
                     label="Date"
-                    sortKey="date"
-                    activeSortColumn={sortColumn}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
                     align="center"
                     minWidth={130}
+                    isSortable={false}
                   />
                   <TableCell align="left" sx={{ ...commonTableHeaderStyle, minWidth: 100 }}>
                     UserName
@@ -1396,27 +1175,11 @@ const ViewIRMSN: React.FC = () => {
                   sortedDisplayList.map((item, index) => (
                     <TableRow
                       key={`${item.recordType}-${item.id}`}
-                      hover
-                      sx={{
-                        height: 28,
-                        "&:hover": { backgroundColor: "#F9FAFB" },
-                        "& td": {
-                          borderBottom: "1px solid #F2F4F7",
-                          fontSize: "0.775rem",
-                          color: "#344054",
-                          py: 0.15,
-                          px: 0.75,
-                        },
-                      }}
+                      sx={commonTableRowStyle}
                     >
                       <TableCell align="center">{page * rowsPerPage + index + 1}</TableCell>
                       <TableCell align="center">
-                        <Typography
-                          variant="body2"
-                          sx={{ fontWeight: 700, color: "#101828", fontSize: "0.85rem" }}
-                        >
-                          {item.displayNumber || "-"}
-                        </Typography>
+                        {item.displayNumber || "-"}
                       </TableCell>
                       <TableCell align="center">
                         <Box
@@ -1472,6 +1235,7 @@ const ViewIRMSN: React.FC = () => {
                             })
                           }
                           sx={{
+                            p: 0.25,
                             color: "#667085",
                             "&:hover": {
                               backgroundColor: "#F2F4F7",
@@ -1508,7 +1272,7 @@ const ViewIRMSN: React.FC = () => {
             }}
           />
 
-        </Paper>
+        </TableCard>
         {/* Row Action Menu */}
         <Menu
           anchorEl={actionMenuAnchor?.anchorEl}

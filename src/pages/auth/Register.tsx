@@ -7,7 +7,6 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   Card,
   CardContent,
   Grid,
@@ -17,6 +16,7 @@ import {
   Alert,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import ActionButton from "../../components/ui/ActionButton";
 import { register } from "../../store/slices/authSlice";
 import { useDepartments, useUserRoles, useSecurityQuestions, usePlants } from "../../hooks/useMasterData";
 import { CustomMessageBox } from "../../utils/notifications";
@@ -738,47 +738,23 @@ const Register = () => {
             <Box
               sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 2.5, gap: 2 }}
             >
-              <Button
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 component={RouterLink}
                 to="/login"
-                variant="outlined"
-                sx={{
-                  height: 40,
-                  px: 3,
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  borderColor: "#D0D5DD",
-                  color: "#344054",
-                  minWidth: "110px",
-                  "&:hover": { backgroundColor: "#F9FAFB", borderColor: "#98A2B3", color: "#101828" },
-                }}
               >
                 Back to Login
-              </Button>
+              </ActionButton>
 
-              <Button
+              <ActionButton
+                variant="primary"
+                size="standard"
                 type="submit"
-                variant="contained"
                 disabled={isLoading || !formik.isValid}
-                sx={{
-                  height: 40,
-                  px: 4,
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  backgroundColor: "#6D2A8F",
-                  color: "#ffffff",
-                  minWidth: "110px",
-                  boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                  "&:hover": { backgroundColor: "#582075" },
-                  "&.Mui-disabled": { backgroundColor: "#EAECF0", color: "#98A2B3" },
-                }}
               >
                 {isLoading ? "Registering..." : "Register"}
-              </Button>
+              </ActionButton>
             </Box>
           </form>
         </CardContent>

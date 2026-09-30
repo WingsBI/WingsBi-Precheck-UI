@@ -17,9 +17,17 @@ export const ComponentTypeChip: React.FC<ComponentTypeChipProps> = ({ type }) =>
     color = "#6D2A8F";
     borderColor = "#E9D5FF";
   } else if (typeStr === "ID") {
-    bg = "#F1F5F9";
-    color = "#334155";
-    borderColor = "#E2E8F0";
+    bg = "#EFF6FF";
+    color = "#1D4ED8";
+    borderColor = "#BFDBFE";
+  } else if (typeStr === "FIM") {
+    bg = "#FFFBEB";
+    color = "#B45309";
+    borderColor = "#FDE68A";
+  } else if (typeStr === "SI") {
+    bg = "#ECFDF5";
+    color = "#047857";
+    borderColor = "#A7F3D0";
   }
 
   return (

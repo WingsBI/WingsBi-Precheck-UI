@@ -341,9 +341,14 @@ let theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        
         'html, body': {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           scrollbarWidth: 'thin',
           scrollbarColor: '#D1D5DB transparent',
+        },
+        '.Toastify, .Toastify__toast': {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         },
         '::-webkit-scrollbar': {
           width: '6px',
@@ -495,6 +500,16 @@ let theme = createTheme({
         },
       },
     },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        },
+        input: {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        },
+      },
+    },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
@@ -531,6 +546,7 @@ let theme = createTheme({
     MuiInputLabel: {
       styleOverrides: {
         root: {
+          fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           fontSize: '0.875rem',
           color: '#374151',
           '&.Mui-focused': {
@@ -569,6 +585,7 @@ let theme = createTheme({
             },
           },
           '& .MuiInputLabel-root': {
+            fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             fontSize: '0.875rem',
             color: '#374151',
             '&.Mui-focused': {
@@ -600,6 +617,7 @@ let theme = createTheme({
             },
           },
           '& .MuiInputLabel-root': {
+            fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             fontSize: '0.875rem',
             color: '#374151',
             '&.Mui-focused': {
@@ -672,7 +690,7 @@ let theme = createTheme({
           backgroundColor: '#F9FAFB',
           '& .MuiTableCell-root': {
             backgroundColor: '#F9FAFB',
-            color: '#4B5563',
+            color: '#475467',
             fontWeight: 700,
             fontSize: '0.8rem',
             fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -687,7 +705,7 @@ let theme = createTheme({
         root: {
           fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           fontSize: '0.775rem',
-          padding: '2px 8px',
+          padding: '1.2px 6px',
           whiteSpace: 'nowrap',
           borderBottom: '1px solid #E5E7EB',
           color: '#1F2937',
@@ -699,7 +717,7 @@ let theme = createTheme({
           fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           fontWeight: 700,
           backgroundColor: '#F9FAFB',
-          color: '#4B5563',
+          color: '#475467',
           padding: '6px 10px',
           fontSize: '0.8rem',
           borderBottom: '1px solid #E5E7EB',
@@ -709,10 +727,10 @@ let theme = createTheme({
     MuiTableRow: {
       styleOverrides: {
         root: {
-          height: 28,
+          height: 40,
           fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           '&:hover': {
-            backgroundColor: '#F9FAFB !important',
+            backgroundColor: 'transparent !important',
           },
           '&.Mui-selected': {
             backgroundColor: '#F3E8F8',
@@ -813,7 +831,7 @@ let theme = createTheme({
           backgroundColor: '#FFFFFF',
           '& .MuiDataGrid-columnHeaders': {
             backgroundColor: '#F9FAFB',
-            color: '#4B5563',
+            color: '#475467',
             fontWeight: 700,
             fontSize: '0.8rem',
             borderBottom: '1px solid #E5E7EB',
@@ -827,9 +845,9 @@ let theme = createTheme({
             py: '2px',
           },
           '& .MuiDataGrid-row': {
-            minHeight: '32px !important',
-            maxHeight: '32px !important',
-            '&:hover': { backgroundColor: '#F9FAFB' },
+            minHeight: '40px !important',
+            maxHeight: '40px !important',
+            '&:hover': { backgroundColor: 'transparent !important' },
           },
           '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-columnHeader:focus': {
             outline: 'none !important',

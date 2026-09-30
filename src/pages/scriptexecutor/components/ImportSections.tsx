@@ -21,25 +21,16 @@ import {
 } from "@mui/icons-material";
 import { TABS, TAB_METADATA } from "../constants/scriptExecutorConstants";
 
+import PageHeader from "../../../components/ui/PageHeader";
+
 interface ImportHeaderProps {}
 
 export const ImportHeader: React.FC<ImportHeaderProps> = () => {
   return (
-    <Box sx={{ mb: 1.5 }}>
-      <Typography
-        variant="h5"
-        sx={{
-          fontWeight: 700,
-          color: "primary.main",
-          fontSize: { xs: "1.25rem", sm: "1.5rem" },
-        }}
-      >
-        Bulk Import
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-        Import master data or QR code records from Excel
-      </Typography>
-    </Box>
+    <PageHeader
+      title="Bulk Import"
+      subtitle="Import master data or QR code records from Excel"
+    />
   );
 };
 
@@ -52,13 +43,13 @@ export const ImportTypeSelector: React.FC<ImportTypeSelectorProps> = ({ activeTa
   const options = [
     {
       tab: TABS.MASTER_DATA,
-      title: "Master data",
+      title: "Master Data",
       subtitle: "Parts & assembly mappings",
     },
     {
       tab: TABS.QR_CODE,
-      title: "QR code",
-      subtitle: "Bulk QR code records with ID ranges",
+      title: "QR Code",
+      subtitle: "Generate bulk QR codes",
     },
   ];
 
@@ -149,7 +140,7 @@ export const GuidanceCard: React.FC<GuidanceCardProps> = ({
       sx={{
         border: "1px solid",
         borderColor: "#D0E2FF",
-        borderRadius: 2.5,
+        borderRadius: 1,
         bgcolor: "#F0F5FF",
         mb: 2,
       }}
@@ -178,7 +169,7 @@ export const GuidanceCard: React.FC<GuidanceCardProps> = ({
               "&:hover": { bgcolor: "transparent", textDecoration: "underline" },
             }}
           >
-            Download template
+            Download Template
           </Button>
 
           <Menu

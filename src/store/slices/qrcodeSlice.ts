@@ -1117,8 +1117,13 @@ export const bulkStoreInFromExcel = createAsyncThunk(
       });
       return response.data;
     } catch (error: any) {
+      // If the error response contains detailed results, pass them through as fulfilled
+      const errorData = error.response?.data;
+      if (errorData && errorData.results && Array.isArray(errorData.results)) {
+        return errorData;
+      }
       return rejectWithValue(
-        error.response?.data?.message || error.message || "Failed to process bulk store in from Excel"
+        errorData?.message || error.message || "Failed to process bulk store in from Excel"
       );
     }
   }

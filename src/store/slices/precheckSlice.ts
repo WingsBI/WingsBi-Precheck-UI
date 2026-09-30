@@ -82,6 +82,7 @@ export const viewPrecheckDetails = createAsyncThunk(
   "precheck/viewPrecheckDetails",
   async (request: any, { rejectWithValue }) => {
     try {
+      console.log("Calling ViewPrecheck API with params:", request);
       const response = await api.get("/api/precheck/ViewPrecheck", {
         params: request,
       });
@@ -918,7 +919,9 @@ const precheckSlice = createSlice({
       })
       .addCase(getAvailableComponentsForBOM.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.availableComponents = action.payload;
+        state.availableComponents = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.data || [];
         state.error = null;
       })
       .addCase(getAvailableComponentsForBOM.rejected, (state, action) => {

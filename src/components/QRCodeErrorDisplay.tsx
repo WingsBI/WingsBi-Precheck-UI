@@ -72,7 +72,6 @@ const QRCodeErrorDisplay: React.FC<QRCodeErrorDisplayProps> = ({ error, onClose 
                     size="small"
                     color="warning"
                     sx={{
-                      fontFamily: 'monospace',
                       fontWeight: 'bold',
                       mr: 1,
                     }}

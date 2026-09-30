@@ -1,4 +1,5 @@
 export interface GridItem {
+  status?: string;
   sr: number;
   drawingNumber: string;
   nomenclature: string;
@@ -38,6 +39,8 @@ export interface GridItem {
   totalQrQty?: number;
   findNo?: string;
   hadOriginalRemainingQuantity?: boolean;
+  itemDescription?: string;
+  assemblyLnItemCode?: string;
 }
 
 export interface QuantityDialogProps {

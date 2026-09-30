@@ -26,9 +26,12 @@ import {
   Typography,
   IconButton,
   Button,
-  Snackbar,
+  Paper,
+  Divider,
 } from "@mui/material";
 import { Close as CloseIcon, FileDownload as FileDownloadIcon } from "@mui/icons-material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import ActiveFilterChips, { type FilterChip } from "../../components/ui/ActiveFilterChips";
 import {
   viewPrecheckDetails,
   makePrecheck,
@@ -60,6 +63,8 @@ import { useDebounce } from "../../hooks/useDebounce";
 import type { RootState, AppDispatch } from "../../store/store";
 import debounce from "lodash.debounce";
 import { getErrorMessage } from "../../utils/errorUtils";
+import { createMaterialRequisition } from "../../store/slices/materialRequisitionSlice";
+import ActionButton from "../../components/ui/ActionButton";
 
 // Sub-component imports
 import type { GridItem } from "./make-precheck/types";
@@ -78,6 +83,7 @@ import PrecheckTable from "./make-precheck/PrecheckTable";
 import { usePrecheckScanning } from "./make-precheck/usePrecheckScanning";
 import ExcelUploadResultDialog from "./make-precheck/ExcelUploadResultDialog";
 import AddBomDrawingDialog from "./make-precheck/AddBomDrawingDialog";
+import AddMaterialRequisitionDialog from "./make-precheck/AddMaterialRequisitionDialog";
 
 const MAKE_PRECHECK_EXPORT_COLUMNS = [
   { key: "lnItemCode", label: "Item Code" },
@@ -230,7 +236,7 @@ const MakePrecheck: React.FC = () => {
   // Search results
   const [searchResults, setSearchResults] = useState<GridItem[]>([]);
   const [showResults, setShowResults] = useState(false);
-  const [filterRemainingOnly, setFilterRemainingOnly] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string>("All");
 
   // Add QR Code dialog state
   const [addQrDialogOpen, setAddQrDialogOpen] = useState(false);
@@ -254,6 +260,10 @@ const MakePrecheck: React.FC = () => {
 
   // Add BOM Drawing dialog state
   const [addBomDrawingOpen, setAddBomDrawingOpen] = useState(false);
+
+  // Add Material Requisition dialog state
+  const [materialReqDialogOpen, setMaterialReqDialogOpen] = useState(false);
+  const [selectedRowForMaterialReq, setSelectedRowForMaterialReq] = useState<GridItem | null>(null);
 
   // Alert state
   const [alertMessage, setAlertMessage] = useState("");
@@ -433,14 +443,27 @@ const MakePrecheck: React.FC = () => {
     setOrderBy(property);
   };
 
-  // Filtered results for remaining precheck only (updated and pending statuses)
+  // Filtered results for selected status
   const filteredResults = useMemo(() => {
-    if (!filterRemainingOnly) return searchResults;
+    if (!selectedStatus || selectedStatus === "All") return searchResults;
+    const targetStatus = selectedStatus.toLowerCase();
     return searchResults.filter((item) => {
-      const status = (item.precheckStatus || "").toLowerCase();
-      return status === "updated" || status === "pending";
+      const statusLower = (item.precheckStatus || item.status || "").toLowerCase();
+      if (targetStatus === "pending") {
+        return statusLower === "pending" || (!item.isPrecheckComplete && !item.isRejected);
+      }
+      if (targetStatus === "partial") {
+        return statusLower === "partial" || statusLower === "updated" || Boolean(item.isUpdated);
+      }
+      if (targetStatus === "rejected") {
+        return statusLower === "rejected" || Boolean(item.isRejected);
+      }
+      if (targetStatus === "complete") {
+        return statusLower === "complete" || statusLower === "completed" || statusLower === "verified" || Boolean(item.isPrecheckComplete);
+      }
+      return statusLower === targetStatus;
     });
-  }, [searchResults, filterRemainingOnly]);
+  }, [searchResults, selectedStatus]);
 
   const sortedResults = useMemo(() => {
     if (!orderBy) return filteredResults;
@@ -696,14 +719,22 @@ const MakePrecheck: React.FC = () => {
     setIsMakePrecheckEnabled(Boolean(mandatoryFieldsFilled && isIdWithinRange));
   };
 
+  const handleStatusChange = (newStatus: string) => {
+    setSelectedStatus(newStatus);
+    if (selectedPO || selectedDrawing || idNumber || hasLoadedData) {
+      executeMakePrecheck(undefined, newStatus);
+    }
+  };
+
   const handleMakePrecheck = async () => {
     if (!validateInputs()) return;
 
     await executeMakePrecheck();
   };
 
-  const executeMakePrecheck = async (overrideId?: string) => {
+  const executeMakePrecheck = async (overrideId?: string, overrideStatus?: string) => {
     const activeIdNumber = overrideId !== undefined ? overrideId : idNumber;
+    const activeStatus = overrideStatus !== undefined ? overrideStatus : selectedStatus;
     // Check if ID Number exceeds endIdNumber for the selected PO
     if (
       selectedPO?.endIdNumber &&
@@ -735,13 +766,19 @@ const MakePrecheck: React.FC = () => {
         selectedProductionSeries?.prodSeriesId ??
         selectedProductionSeries?.productionSeriesId;
 
-      const payload = {
+      const payload: any = {
         DrawingNumberId: drawingIdVal,
         ProductionSeriesId: prodSeriesIdVal,
         Id: activeIdNumber ? parseInt(activeIdNumber) : undefined,
         ProductionOrderNumber: selectedPO?.productionOrderNumber,
       };
 
+      if (activeStatus && activeStatus !== "All") {
+        payload.Status = activeStatus;
+        payload.status = activeStatus;
+      }
+
+      console.log("Executing viewPrecheckDetails with payload:", payload);
       const response = await dispatch(viewPrecheckDetails(payload)).unwrap();
       await updateGridItems(response);
 
@@ -912,7 +949,7 @@ const MakePrecheck: React.FC = () => {
     // Clear grid data
     setSearchResults([]);
     setShowResults(false);
-    setFilterRemainingOnly(false);
+   
 
     // Reset button states
     setIsMakePrecheckEnabled(false);
@@ -1528,7 +1565,6 @@ const MakePrecheck: React.FC = () => {
       return;
     }
 
-    exportParams.remainingPrecheck = filterRemainingOnly;
     exportParams.selectedColumns = selectedCols;
 
     dispatch(exportPrecheckDetails(exportParams))
@@ -1635,6 +1671,7 @@ const MakePrecheck: React.FC = () => {
 
     // Map the response to objects and assign sequential SRs based on sorted order
     const finalItems = sortedRawList.map((item: any, index: number) => ({
+      status: item.status || item.precheckStatus,
       drawingNumber: item.drawingNumber,
       nomenclature: item.nomenclature,
       quantity: item.quantity,
@@ -1679,7 +1716,8 @@ const MakePrecheck: React.FC = () => {
   return (
     <Box
       sx={{
-        py: { xs: 0.5, sm: 0.75 }, px: { xs: 1.5, sm: 2 },
+        py: 1,
+        px: { xs: 1.5, sm: 2 },
         height: "calc(100vh - 64px)",
         boxSizing: "border-box",
         display: "flex",
@@ -1687,26 +1725,18 @@ const MakePrecheck: React.FC = () => {
         overflow: "hidden",
       }}
     >
-      {/* Top Center Snackbar Alert */}
-      <Snackbar
+      {/* Top Center Toast Alert */}
+      <ToastSnackbar
         open={showAlert}
-        autoHideDuration={4000}
+        message={alertMessage}
+        severity={alertSeverity}
         onClose={() => setShowAlert(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          severity={alertSeverity}
-          onClose={() => setShowAlert(false)}
-          sx={{ width: "100%", borderRadius: "8px", boxShadow: 3 }}
-        >
-          {alertMessage}
-        </Alert>
-      </Snackbar>
+      />
 
       {/* Page Title & More Action Button at Top Header */}
       <PrecheckHeaderBar
-        filterRemainingOnly={filterRemainingOnly}
-        onToggleFilter={() => setFilterRemainingOnly(!filterRemainingOnly)}
+     
+       
         onExport={handleExport}
         onReset={handleReset}
         onUploadExcel={() => excelFileInputRef.current?.click()}
@@ -1718,156 +1748,172 @@ const MakePrecheck: React.FC = () => {
         isLoadingLocal={isLoadingLocal}
       />
 
-      {/* Filter Controls Bar */}
-      <PrecheckFormControls
-        selectedPO={selectedPO}
-        poNumbers={poNumbers}
-        poLoading={poLoading}
-        onPOSearchChange={(inputValue) => setPOSearchText(inputValue)}
-        onPOChange={(newValue) => {
-          isClearedRef.current = false;
-          if (newValue) {
-            setSelectedPO(newValue);
-            // Auto-fill form fields from PO using precise drawing matching
-            const matchingDrawing = findMatchingDrawingInList(allDrawingNumbers, newValue);
-            if (matchingDrawing) {
-              setSelectedDrawing(matchingDrawing);
-            } else if (newValue.drawingNumberId || newValue.drawingNumber || newValue.lnItemCode) {
-              setSelectedDrawing({
-                id: newValue.drawingNumberId,
-                drawingNumber: newValue.drawingNumber || "",
-                lnItemCode: newValue.lnItemCode || "",
-                nomenclature: newValue.nomenclature || "",
-                componentType: newValue.componentType || "",
-              });
-            }
-
-            if (newValue.productionSeries || newValue.prodSeriesId) {
-              let matchingPS = null;
-              if (productionSeriesData && productionSeriesData.length > 0) {
-                matchingPS = productionSeriesData.find(
-                  (ps: any) =>
-                    (newValue.prodSeriesId && ps.id === newValue.prodSeriesId) ||
-                    (ps.productionSeries && newValue.productionSeries && String(ps.productionSeries).trim().toLowerCase() === String(newValue.productionSeries).trim().toLowerCase()),
-                );
-              }
-              if (matchingPS) {
-                setSelectedProductionSeries(matchingPS);
-              } else {
-                setSelectedProductionSeries({
-                  id: newValue.prodSeriesId,
-                  productionSeries: newValue.productionSeries || "",
+      {/* Single Consolidated Container with Dividers */}
+      <Paper
+        elevation={0}
+        sx={{
+          borderRadius: "12px",
+          border: "1px solid #EAECF0",
+          backgroundColor: "#FFFFFF",
+          boxShadow: "0 1px 3px rgba(16, 24, 40, 0.05)",
+          overflow: "hidden",
+        }}
+      >
+        {/* Filter Controls Bar */}
+        <PrecheckFormControls
+          selectedPO={selectedPO}
+          poNumbers={poNumbers}
+          poLoading={poLoading}
+          onPOSearchChange={(inputValue) => setPOSearchText(inputValue)}
+          onPOChange={(newValue) => {
+            isClearedRef.current = false;
+            if (newValue) {
+              setSelectedPO(newValue);
+              // Auto-fill form fields from PO using precise drawing matching
+              const matchingDrawing = findMatchingDrawingInList(allDrawingNumbers, newValue);
+              if (matchingDrawing) {
+                setSelectedDrawing(matchingDrawing);
+              } else if (newValue.drawingNumberId || newValue.drawingNumber || newValue.lnItemCode) {
+                setSelectedDrawing({
+                  id: newValue.drawingNumberId,
+                  drawingNumber: newValue.drawingNumber || "",
+                  lnItemCode: newValue.lnItemCode || "",
+                  nomenclature: newValue.nomenclature || "",
+                  componentType: newValue.componentType || "",
                 });
               }
+
+              if (newValue.productionSeries || newValue.prodSeriesId) {
+                let matchingPS = null;
+                if (productionSeriesData && productionSeriesData.length > 0) {
+                  matchingPS = productionSeriesData.find(
+                    (ps: any) =>
+                      (newValue.prodSeriesId && ps.id === newValue.prodSeriesId) ||
+                      (ps.productionSeries && newValue.productionSeries && String(ps.productionSeries).trim().toLowerCase() === String(newValue.productionSeries).trim().toLowerCase()),
+                  );
+                }
+                if (matchingPS) {
+                  setSelectedProductionSeries(matchingPS);
+                } else {
+                  setSelectedProductionSeries({
+                    id: newValue.prodSeriesId,
+                    productionSeries: newValue.productionSeries || "",
+                  });
+                }
+              }
+
+              if (newValue.startIdNumber !== undefined && newValue.startIdNumber !== null) {
+                setIdNumber(newValue.startIdNumber.toString());
+              }
+            } else {
+              setSelectedPO(null);
+              setSelectedDrawing(null);
+              setSelectedProductionSeries(null);
+              setIdNumber("");
             }
+          }}
+          selectedDrawing={selectedDrawing}
+          allDrawingNumbers={allDrawingNumbers}
+          drawingNumbersData={drawingNumbersData}
+          drawingLoading={drawingLoading}
+          isLnSearchLoading={isLnSearchLoading}
+          onLnSearchChange={(value) => updateDebouncedLnSearch(value)}
+          onDrawingSearchChange={(value) => debouncedDrawingSearch(value)}
+          onDrawingChange={(value) => setSelectedDrawing(value)}
+          selectedProductionSeries={selectedProductionSeries}
+          productionSeriesData={productionSeriesData}
+          prodSeriesLoading={prodSeriesLoading}
+          onProdSeriesSearchChange={() => debouncedProdSeriesSearch()}
+          onProdSeriesChange={(value) => setSelectedProductionSeries(value)}
+          idNumber={idNumber}
+          idOptions={idOptions}
+          onIdNumberChange={(val) => setIdNumber(val)}
+          onIdInputChange={(val) => setIdNumber(val)}
+          onApply={handleMakePrecheck}
+          onClear={handleReset}
+          isApplyEnabled={isMakePrecheckEnabled}
+          onReset={handleReset}
+          showAlertMessage={showAlertMessage}
+          selectedPOEndIdNumber={selectedPO?.endIdNumber}
+          selectedPOStartIdNumber={selectedPO?.startIdNumber}
+          selectedPOQuantity={selectedPO?.quantity}
+          isSubmitEnabled={isSubmitEnabled}
+          onExport={handleExport}
+          isSidebarOpen={isSidebarOpen}
+        />
 
-            if (newValue.startIdNumber !== undefined && newValue.startIdNumber !== null) {
-              setIdNumber(newValue.startIdNumber.toString());
-            }
-          } else {
-            setSelectedPO(null);
-            setSelectedDrawing(null);
-            setSelectedProductionSeries(null);
-            setIdNumber("");
-          }
-        }}
-        selectedDrawing={selectedDrawing}
-        allDrawingNumbers={allDrawingNumbers}
-        drawingNumbersData={drawingNumbersData}
-        drawingLoading={drawingLoading}
-        isLnSearchLoading={isLnSearchLoading}
-        onLnSearchChange={(value) => updateDebouncedLnSearch(value)}
-        onDrawingSearchChange={(value) => debouncedDrawingSearch(value)}
-        onDrawingChange={(value) => setSelectedDrawing(value)}
-        selectedProductionSeries={selectedProductionSeries}
-        productionSeriesData={productionSeriesData}
-        prodSeriesLoading={prodSeriesLoading}
-        onProdSeriesSearchChange={() => debouncedProdSeriesSearch()}
-        onProdSeriesChange={(value) => setSelectedProductionSeries(value)}
-        idNumber={idNumber}
-        idOptions={idOptions}
-        onIdNumberChange={(val) => setIdNumber(val)}
-        onIdInputChange={(val) => setIdNumber(val)}
-        onApply={handleMakePrecheck}
-        onClear={handleReset}
-        isApplyEnabled={isMakePrecheckEnabled}
-        onReset={handleReset}
-        showAlertMessage={showAlertMessage}
-        selectedPOEndIdNumber={selectedPO?.endIdNumber}
-        selectedPOStartIdNumber={selectedPO?.startIdNumber}
-        selectedPOQuantity={selectedPO?.quantity}
-        isSubmitEnabled={isSubmitEnabled}
-        filterRemainingOnly={filterRemainingOnly}
-        onToggleFilter={() => setFilterRemainingOnly(!filterRemainingOnly)}
-        onExport={handleExport}
-        isSidebarOpen={isSidebarOpen}
-      />
+        <Divider sx={{ borderColor: "#EAECF0" }} />
 
-      {/* Action Bar + Header + Scanner Hero Panel */}
-      <PrecheckActionBar
-        barcodeText={barcodeText}
-        isSidebarOpen={isSidebarOpen}
-        showResults={showResults}
-        searchResultsLength={searchResults.length}
-        isMakePrecheckEnabled={isMakePrecheckEnabled}
-        isSubmitEnabled={isSubmitEnabled}
-        isLoadingLocal={isLoadingLocal}
-        uploadInProgress={uploadInProgress}
-        downloadTemplateInProgress={downloadTemplateInProgress}
-        idOptionsLength={idOptions.length}
-        selectedDrawingNumber={selectedDrawing?.drawingNumber || ""}
-        selectedProductionSeries={selectedProductionSeries?.productionSeries || ""}
-        idNumber={idNumber}
-        selectedPONumber={selectedPO?.productionOrderNumber || ""}
-        selectedLnItemCode={selectedDrawing?.lnItemCode || ""}
-        searchResults={searchResults}
-        filterRemainingOnly={filterRemainingOnly}
-        onToggleFilter={() => setFilterRemainingOnly(!filterRemainingOnly)}
-        onExport={handleExport}
-        onReset={handleReset}
-        onBarcodeChange={handleBarcodeChange}
-        onBarcodeKeyDown={handleBarcodeKeyDown}
-        onOpenScanner={handleOpenScanner}
-        onUploadExcel={() => excelFileInputRef.current?.click()}
-        onDownloadTemplate={handleDownloadTemplate}
-        onMakePrecheck={handleMakePrecheck}
-        onSubmitPrecheck={handleSubmitPrecheck}
-        onReject={() => navigate("/verification/material-requisition")}
-        isAdminOrHead={isAdminOrHead}
-        isAddEnabled={isSubmitEnabled}
-        onAddBomDrawingClick={() => setAddBomDrawingOpen(true)}
-      />
+        {/* Action Bar + Header + Scanner Hero Panel */}
+        <PrecheckActionBar
+          barcodeText={barcodeText}
+          isSidebarOpen={isSidebarOpen}
+          showResults={showResults}
+          searchResultsLength={searchResults.length}
+          isMakePrecheckEnabled={isMakePrecheckEnabled}
+          isSubmitEnabled={isSubmitEnabled}
+          isLoadingLocal={isLoadingLocal}
+          uploadInProgress={uploadInProgress}
+          downloadTemplateInProgress={downloadTemplateInProgress}
+          idOptionsLength={idOptions.length}
+          selectedDrawingNumber={selectedDrawing?.drawingNumber || ""}
+          selectedProductionSeries={selectedProductionSeries?.productionSeries || ""}
+          idNumber={idNumber}
+          selectedPONumber={selectedPO?.productionOrderNumber || ""}
+          selectedLnItemCode={selectedDrawing?.lnItemCode || ""}
+          searchResults={searchResults}
+          onExport={handleExport}
+          onReset={handleReset}
+          onBarcodeChange={handleBarcodeChange}
+          onBarcodeKeyDown={handleBarcodeKeyDown}
+          onOpenScanner={handleOpenScanner}
+          onUploadExcel={() => excelFileInputRef.current?.click()}
+          onDownloadTemplate={handleDownloadTemplate}
+          onMakePrecheck={handleMakePrecheck}
+          onSubmitPrecheck={handleSubmitPrecheck}
+          onReject={() => navigate("/verification/material-requisition")}
+          isAdminOrHead={isAdminOrHead}
+          isAddEnabled={isSubmitEnabled}
+          onAddBomDrawingClick={() => setAddBomDrawingOpen(true)}
+        />
 
-      {/* BOM Details Table */}
-      <PrecheckTable
-        paginatedResults={paginatedResults}
-        filteredResults={filteredResults}
-        searchResults={searchResults}
-        isLoading={isLoadingLocal}
-        showResults={showResults}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        selectedRow={selectedRow}
-        expandedRows={expandedRows}
-        maxPrecheckDetailsIdMap={maxPrecheckDetailsIdMap}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
-        onRowExpand={handleRowExpand}
-        onRowDoubleClick={handleRowDoubleClick}
-        onAddRow={handleAddRow}
-        onEditClick={handleEditClick}
-        onUndoScan={handleUndoScan}
-        onRemarksChange={handleRemarksChange}
-        onUndoPrecheck={handleRemovePrecheck}
-        onDeletePrecheck={handleDeletePrecheck}
-        orderBy={orderBy}
-        order={order}
-        onRequestSort={handleRequestSort}
-        onExportBom={handleExport}
-        isExportEnabled={isSubmitEnabled}
-        filterRemainingOnly={filterRemainingOnly}
-        onToggleFilter={() => setFilterRemainingOnly(!filterRemainingOnly)}
-      />
+        <Divider sx={{ borderColor: "#EAECF0" }} />
+
+        {/* BOM Details Table */}
+        <PrecheckTable
+          paginatedResults={paginatedResults}
+          filteredResults={filteredResults}
+          searchResults={searchResults}
+          isLoading={isLoadingLocal}
+          showResults={showResults}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          selectedRow={selectedRow}
+          expandedRows={expandedRows}
+          maxPrecheckDetailsIdMap={maxPrecheckDetailsIdMap}
+          onChangePage={handleChangePage}
+          onChangeRowsPerPage={handleChangeRowsPerPage}
+          onRowExpand={handleRowExpand}
+          onRowDoubleClick={handleRowDoubleClick}
+          onAddRow={handleAddRow}
+          onEditClick={handleEditClick}
+          onUndoScan={handleUndoScan}
+          onRemarksChange={handleRemarksChange}
+          onUndoPrecheck={handleRemovePrecheck}
+          onDeletePrecheck={handleDeletePrecheck}
+          onRejectClick={(item) => {
+            setSelectedRowForMaterialReq(item);
+            setMaterialReqDialogOpen(true);
+          }}
+          orderBy={orderBy}
+          order={order}
+          onRequestSort={handleRequestSort}
+          onExportBom={handleExport}
+          isExportEnabled={isSubmitEnabled}
+          selectedStatus={selectedStatus}
+          onStatusChange={handleStatusChange}
+        />
+      </Paper>
 
       {/* Quantity Dialog */}
       <QuantityDialog
@@ -1921,6 +1967,36 @@ const MakePrecheck: React.FC = () => {
           showAlertMessage(msg || "BOM drawing item added successfully!", "success");
           if (hasLoadedData && selectedDrawing && selectedProductionSeries && idNumber) {
             executeMakePrecheck();
+          }
+        }}
+      />
+
+      {/* Add Material Requisition Dialog */}
+      <AddMaterialRequisitionDialog
+        open={materialReqDialogOpen}
+        selectedRow={selectedRowForMaterialReq}
+        selectedPO={selectedPO}
+        selectedProductionSeries={selectedProductionSeries}
+        allDrawingNumbers={allDrawingNumbers}
+        poNumbersData={poNumbers}
+        productionSeriesData={productionSeriesData}
+        onClose={() => {
+          setMaterialReqDialogOpen(false);
+          setSelectedRowForMaterialReq(null);
+        }}
+        onSubmit={async (payload) => {
+          try {
+            await dispatch(createMaterialRequisition(payload)).unwrap();
+            showAlertMessage("Material Requisition created successfully!", "success");
+            setMaterialReqDialogOpen(false);
+            setSelectedRowForMaterialReq(null);
+            if (hasLoadedData && selectedDrawing && selectedProductionSeries && idNumber) {
+              executeMakePrecheck();
+            }
+          } catch (err: any) {
+            console.error("Error creating material requisition:", err);
+            showAlertMessage(getErrorMessage(err, "Failed to create material requisition"), "error");
+            throw err;
           }
         }}
       />
@@ -2023,7 +2099,13 @@ const MakePrecheck: React.FC = () => {
             pb: 1,
           }}
         >
-          Export Precheck Details
+          <Box display="flex" alignItems="center" gap={1}>
+            <FileDownloadIcon sx={{ color: "primary.main" }} />
+            <Typography variant="h6" fontWeight="700" color="primary.main">
+              Export Production Order 
+            </Typography>
+          </Box>
+         
           <IconButton size="small" onClick={() => setExportDialogOpen(false)}>
             <CloseIcon />
           </IconButton>
@@ -2118,32 +2200,22 @@ const MakePrecheck: React.FC = () => {
         </DialogContent>
 
         <DialogActions sx={{ px: 3, py: 2 }}>
-          <Button
-            variant="outlined"
-            color="inherit"
-            size="small"
+          <ActionButton
+            variant="secondary"
+            size="compact"
             onClick={() => setExportDialogOpen(false)}
-            sx={{ minWidth: 110, fontWeight: 600, borderRadius: "8px", textTransform: "none" }}
           >
             Cancel
-          </Button>
-          <Button
-            variant="contained"
-            size="small"
+          </ActionButton>
+          <ActionButton
+            variant="primary"
+            size="compact"
             startIcon={<FileDownloadIcon fontSize="small" />}
             onClick={handleConfirmExportData}
             disabled={exportMode === "custom" && selectedExportColumns.length === 0}
-            sx={{
-              minWidth: 110,
-              fontWeight: 600,
-              borderRadius: "8px",
-              textTransform: "none",
-              backgroundColor: "primary.main",
-              "&:hover": { backgroundColor: "primary.dark" },
-            }}
           >
             Export
-          </Button>
+          </ActionButton>
         </DialogActions>
       </Dialog>
     </Box>
