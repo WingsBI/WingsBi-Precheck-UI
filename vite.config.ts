@@ -8,7 +8,6 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@chatbot': path.resolve(__dirname, '../Wingsbi-Precheck-Assistant-Web/src/widget.jsx'),
     },
   },
   publicDir: 'public',
