@@ -16,8 +16,10 @@ injectStore(store);
 const script = document.createElement('script');
 script.src = 'https://precheck-ai-assistant-etd4dvdwanc6hfb2.centralindia-01.azurewebsites.net/my-chatbot.iife.js';
 script.onload = () => {
-  if ((window as any).MyChatbot) {
-    (window as any).MyChatbot.init({
+  const mod = (window as any).MyChatbot;
+  const chatbot = mod?.default || mod?.MyChatbot || mod;
+  if (chatbot?.init) {
+    chatbot.init({
       chatApiUrl: import.meta.env.VITE_API_BASE_URL,
       position: 'bottom-right',
       autoOpen: false,
