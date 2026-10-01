@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import ActionButton from "../../components/ui/ActionButton";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { register } from "../../store/slices/authSlice";
 import { useDepartments, useUserRoles, useSecurityQuestions, usePlants } from "../../hooks/useMasterData";
 import { CustomMessageBox } from "../../utils/notifications";
@@ -66,6 +67,21 @@ const getFieldError = (
 ): string => {
   if (!touched || !error) return "";
   return error;
+};
+
+const commonSelectProps = {
+  MenuProps: {
+    PaperProps: {
+      sx: {
+        maxHeight: 260,
+        width: "0 !important",
+        "& .MuiMenuItem-root": {
+          whiteSpace: "normal",
+          wordBreak: "break-word",
+        },
+      },
+    },
+  },
 };
 
 const Register = () => {
@@ -242,7 +258,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Username
+                    <RequiredLabel text="Username" required />
                   </Typography>
                   <TextField
                     fullWidth
@@ -285,7 +301,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Email
+                    <RequiredLabel text="Email" required />
                   </Typography>
                   <TextField
                     fullWidth
@@ -326,7 +342,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    User ID
+                    <RequiredLabel text="User ID" required />
                   </Typography>
                   <TextField
                     fullWidth
@@ -369,7 +385,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Security Question
+                    <RequiredLabel text="Security Question" required />
                   </Typography>
                   <TextField
                     select
@@ -377,6 +393,7 @@ const Register = () => {
                     size="small"
                     id="securityQuestion"
                     name="securityQuestion"
+                    SelectProps={commonSelectProps}
                     value={formik.values.securityQuestion}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -419,7 +436,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Password
+                    <RequiredLabel text="Password" required />
                   </Typography>
                   <TextField
                     fullWidth
@@ -481,7 +498,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Role
+                    <RequiredLabel text="Role" required />
                   </Typography>
                   <TextField
                     select
@@ -489,6 +506,7 @@ const Register = () => {
                     size="small"
                     id="role"
                     name="role"
+                    SelectProps={commonSelectProps}
                     value={formik.values.role}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -530,7 +548,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Department
+                    <RequiredLabel text="Department" required />
                   </Typography>
                   <TextField
                     select
@@ -538,6 +556,7 @@ const Register = () => {
                     size="small"
                     id="department"
                     name="department"
+                    SelectProps={commonSelectProps}
                     value={formik.values.department}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -582,7 +601,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Plant
+                    <RequiredLabel text="Plant" required />
                   </Typography>
                   <TextField
                     select
@@ -590,6 +609,7 @@ const Register = () => {
                     size="small"
                     id="plant"
                     name="plant"
+                    SelectProps={commonSelectProps}
                     value={formik.values.plant}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -629,7 +649,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Security Answer
+                    <RequiredLabel text="Security Answer" required />
                   </Typography>
                   <TextField
                     fullWidth
@@ -673,7 +693,7 @@ const Register = () => {
                       mb: 0.5,
                     }}
                   >
-                    Confirm Password
+                    <RequiredLabel text="Confirm Password" required />
                   </Typography>
                   <TextField
                     fullWidth

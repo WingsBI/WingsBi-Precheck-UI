@@ -505,7 +505,7 @@ export default function InsertMappings() {
         }}
       >
         <PageHeader
-          title={isEditMode ? "Update Component" : "Add Component"}
+          title={isEditMode ? "Edit Component" : "Add Component"}
           onBack={() => navigate(-1)}
         />
 
@@ -815,8 +815,8 @@ export default function InsertMappings() {
                         size="small"
                       //disabled={!selectedDrawing}
                       >
-                        <InputLabel shrink>Component Type</InputLabel>
-                        <Select {...field} label="Component Type">
+                        <InputLabel id="component-type-select-label">Component Type</InputLabel>
+                        <Select {...field} labelId="component-type-select-label" label="Component Type">
                           <MenuItem value="">
                             <em>None</em>
                           </MenuItem>
@@ -872,8 +872,8 @@ export default function InsertMappings() {
                         fullWidth
                         size="small"
                       >
-                        <InputLabel shrink>Document Type</InputLabel>
-                        <Select {...field} label="Document Type">
+                        <InputLabel id="document-type-select-label">Document Type</InputLabel>
+                        <Select {...field} labelId="document-type-select-label" label="Document Type">
                           <MenuItem value="">
                             <em>None</em>
                           </MenuItem>
@@ -1061,8 +1061,8 @@ export default function InsertMappings() {
                         fullWidth
                         size="small"
                       >
-                        <InputLabel shrink>Unit</InputLabel>
-                        <Select {...field} label="Unit">
+                        <InputLabel id="unit-name-select-label">Unit</InputLabel>
+                        <Select {...field} labelId="unit-name-select-label" label="Unit">
                           <MenuItem value="">
                             <em>None</em>
                           </MenuItem>

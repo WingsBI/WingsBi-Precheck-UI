@@ -2,18 +2,18 @@ import { Provider } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { theme } from './theme/theme';
 import { store } from './store/store';
+import type { AppDispatch, RootState } from './store/store';
 // Removed initializeAuth to prevent auto-login from cookies/localStorage
 import AppRoutes from './routes';
 import { cookieUtils } from './utils/cookieUtils';
 import { decodeJwt } from './utils/jwtUtils';
 import { setAuthFromStorage } from './store/slices/authSlice';
-import type { AppDispatch } from './store/store';
 
 // Create QueryClient for TanStack Query
 const queryClient = new QueryClient({
@@ -31,6 +31,7 @@ const queryClient = new QueryClient({
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [bootstrapped, setBootstrapped] = useState(false);
+  const token = useSelector((state: RootState) => state.auth.user?.token) || cookieUtils.getToken() || null;
 
   useEffect(() => {
     try {
@@ -45,13 +46,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         sessionStorage.setItem(SESSION_SENTINEL_KEY, '1');
       }
 
-      const token = cookieUtils.getToken();
-      if (token) {
-        const decoded: any = decodeJwt(token);
+      const currentToken = cookieUtils.getToken();
+      if (currentToken) {
+        const decoded: any = decodeJwt(currentToken);
         const now = Date.now() / 1000;
         if (decoded?.exp && decoded.exp > now) {
           dispatch(setAuthFromStorage({
-            token,
+            token: currentToken,
             id: decoded.id,
             userid: decoded.userid,
             username: decoded.username,
@@ -68,6 +69,25 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setBootstrapped(true);
     }
   }, [dispatch]);
+
+  // Open chatbot when authenticated, close & destroy on logout
+  useEffect(() => {
+    if (!bootstrapped) return;
+
+    const mod = (window as any).MyChatbot;
+    const chatbot = mod?.default || mod?.MyChatbot || mod;
+
+    if (token) {
+      if (chatbot && typeof chatbot.open === 'function') {
+        chatbot.open();
+      }
+    } else {
+      if (chatbot) {
+        if (typeof chatbot.close === 'function') chatbot.close();
+        if (typeof chatbot.destroy === 'function') chatbot.destroy();
+      }
+    }
+  }, [token, bootstrapped]);
 
   // Add visibility change listener to track tab switching
   useEffect(() => {

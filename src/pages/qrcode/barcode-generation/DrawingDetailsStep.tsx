@@ -576,13 +576,12 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel id="id-unit-label" shrink>
+                  <InputLabel id="id-unit-label">
                     <RequiredLabel text="Unit" required />
                   </InputLabel>
                   <Select
                     {...field}
                     labelId="id-unit-label"
-                    notched
                     value={currentUnitVal}
                     label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {
@@ -1026,13 +1025,12 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel id="fim-unit-label" shrink>
+                  <InputLabel id="fim-unit-label">
                     <RequiredLabel text="Unit" required />
                   </InputLabel>
                   <Select
                     {...field}
                     labelId="fim-unit-label"
-                    notched
                     value={currentUnitVal}
                     label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {
@@ -1487,13 +1485,12 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel id="si-unit-label" shrink>
+                  <InputLabel id="si-unit-label">
                     <RequiredLabel text="Unit" required />
                   </InputLabel>
                   <Select
                     {...field}
                     labelId="si-unit-label"
-                    notched
                     value={currentUnitVal}
                     label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {

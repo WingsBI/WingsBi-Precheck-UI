@@ -26,12 +26,16 @@ script.onload = () => {
       showLauncher: false,
       getAuthToken: () => cookieUtils.getToken() || null,
       themeOverrides: {
-        primaryColor: '#7c3aed',
-        secondaryColor: '#ec4899',
-        gradient: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)',
+        primaryColor: '#6D2A8F',
+        secondaryColor: '#D82578',
+        gradient: 'linear-gradient(135deg, #6D2A8F 0%, #D82578 100%)',
         fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }
     });
+    const token = cookieUtils.getToken();
+    if (token && typeof chatbot.open === 'function') {
+      chatbot.open();
+    }
   }
 };
 document.body.appendChild(script);

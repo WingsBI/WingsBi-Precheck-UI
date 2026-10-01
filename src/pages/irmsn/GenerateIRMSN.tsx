@@ -590,13 +590,11 @@ export default function GenerateIRMSN() {
   const requiredFields =
     formMode === "ManufacturingItem"
       ? [
-        !!documentType,
         !!watchedPoNumber,
         !!watchedIdRange,
         !!watchedStage,
       ]
       : [
-        !!documentType,
         !!watch("drawingNumber"),
         !!watchedIdRange,
         !!watchedStage,
@@ -833,13 +831,12 @@ export default function GenerateIRMSN() {
           <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap" sx={{ mb: 1.5 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Typography variant="body2" sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
-                <RequiredLabel text="Document type" required />
+                <RequiredLabel text="Document type" required={false} />
               </Typography>
             </Box>
             <Controller
               name="documentType"
               control={control}
-              rules={{ required: "Document type is required" }}
               render={({ field }) => (
                 <RadioGroup
                   row

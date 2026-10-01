@@ -1706,7 +1706,7 @@ const MaterialRequisition: React.FC = () => {
                               label="MIN Date"
                               variant="outlined"
                               type="date"
-                              
+                              InputLabelProps={{ shrink: true }}
                             />
                           )}
                         />
@@ -2618,7 +2618,7 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Assembly Production Series *"
+                      label={<RequiredLabel text="Assembly Production Series" required />}
                       fullWidth
                       placeholder="Enter Assembly Production Series"
                     />
@@ -2630,7 +2630,7 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="Assembly ID Number *"
+                  label={<RequiredLabel text="Assembly ID Number" required />}
                   type="text"
                   value={newRequisition.idNumber || ""}
                   onChange={(e) => {
