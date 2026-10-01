@@ -23,6 +23,7 @@ import {
   MenuItem,
   Collapse,
 
+  Button,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -166,6 +167,34 @@ const LogoBox = styled(Box, {
 
 const STORE_ROLE = "Store";
 
+const RobotLogoIcon = (props: { sx?: any }) => (
+  <Box
+    component="svg"
+    viewBox="0 0 80 80"
+    sx={{
+      width: 18,
+      height: 18,
+      display: "inline-block",
+      flexShrink: 0,
+      overflow: "visible",
+      ...props.sx,
+    }}
+  >
+    <g>
+      <line x1="40" y1="8" x2="40" y2="18" stroke="#6D2A8F" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="40" cy="7" r="3" fill="#F5A524" />
+      <rect x="7" y="34" width="6" height="16" rx="3" fill="#6D2A8F" opacity=".85" />
+      <rect x="67" y="34" width="6" height="16" rx="3" fill="#6D2A8F" opacity=".85" />
+      <rect x="12" y="18" width="56" height="46" rx="16" fill="#6D2A8F" />
+      <rect x="19" y="26" width="42" height="30" rx="11" fill="#1E1B3A" />
+      <g>
+        <rect x="28" y="34" width="7" height="11" rx="3.5" fill="#F6D3F5" />
+        <rect x="45" y="34" width="7" height="11" rx="3.5" fill="#F6D3F5" />
+      </g>
+      <path d="M35 50 Q40 53 45 50" stroke="#F6D3F5" strokeWidth="2" fill="none" strokeLinecap="round" />
+    </g>
+  </Box>
+);
 
 export default function Layout() {
   const theme = useTheme();
@@ -497,6 +526,26 @@ export default function Layout() {
     dispatch(clearSopData());
     navigate("/login");
     handleProfileMenuClose();
+  };
+
+  const handleAskAIClick = () => {
+    const chatbot = (window as any).MyChatbot || (window as any).WiBiChatbot;
+    if (chatbot && typeof chatbot.open === "function") {
+      chatbot.open();
+    } else if (chatbot && typeof chatbot.toggle === "function") {
+      chatbot.toggle();
+    } else {
+      const widget = document.getElementById("wibi-chatbot-widget") || document.querySelector(".wibi-chatbot-widget");
+      if (widget) {
+        widget.classList.add("open", "is-open");
+        (widget as HTMLElement).style.setProperty("display", "block", "important");
+        (widget as HTMLElement).style.setProperty("opacity", "1", "important");
+        (widget as HTMLElement).style.setProperty("visibility", "visible", "important");
+        (widget as HTMLElement).style.setProperty("pointer-events", "auto", "important");
+      } else {
+        console.warn("[WingsBi Precheck] Chatbot widget is loading or not initialized yet.");
+      }
+    }
   };
 
   const drawerContent = (isDesktopVersion: boolean = false) => (
@@ -881,6 +930,55 @@ export default function Layout() {
           </Box>
           <Box sx={{ flexGrow: 1 }} />
 
+          {/* AI Assist Button */}
+          <Button
+            onClick={handleAskAIClick}
+            size="small"
+            startIcon={
+              <RobotLogoIcon
+                sx={{
+                  mr: -0.2,
+                }}
+              />
+            }
+            sx={{
+              backgroundColor: "#ffffff",
+              color: "#6D2A8F",
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: "0.8rem",
+              borderRadius: "50px",
+              px: 1.4,
+              py: "2px",
+              height: "28px",
+              minHeight: "unset",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.12)",
+              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              border: "2px solid transparent",
+              "&:hover": {
+                backgroundColor: "#ffffff",
+                boxShadow: "0 0 0 3.5px rgba(255, 255, 255, 0.45), 0 3px 10px rgba(0, 0, 0, 0.18)",
+                transform: "translateY(-1px)",
+              },
+              "&:active": {
+                transform: "translateY(0)",
+                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.5)",
+              },
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                background: "linear-gradient(90deg, #6D2A8F 0%, #D82578 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: 700,
+                letterSpacing: "0.2px",
+              }}
+            >
+              AI Assist
+            </Box>
+          </Button>
         </Toolbar>
       </StyledAppBar>
 
