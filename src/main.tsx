@@ -32,9 +32,15 @@ script.onload = () => {
         fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }
     });
+
+    const publicAuthRoutes = ['/login', '/register', '/forget-password', '/forgot-password'];
+    const isAuthPage = publicAuthRoutes.includes(window.location.pathname.toLowerCase());
     const token = cookieUtils.getToken();
-    if (token && typeof chatbot.open === 'function') {
-      chatbot.open();
+
+    if (token && !isAuthPage) {
+      if (typeof chatbot.open === 'function') chatbot.open();
+    } else {
+      if (typeof chatbot.close === 'function') chatbot.close();
     }
   }
 };
