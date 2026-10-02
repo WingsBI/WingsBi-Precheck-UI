@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -30,6 +31,7 @@ const queryClient = new QueryClient({
 // Rehydrate auth from session cookie on first load (not persistent across browser restarts)
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
   const [bootstrapped, setBootstrapped] = useState(false);
   const token = useSelector((state: RootState) => state.auth.user?.token) || cookieUtils.getToken() || null;
 
@@ -70,24 +72,43 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [dispatch]);
 
-  // Open chatbot when authenticated, close & destroy on logout
+  // Open chatbot when authenticated & on non-auth page, close & hide on auth pages / unauthenticated
   useEffect(() => {
     if (!bootstrapped) return;
 
-    const mod = (window as any).MyChatbot;
-    const chatbot = mod?.default || mod?.MyChatbot || mod;
+    const publicAuthRoutes = ['/login', '/register', '/forget-password', '/forgot-password'];
+    const isAuthPage = publicAuthRoutes.includes(location.pathname.toLowerCase());
 
-    if (token) {
-      if (chatbot && typeof chatbot.open === 'function') {
-        chatbot.open();
+    const updateVisibility = () => {
+      const mod = (window as any).MyChatbot;
+      const chatbot = mod?.default || mod?.MyChatbot || mod;
+      const widget = document.getElementById("wibi-chatbot-widget") || document.querySelector(".wibi-chatbot-widget");
+
+      if (token && !isAuthPage) {
+        if (chatbot && typeof chatbot.open === 'function') {
+          chatbot.open();
+        }
+        if (widget) {
+          (widget as HTMLElement).style.setProperty("display", "block", "important");
+          (widget as HTMLElement).style.setProperty("visibility", "visible", "important");
+        }
+      } else {
+        if (chatbot && typeof chatbot.close === 'function') {
+          chatbot.close();
+        }
+        if (widget) {
+          (widget as HTMLElement).style.setProperty("display", "none", "important");
+          (widget as HTMLElement).style.setProperty("visibility", "hidden", "important");
+        }
       }
-    } else {
-      if (chatbot) {
-        if (typeof chatbot.close === 'function') chatbot.close();
-        if (typeof chatbot.destroy === 'function') chatbot.destroy();
-      }
-    }
-  }, [token, bootstrapped]);
+    };
+
+    updateVisibility();
+
+    // Backup check to handle asynchronous script initialization delay
+    const timer = setTimeout(updateVisibility, 800);
+    return () => clearTimeout(timer);
+  }, [token, bootstrapped, location.pathname]);
 
   // Add visibility change listener to track tab switching
   useEffect(() => {
