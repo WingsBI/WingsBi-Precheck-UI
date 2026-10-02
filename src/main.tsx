@@ -41,11 +41,6 @@ script.onload = () => {
       if (typeof chatbot.open === 'function') chatbot.open();
     } else {
       if (typeof chatbot.close === 'function') chatbot.close();
-      const widget = document.getElementById("wibi-chatbot-widget") || document.querySelector(".wibi-chatbot-widget");
-      if (widget) {
-        (widget as HTMLElement).style.setProperty("display", "none", "important");
-        (widget as HTMLElement).style.setProperty("visibility", "hidden", "important");
-      }
     }
   }
 };

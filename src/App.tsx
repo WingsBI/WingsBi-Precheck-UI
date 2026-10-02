@@ -82,23 +82,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const updateVisibility = () => {
       const mod = (window as any).MyChatbot;
       const chatbot = mod?.default || mod?.MyChatbot || mod;
-      const widget = document.getElementById("wibi-chatbot-widget") || document.querySelector(".wibi-chatbot-widget");
 
       if (token && !isAuthPage) {
         if (chatbot && typeof chatbot.open === 'function') {
           chatbot.open();
         }
-        if (widget) {
-          (widget as HTMLElement).style.setProperty("display", "block", "important");
-          (widget as HTMLElement).style.setProperty("visibility", "visible", "important");
-        }
       } else {
         if (chatbot && typeof chatbot.close === 'function') {
           chatbot.close();
-        }
-        if (widget) {
-          (widget as HTMLElement).style.setProperty("display", "none", "important");
-          (widget as HTMLElement).style.setProperty("visibility", "hidden", "important");
         }
       }
     };
