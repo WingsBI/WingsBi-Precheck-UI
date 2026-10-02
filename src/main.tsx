@@ -37,9 +37,7 @@ script.onload = () => {
     const isAuthPage = publicAuthRoutes.includes(window.location.pathname.toLowerCase());
     const token = cookieUtils.getToken();
 
-    if (token && !isAuthPage) {
-      if (typeof chatbot.open === 'function') chatbot.open();
-    } else {
+    if (!token || isAuthPage) {
       if (typeof chatbot.close === 'function') chatbot.close();
     }
   }

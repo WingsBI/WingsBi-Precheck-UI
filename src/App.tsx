@@ -72,33 +72,20 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [dispatch]);
 
-  // Open chatbot when authenticated & on non-auth page, close & hide on auth pages / unauthenticated
+  // Close chatbot when unauthenticated or on public auth routes
   useEffect(() => {
     if (!bootstrapped) return;
 
     const publicAuthRoutes = ['/login', '/register', '/forget-password', '/forgot-password'];
     const isAuthPage = publicAuthRoutes.includes(location.pathname.toLowerCase());
 
-    const updateVisibility = () => {
+    if (!token || isAuthPage) {
       const mod = (window as any).MyChatbot;
       const chatbot = mod?.default || mod?.MyChatbot || mod;
-
-      if (token && !isAuthPage) {
-        if (chatbot && typeof chatbot.open === 'function') {
-          chatbot.open();
-        }
-      } else {
-        if (chatbot && typeof chatbot.close === 'function') {
-          chatbot.close();
-        }
+      if (chatbot && typeof chatbot.close === 'function') {
+        chatbot.close();
       }
-    };
-
-    updateVisibility();
-
-    // Backup check to handle asynchronous script initialization delay
-    const timer = setTimeout(updateVisibility, 800);
-    return () => clearTimeout(timer);
+    }
   }, [token, bootstrapped, location.pathname]);
 
   // Add visibility change listener to track tab switching
