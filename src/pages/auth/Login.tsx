@@ -60,6 +60,11 @@ const Login: React.FC = () => {
 
         if (login.fulfilled.match(resultAction)) {
           console.log("Login successful, navigating to dashboard");
+          const mod = (window as any).MyChatbot;
+          const chatbot = mod?.default || mod?.MyChatbot || mod;
+          if (chatbot && typeof chatbot.open === "function") {
+            chatbot.open();
+          }
           navigate("/dashboard", { replace: true });
         } else if (login.rejected.match(resultAction)) {
           console.log("Login failed:", resultAction.payload);
