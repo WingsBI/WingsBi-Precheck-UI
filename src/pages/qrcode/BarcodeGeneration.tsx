@@ -427,7 +427,7 @@ export default function BarcodeGeneration() {
       poNumber: "",
       projectNumber: "",
       mrirNumber: "",
-      desposition: "" as any,
+      desposition: "Accepted",
       location: "",
       partAssemblyId: "",
       remark: "",
@@ -593,9 +593,6 @@ export default function BarcodeGeneration() {
 
     // 6. MFG Date (required for all)
     if (!watchMfgDate) count++;
-
-    // 7. Disposition (required for all)
-    if (!watchDesposition) count++;
 
     // 8. ID Range / Matrix Table specific checks
     if (componentType === "ID") {
@@ -1154,7 +1151,7 @@ export default function BarcodeGeneration() {
       poNumber: "",
       projectNumber: "",
       mrirNumber: "",
-      desposition: "" as any,
+      desposition: "Accepted",
       location: "",
       partAssemblyId: "",
       remark: "",
@@ -1245,7 +1242,7 @@ export default function BarcodeGeneration() {
       poNumber: "",
       projectNumber: "",
       mrirNumber: "",
-      desposition: "" as any,
+      desposition: "Accepted",
       location: "",
       partAssemblyId: "",
       remark: "",

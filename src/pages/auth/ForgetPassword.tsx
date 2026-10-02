@@ -15,10 +15,26 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import ActionButton from "../../components/ui/ActionButton";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { useSecurityQuestions } from "../../hooks/useMasterData";
 import { forgetPassword } from "../../store/slices/authSlice";
 import { CustomMessageBox } from "../../utils/notifications";
 import type { RootState } from "../../store/store";
+
+const commonSelectProps = {
+  MenuProps: {
+    PaperProps: {
+      sx: {
+        maxHeight: 260,
+        width: "0 !important",
+        "& .MuiMenuItem-root": {
+          whiteSpace: "normal",
+          wordBreak: "break-word",
+        },
+      },
+    },
+  },
+};
 
 const ForgetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -222,7 +238,7 @@ const ForgetPassword: React.FC = () => {
                   mb: 0.75,
                 }}
               >
-                User ID
+                <RequiredLabel text="User ID" required />
               </Typography>
               <TextField
                 fullWidth
@@ -260,7 +276,7 @@ const ForgetPassword: React.FC = () => {
                     mb: 0.75,
                   }}
                 >
-                  Security Question
+                  <RequiredLabel text="Security Question" required />
                 </Typography>
                 <TextField
                   select
@@ -268,6 +284,7 @@ const ForgetPassword: React.FC = () => {
                   size="small"
                   id="securityQuestion"
                   name="securityQuestion"
+                  SelectProps={commonSelectProps}
                   value={formData.securityQuestion}
                   onChange={handleChange}
                   error={!!formErrors.securityQuestion}
@@ -302,7 +319,7 @@ const ForgetPassword: React.FC = () => {
                     mb: 0.75,
                   }}
                 >
-                  Security Answer
+                  <RequiredLabel text="Security Answer" required />
                 </Typography>
                 <TextField
                   fullWidth
@@ -341,7 +358,7 @@ const ForgetPassword: React.FC = () => {
                     mb: 0.75,
                   }}
                 >
-                  New Password
+                  <RequiredLabel text="New Password" required />
                 </Typography>
                 <TextField
                   fullWidth
@@ -393,7 +410,7 @@ const ForgetPassword: React.FC = () => {
                     mb: 0.75,
                   }}
                 >
-                  Confirm Password
+                  <RequiredLabel text="Confirm Password" required />
                 </Typography>
                 <TextField
                   fullWidth

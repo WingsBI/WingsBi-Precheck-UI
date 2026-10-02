@@ -116,7 +116,7 @@ const PRECHECK_COLUMNS: ColumnDef[] = [
 
 const CONSUMED_IN_COLUMNS: ColumnDef[] = [
   { field: "sr", headerName: "Sr No", minWidth: 60, align: "center", sortable: true },
-  { field: "idNumber", headerName: "ID Number", minWidth: 110, align: "center", sortable: true },
+  { field: "idNumber", headerName: "ID", minWidth: 110, align: "center", sortable: true },
   { field: "consumedInDrawingNumber", headerName: "Consumed IN Part Number", minWidth: 220, align: "left", sortable: true },
   { field: "quantity", headerName: "Quantity", minWidth: 80, align: "center", sortable: true },
   { field: "poNumber", headerName: "PO Number", minWidth: 140, align: "left", sortable: true },
@@ -144,7 +144,7 @@ const ALL_PRECHECK_EXPORT_COLUMNS = [
 ];
 
 const ALL_CONSUMED_EXPORT_COLUMNS = [
-  { key: "idNumber", label: "ID Number" },
+  { key: "idNumber", label: "ID" },
   { key: "consumedInDrawingNumber", label: "Consumed IN Part" },
   { key: "quantity", label: "Quantity" },
   { key: "poNumber", label: "PO Number" },
@@ -1501,11 +1501,11 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 }}
               />
 
-              {/* 5. ID Number */}
+              {/* 5. ID */}
               <TextField
-                label="ID Number"
+                label="ID"
                 InputLabelProps={{ shrink: true }}
-                placeholder="ID Number..."
+                placeholder="ID..."
                 size="small"
                 variant="outlined"
                 value={idNumber}

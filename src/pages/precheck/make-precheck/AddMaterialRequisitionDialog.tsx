@@ -11,6 +11,7 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 import type { GridItem } from "./types";
 
 interface AddMaterialRequisitionDialogProps {
@@ -279,7 +280,7 @@ const AddMaterialRequisitionDialog: React.FC<AddMaterialRequisitionDialogProps> 
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Rejected part Part Number *"
+                  label={<RequiredLabel text="Rejected part Part Number" required />}
                   fullWidth
                   size="small"
                   sx={textFieldStyle}
@@ -318,7 +319,7 @@ const AddMaterialRequisitionDialog: React.FC<AddMaterialRequisitionDialogProps> 
             <TextField
               fullWidth
               size="small"
-              label="Rejected Part ID Number *"
+              label={<RequiredLabel text="Rejected Part ID Number" required />}
               value={rejectedIdNumber}
               onChange={(e) => setRejectedIdNumber(e.target.value)}
               sx={textFieldStyle}
@@ -359,7 +360,7 @@ const AddMaterialRequisitionDialog: React.FC<AddMaterialRequisitionDialogProps> 
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Assembly PO Number *"
+                  label={<RequiredLabel text="Assembly PO Number" required />}
                   fullWidth
                   size="small"
                   sx={textFieldStyle}
@@ -417,7 +418,7 @@ const AddMaterialRequisitionDialog: React.FC<AddMaterialRequisitionDialogProps> 
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Assembly Production Series *"
+                  label={<RequiredLabel text="Assembly Production Series" required />}
                   fullWidth
                   size="small"
                   sx={textFieldStyle}
@@ -431,7 +432,7 @@ const AddMaterialRequisitionDialog: React.FC<AddMaterialRequisitionDialogProps> 
             <TextField
               fullWidth
               size="small"
-              label="Assembly ID Number *"
+              label={<RequiredLabel text="Assembly ID Number" required />}
               value={assemblyIdNumber}
               onChange={(e) => setAssemblyIdNumber(e.target.value)}
               sx={textFieldStyle}

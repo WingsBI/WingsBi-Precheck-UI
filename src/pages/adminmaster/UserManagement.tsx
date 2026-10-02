@@ -22,6 +22,7 @@ import {
 } from "@mui/material";
 import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import ActiveFilterChips from "../../components/ui/ActiveFilterChips";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import {
   Edit as EditIcon,
@@ -57,6 +58,21 @@ import { EmptyState } from "../../components/EmptyState";
 import PageHeader from "../../components/ui/PageHeader";
 import ActionButton from "../../components/ui/ActionButton";
 import { TableCard } from "../../components/ui/TableCard";
+
+const commonSelectProps = {
+  MenuProps: {
+    PaperProps: {
+      sx: {
+        maxHeight: 260,
+        width: "0 !important",
+        "& .MuiMenuItem-root": {
+          whiteSpace: "normal",
+          wordBreak: "break-word",
+        },
+      },
+    },
+  },
+};
 
 function UserActionMenu({
   row,
@@ -843,10 +859,9 @@ export default function UserManagement() {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Full Name"
+                    label={<RequiredLabel text="Full Name" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.userName || ""}
                     onChange={(e) =>
                       setUserFormData({ ...userFormData, userName: e.target.value })
@@ -855,11 +870,10 @@ export default function UserManagement() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Email"
+                    label={<RequiredLabel text="Email" required />}
                     type="email"
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.email || ""}
                     onChange={(e) =>
                       setUserFormData({ ...userFormData, email: e.target.value })
@@ -881,10 +895,9 @@ export default function UserManagement() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     select
-                    label="Role"
+                    label={<RequiredLabel text="Role" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.userRoleId || ""}
                     onChange={(e) =>
                       setUserFormData({
@@ -903,10 +916,9 @@ export default function UserManagement() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     select
-                    label="Department"
+                    label={<RequiredLabel text="Department" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.departmentId || ""}
                     onChange={(e) =>
                       setUserFormData({
@@ -991,10 +1003,9 @@ export default function UserManagement() {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Full Name"
+                    label={<RequiredLabel text="Full Name" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.userName || ""}
                     onChange={(e) =>
                       setUserFormData({ ...userFormData, userName: e.target.value })
@@ -1003,11 +1014,10 @@ export default function UserManagement() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Email"
+                    label={<RequiredLabel text="Email" required />}
                     type="email"
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.email || ""}
                     onChange={(e) =>
                       setUserFormData({ ...userFormData, email: e.target.value })
@@ -1016,10 +1026,9 @@ export default function UserManagement() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="User ID"
+                    label={<RequiredLabel text="User ID" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.userId || ""}
                     onChange={(e) =>
                       setUserFormData({ ...userFormData, userId: e.target.value })
@@ -1029,10 +1038,9 @@ export default function UserManagement() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     select
-                    label="Role"
+                    label={<RequiredLabel text="Role" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.roleId || ""}
                     onChange={(e) =>
                       setUserFormData({
@@ -1053,10 +1061,9 @@ export default function UserManagement() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     select
-                    label="Department"
+                    label={<RequiredLabel text="Department" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.departmentId || ""}
                     onChange={(e) =>
                       setUserFormData({
@@ -1077,10 +1084,9 @@ export default function UserManagement() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     select
-                    label="Plant"
+                    label={<RequiredLabel text="Plant" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.plantId || ""}
                     onChange={(e) =>
                       setUserFormData({
@@ -1099,10 +1105,9 @@ export default function UserManagement() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     select
-                    label="Security Question"
+                    label={<RequiredLabel text="Security Question" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.securityQuestionId || ""}
                     onChange={(e) =>
                       setUserFormData({
@@ -1120,10 +1125,9 @@ export default function UserManagement() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Security Answer"
+                    label={<RequiredLabel text="Security Answer" required />}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.securityAnswer || ""}
                     onChange={(e) =>
                       setUserFormData({
@@ -1135,11 +1139,10 @@ export default function UserManagement() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Password"
+                    label={<RequiredLabel text="Password" required />}
                     type={showPassword ? "text" : "password"}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.password || ""}
                     onChange={(e) =>
                       setUserFormData({ ...userFormData, password: e.target.value })
@@ -1162,11 +1165,10 @@ export default function UserManagement() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Confirm Password"
+                    label={<RequiredLabel text="Confirm Password" required />}
                     type={showConfirmPassword ? "text" : "password"}
                     fullWidth
                     size="small"
-                    required
                     value={userFormData.confirmPassword || ""}
                     onChange={(e) =>
                       setUserFormData({
@@ -1198,31 +1200,28 @@ export default function UserManagement() {
             <Box sx={{ px: 3, pb: 3, pt: 1, width: "100%" }}>
               <Stack spacing={2} sx={{ mt: 1 }}>
                 <TextField
-                  label="Full Name"
+                  label={<RequiredLabel text="Full Name" required />}
                   fullWidth
                   size="small"
-                  required
                   value={userFormData.userName || ""}
                   onChange={(e) =>
                     setUserFormData({ ...userFormData, userName: e.target.value })
                   }
                 />
                 <TextField
-                  label="User ID"
+                  label={<RequiredLabel text="User ID" required />}
                   fullWidth
                   size="small"
-                  required
                   value={userFormData.userId || ""}
                   onChange={(e) =>
                     setUserFormData({ ...userFormData, userId: e.target.value })
                   }
                 />
                 <TextField
-                  label="Password"
+                  label={<RequiredLabel text="Password" required />}
                   type="password"
                   fullWidth
                   size="small"
-                  required
                   value={userFormData.password || ""}
                   onChange={(e) =>
                     setUserFormData({ ...userFormData, password: e.target.value })
@@ -1230,10 +1229,9 @@ export default function UserManagement() {
                 />
                 <TextField
                   select
-                  label="Role"
+                  label={<RequiredLabel text="Role" required />}
                   fullWidth
                   size="small"
-                  required
                   value={userFormData.roleId || ""}
                   onChange={(e) =>
                     setUserFormData({
@@ -1250,10 +1248,9 @@ export default function UserManagement() {
                 </TextField>
                 <TextField
                   select
-                  label="Department"
+                  label={<RequiredLabel text="Department" required />}
                   fullWidth
                   size="small"
-                  required
                   value={userFormData.departmentId || ""}
                   onChange={(e) =>
                     setUserFormData({

@@ -41,7 +41,6 @@ function DispositionStep({
         <Controller
           name="desposition"
           control={control}
-          rules={{ required: "Disposition is required" }}
           render={({ field, fieldState: { error } }) => (
             <Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 2.5, flexWrap: "wrap" }}>
@@ -55,7 +54,7 @@ function DispositionStep({
                     "&.MuiFormLabel-root": { color: "#111827" },
                   }}
                 >
-                  <RequiredLabel text="Disposition" required />
+                  <RequiredLabel text="Disposition" required={false} />
                 </FormLabel>
                 <RadioGroup
                   {...field}

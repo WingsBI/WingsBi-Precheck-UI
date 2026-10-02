@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import ActionButton from "../../components/ui/ActionButton";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { login, clearError } from "../../store/slices/authSlice";
 import type { RootState } from "../../store/store";
 
@@ -173,7 +174,7 @@ const Login: React.FC = () => {
                   mb: 0.75,
                 }}
               >
-                User ID
+                <RequiredLabel text="User ID" required />
               </Typography>
               <TextField
                 fullWidth
@@ -221,7 +222,7 @@ const Login: React.FC = () => {
                     fontSize: "0.825rem",
                   }}
                 >
-                  Password
+                  <RequiredLabel text="Password" required />
                 </Typography>
               </Box>
               <TextField

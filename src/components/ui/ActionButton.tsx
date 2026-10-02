@@ -14,6 +14,10 @@ interface ActionButtonProps extends Omit<ButtonProps, 'variant' | 'size'> {
   size?: ActionSize;
   /** Pass-through MUI variant for edge cases */
   muiVariant?: ButtonProps['variant'];
+  /** Optional component override (e.g., RouterLink) */
+  component?: any;
+  /** Destination route when component is a Link */
+  to?: string;
 }
 
 const variantStyles: Record<ActionVariant, Record<string, any>> = {

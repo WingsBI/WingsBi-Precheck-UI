@@ -38,6 +38,7 @@ import {
 import { useDebounce } from "../../hooks/useDebounce";
 import PageHeader from "../../components/ui/PageHeader";
 import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 
 interface EditIRMSNFormData {
   id: number;
@@ -472,7 +473,7 @@ export default function EditIRMSN() {
                   );
                 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Part Number" fullWidth />
+                  <TextField {...params} label={<RequiredLabel text="Part Number" required />} fullWidth />
                 )}
               />
             </Grid>
@@ -625,7 +626,7 @@ export default function EditIRMSN() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Production Order Number"
+                    label={<RequiredLabel text="Production Order Number" required />}
                     fullWidth
                     InputProps={{
                       ...params.InputProps,
@@ -651,7 +652,7 @@ export default function EditIRMSN() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Quantity *"
+                    label={<RequiredLabel text="Quantity" required />}
                     type="number"
                     fullWidth
                     size="small"
@@ -688,7 +689,7 @@ export default function EditIRMSN() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Stage *"
+                        label={<RequiredLabel text="Stage" required />}
                         fullWidth
                         error={!!error}
                         helperText={error?.message}
@@ -708,7 +709,7 @@ export default function EditIRMSN() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="ID Number Range"
+                    label={<RequiredLabel text="ID Number Range" required />}
                     fullWidth
                     size="small"
                   />
