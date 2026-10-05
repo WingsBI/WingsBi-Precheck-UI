@@ -14,7 +14,16 @@ injectStore(store);
 
 // ── Load Chatbot Widget via script tag ──────────────────────────
 const script = document.createElement('script');
-script.src = 'https://precheck-ai-assistant-etd4dvdwanc6hfb2.centralindia-01.azurewebsites.net/my-chatbot.iife.js';
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const defaultScriptUrl = isLocalhost
+  ? 'http://localhost:5173/src/widget.jsx'
+  : 'https://precheck-ai-assistant-etd4dvdwanc6hfb2.centralindia-01.azurewebsites.net/my-chatbot.iife.js';
+
+const scriptUrl = import.meta.env.VITE_CHATBOT_SCRIPT_URL || defaultScriptUrl;
+if (scriptUrl.includes('/src/') || scriptUrl.endsWith('.jsx')) {
+  script.type = 'module';
+}
+script.src = scriptUrl;
 script.onload = () => {
   const mod = (window as any).MyChatbot;
   const chatbot = mod?.default || mod?.MyChatbot || mod;
