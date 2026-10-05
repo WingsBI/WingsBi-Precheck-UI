@@ -772,7 +772,7 @@ const StoreIn: React.FC = () => {
             setStoreInList(rawList);
             if (activeQrCode && overrides?.isInitialQrScan) {
               setAlertMessage({
-                message: `QR Code ${activeQrCode} processed successfully. ${rawList.length} awaiting pending precheck record(s) found.`,
+                message: `QR Code ${activeQrCode} processed successfully. ${rawList.length} awaiting pending part verification(s) found.`,
                 type: "success",
               });
             }
@@ -780,7 +780,7 @@ const StoreIn: React.FC = () => {
             setStoreInList([]);
             if (activeQrCode && overrides?.isInitialQrScan) {
               setAlertMessage({
-                message: `QR Code ${activeQrCode} processed successfully. No awaiting pending precheck found for QR Code ${activeQrCode}.`,
+                message: `QR Code ${activeQrCode} processed successfully. No awaiting pending part verification found for QR Code ${activeQrCode}.`,
                 type: "info",
               });
             }
@@ -1350,9 +1350,9 @@ const StoreIn: React.FC = () => {
                 display: "flex",
                 alignItems: "flex-end",
                 gap: 1,
-                flexWrap: "nowrap",
+                flexWrap: { xs: "wrap", md: "nowrap" },
                 width: "100%",
-                overflowX: "auto",
+                overflowX: { xs: "visible", md: "auto" },
                 overflowY: "hidden",
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
@@ -1649,7 +1649,7 @@ const StoreIn: React.FC = () => {
                   <SortableTableHeader label="Project Number" isSortable={false} />
                   <SortableTableHeader label="Created By" isSortable={false} />
                   <SortableTableHeader label="Created Date" isSortable={false} />
-                  <SortableTableHeader label="Precheck Status" align="center" isSortable={false} />
+                  <SortableTableHeader label="Status" align="center" isSortable={false} />
                   <SortableTableHeader label="Action" align="center" isSortable={false} />
                 </TableRow>
               </TableHead>

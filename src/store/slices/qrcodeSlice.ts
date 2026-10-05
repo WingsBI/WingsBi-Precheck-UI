@@ -100,7 +100,7 @@ export const generateQRCode = createAsyncThunk(
             type: "precheck_error",
             message:
               errorData.error ||
-              "Precheck is not completed for the following components",
+              "Verification is not completed for the following components",
             unsubmitedComponents: errorData.unsubmitedComponents,
           });
         }
@@ -156,7 +156,7 @@ export const generateStandardFieldQRCode = createAsyncThunk(
             type: "precheck_error",
             message:
               errorData.error ||
-              "Precheck is not completed for the following components",
+              "Verification is not completed for the following components",
             unsubmitedComponents: errorData.unsubmitedComponents,
           });
         }

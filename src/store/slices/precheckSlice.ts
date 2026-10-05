@@ -90,7 +90,7 @@ export const viewPrecheckDetails = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to view precheck details",
+        error.response?.data?.message || "Failed to view verification details",
       );
     }
   },
@@ -125,7 +125,7 @@ export const viewPrecheckByParameters = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to view precheck details by parameters",
+        error.response?.data?.message || "Failed to view verification details ",
       );
     }
   },
@@ -141,7 +141,7 @@ export const getPrecheckStatus = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to get precheck status",
+        error.response?.data?.message || "Failed to get verification status",
       );
     }
   },
@@ -356,17 +356,17 @@ export const exportPrecheckDetails = createAsyncThunk(
 
         return {
           success: true,
-          message: "Precheck details exported successfully",
+          message: "Verification details exported successfully",
         };
       } else {
         throw new Error("No file content received from the API");
       }
     } catch (error: any) {
-      console.error("Error exporting precheck details:", error);
+      console.error("Error exporting verification details:", error);
       return rejectWithValue(
         error.response?.data?.message ||
         error.message ||
-        "Failed to export precheck details",
+        "Failed to export verification details",
       );
     }
   },
@@ -438,17 +438,17 @@ export const exportViewPrecheckDetails = createAsyncThunk(
 
         return {
           success: true,
-          message: "Precheck details exported successfully",
+          message: "Verification details exported successfully",
         };
       } else {
         throw new Error("No file content received from the API");
       }
     } catch (error: any) {
-      console.error("Error exporting view precheck details:", error);
+      console.error("Error exporting verification details:", error);
       return rejectWithValue(
         error.response?.data?.message ||
         error.message ||
-        "Failed to export precheck details"
+        "Failed to export verification details"
       );
     }
   }
@@ -488,17 +488,17 @@ export const downloadBulkPrecheckTemplate = createAsyncThunk(
 
         return {
           success: true,
-          message: "Bulk precheck template downloaded successfully",
+          message: "Bulk verification template downloaded successfully",
         };
       } else {
         throw new Error("No file content received from the API");
       }
     } catch (error: any) {
-      console.error("Error downloading bulk precheck template:", error);
+      console.error("Error downloading bulk verification template:", error);
       return rejectWithValue(
         error.response?.data?.message ||
         error.message ||
-        "Failed to download bulk precheck template",
+        "Failed to download verification template",
       );
     }
   },
@@ -727,7 +727,7 @@ export const resetQrQuantity = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to reset precheck quantity",
+        error.response?.data?.message || "Failed to reset  quantity",
       );
     }
   },
@@ -751,7 +751,7 @@ export const deletePrecheckDetails = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete precheck details",
+        error.response?.data?.message || "Failed to delete verification details",
       );
     }
   },
@@ -776,7 +776,7 @@ export const removePrecheckDetails = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to remove precheck details",
+        error.response?.data?.message || "Failed to remove verification details",
       );
     }
   },

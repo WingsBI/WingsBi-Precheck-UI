@@ -547,7 +547,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
         .catch((err: any) => {
           setSnackbar({
             open: true,
-            message: err?.message || err?.response?.data?.message || "Failed to export precheck details",
+            message: err?.message || err?.response?.data?.message || "Failed to export data",
             severity: "error",
           });
         })
@@ -891,8 +891,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
           mb={0.5}
           subtitle={
             activeTab === "consumed"
-              ? "Search, filter, and inspect past precheck inspection records and status reports."
-              : "Search, filter, and inspect precheck inspection records and status reports."
+              ? "Search, filter, and inspect past part verification records and status reports."
+              : "Search, filter, and inspect part verification records and status reports."
           }
           actions={
             activeTab === "precheck" ? (
@@ -954,9 +954,9 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 display: "flex",
                 alignItems: "flex-end",
                 gap: 1,
-                flexWrap: "nowrap",
+                flexWrap: { xs: "wrap", md: "nowrap" },
                 width: "100%",
-                overflowX: "auto",
+                overflowX: { xs: "visible", md: "auto" },
                 overflowY: "hidden",
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
@@ -971,8 +971,8 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 onChange={(e) => { setCombinedSearch(e.target.value); setPage(0); }}
                 onClear={() => { setCombinedSearch(""); setPage(0); }}
                 sx={{
-                  flex: "1 1 340px",
-                  minWidth: 260,
+                  flex: { xs: "1 1 100%", sm: "1 1 340px" },
+                  minWidth: { xs: "100%", sm: 260 },
                 }}
               />
 
@@ -1206,9 +1206,9 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
-                flexWrap: "nowrap",
+                flexWrap: { xs: "wrap", md: "nowrap" },
                 width: "100%",
-                overflowX: "auto",
+                overflowX: { xs: "visible", md: "auto" },
                 overflowY: "hidden",
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
@@ -1616,7 +1616,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                   <TableCell colSpan={visibleColumns.length} align="center" sx={{ height: 280, borderBottom: "none" }}>
                     <CircularProgress size={32} color="primary" />
                     <Typography variant="body2" sx={{ color: "#667085", mt: 1 }}>
-                      Loading precheck records...
+                      Loading data...
                     </Typography>
                   </TableCell>
                 </TableRow>
