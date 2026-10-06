@@ -553,12 +553,9 @@ const Components: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) 
               display: "flex",
               alignItems: "center",
               gap: 1,
-              flexWrap: "nowrap",
+              flexWrap: "wrap",
               width: "100%",
-              overflowX: "auto",
               py: 0.5,
-              "&::-webkit-scrollbar": { height: 6 },
-              "&::-webkit-scrollbar-thumb": { backgroundColor: "#D0D5DD", borderRadius: 3 },
             }}
           >
             {/* Search Box */}
@@ -574,8 +571,9 @@ const Components: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) 
               }}
               placeholder="Search component, Part Number, Item Code, Item Description..."
               sx={{
-                flex: "1 1 240px",
-                minWidth: 200,
+                flex: { xs: "1 1 100%", sm: "1 1 240px" },
+                minWidth: { xs: 0, sm: 200 },
+                width: { xs: "100%", sm: "auto" },
               }}
             />
 
@@ -588,8 +586,11 @@ const Components: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) 
                 setSelectedSeries(val);
                 setPage(0);
               }}
-              flex="0 0 140px"
-              minWidth={120}
+              flex="0 0 auto"
+              sx={{
+                flex: { xs: "1 1 calc(50% - 4px)", sm: "1 1 130px", md: "0 0 140px" },
+                minWidth: { xs: 0, md: 120 },
+              }}
             />
 
             {/* Multi-Select Type Dropdown */}
@@ -601,8 +602,11 @@ const Components: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) 
                 setSelectedTypes(val);
                 setPage(0);
               }}
-              flex="0 0 120px"
-              minWidth={100}
+              flex="0 0 auto"
+              sx={{
+                flex: { xs: "1 1 calc(50% - 4px)", sm: "1 1 110px", md: "0 0 120px" },
+                minWidth: { xs: 0, md: 100 },
+              }}
             />
 
             {/* Multi-Select Unit Dropdown */}
@@ -614,29 +618,44 @@ const Components: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) 
                 setSelectedUnits(val);
                 setPage(0);
               }}
-              flex="0 0 120px"
-              minWidth={100}
+              flex="0 0 auto"
+              sx={{
+                flex: { xs: "1 1 calc(50% - 4px)", sm: "1 1 110px", md: "0 0 120px" },
+                minWidth: { xs: 0, md: 100 },
+              }}
             />
 
-            {/* Apply Button */}
-            <ActionButton
-              variant="primary"
-              size="standard"
-              onClick={handleApplyFilters}
-              disabled={!isDropdownFilterSelected || isLoading}
+            {/* Action Buttons */}
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                flex: { xs: "1 1 calc(50% - 4px)", sm: "0 0 auto" },
+                justifyContent: { xs: "stretch", sm: "flex-start" },
+                "& > button": {
+                  flex: { xs: 1, sm: "initial" },
+                },
+              }}
             >
-              Apply
-            </ActionButton>
+              <ActionButton
+                variant="primary"
+                size="standard"
+                onClick={handleApplyFilters}
+                disabled={!isDropdownFilterSelected || isLoading}
+              >
+                Apply
+              </ActionButton>
 
-            {/* Clear Button */}
-            <ActionButton
-              variant="secondary"
-              size="standard"
-              onClick={handleClearFilters}
-              disabled={!hasActiveFilters}
-            >
-              Clear
-            </ActionButton>
+              <ActionButton
+                variant="secondary"
+                size="standard"
+                onClick={handleClearFilters}
+                disabled={!hasActiveFilters}
+              >
+                Clear
+              </ActionButton>
+            </Box>
           </Box>
 
           {/* Active Filter Chips & Counter Bar */}
@@ -668,7 +687,7 @@ const Components: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) 
             maxHeight: "calc(100vh - 290px)",
           }}
         >
-          <Table stickyHeader size="small" sx={{ width: "100%", minWidth: 1100 }}>
+          <Table stickyHeader size="small" sx={{ width: "100%", minWidth: { xs: 800, sm: 950, md: 1100 } }}>
             <TableHead>
               <TableRow sx={{ height: 36 }}>
                 <SortableTableHeader label="Sr.No" columnKey="srNo" sortColumn={sortColumn} sortDirection={sortOrder} onSort={handleSort} align="center" minWidth={55} isSortable={true} />
@@ -678,7 +697,7 @@ const Components: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = false }) 
                 <SortableTableHeader label="Type" columnKey="componentType" align="center" minWidth={95} isSortable={false} />
                 <SortableTableHeader label="Unit" columnKey="unitName" align="center" minWidth={100} isSortable={false} />
                 <SortableTableHeader label="Prod. Series" columnKey="productionSeries" align="center" minWidth={110} isSortable={false} />
-                <SortableTableHeader label="Actions" columnKey="actions" align="center" minWidth={65} isSortable={false} />
+                <SortableTableHeader label="Actions" columnKey="actions" align="center" minWidth={75} isSortable={false} />
               </TableRow>
             </TableHead>
             <TableBody>

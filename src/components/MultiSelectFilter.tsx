@@ -18,9 +18,10 @@ export interface MultiSelectFilterProps {
   value: (string | number)[];
   options: (string | OptionItem)[];
   onChange: (newValue: any[]) => void;
-  minWidth?: number;
-  flex?: string;
+  minWidth?: number | object;
+  flex?: string | object;
   height?: number;
+  sx?: object;
 }
 
 export const MultiSelectFilter: React.FC<MultiSelectFilterProps> = ({
@@ -31,6 +32,7 @@ export const MultiSelectFilter: React.FC<MultiSelectFilterProps> = ({
   minWidth = 110,
   flex = "0 0 140px",
   height = 38,
+  sx = {},
 }) => {
   const normalizedValues = value.map((v) => (typeof v === "object" ? (v as any).id || (v as any).productionSeries : v));
 
@@ -41,7 +43,7 @@ export const MultiSelectFilter: React.FC<MultiSelectFilterProps> = ({
   };
 
   return (
-    <FormControl size="small" sx={{ flex, minWidth }}>
+    <FormControl size="small" sx={{ flex, minWidth, ...sx }}>
       <Select
         multiple
         displayEmpty

@@ -724,12 +724,13 @@ export default function UserManagement() {
         {/* Controls Bar: Tabs and Search */}
         <Box
           sx={{
-            p: 2,
+            p: { xs: 1.5, sm: 2 },
             display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: { xs: "stretch", sm: "center" },
             flexWrap: "wrap",
-            gap: 2,
+            gap: 1.5,
             borderBottom: "1px solid #EAECF0",
           }}
         >

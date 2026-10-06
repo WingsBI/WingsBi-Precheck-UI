@@ -788,7 +788,7 @@ const MakePrecheck: React.FC = () => {
       setSearchResults([]);
       setShowResults(true);
       showAlertMessage(
-        getErrorMessage(error, "Failed to fetch precheck details"),
+        getErrorMessage(error, "Failed to fetch verification details"),
         "error",
       );
     } finally {
@@ -912,7 +912,7 @@ const MakePrecheck: React.FC = () => {
         ).unwrap();
         await updateGridItems(reloadResponse);
 
-        showAlertMessage("Precheck submitted successfully!", "success");
+        showAlertMessage("Part verified successfully!", "success");
       } else {
         showAlertMessage(
           "No data submitted or invalid response format.",
@@ -1474,13 +1474,13 @@ const MakePrecheck: React.FC = () => {
       console.log("Calling deletePrecheckDetails API with payload:", payload);
       await dispatch(deletePrecheckDetails(payload)).unwrap();
 
-      showAlertMessage("Precheck details deleted successfully", "success");
+      showAlertMessage("verification details deleted successfully", "success");
 
       // Reload BOM data from database to update grid
       await executeMakePrecheck();
     } catch (error: any) {
-      console.error("Error deleting precheck details:", error);
-      showAlertMessage(error || "Failed to delete precheck details", "error");
+      console.error("Error deleting verification details:", error);
+      showAlertMessage(error || "Failed to delete verification details", "error");
     } finally {
       setIsLoadingLocal(false);
     }
@@ -1500,13 +1500,13 @@ const MakePrecheck: React.FC = () => {
       console.log("Calling removePrecheckDetails API with payload:", payload);
       await dispatch(removePrecheckDetails(payload)).unwrap();
 
-      showAlertMessage("Precheck details undone successfully", "success");
+      showAlertMessage("Verification details removed successfully", "success");
 
       // Reload BOM data from database to update grid
       await executeMakePrecheck();
     } catch (error: any) {
-      console.error("Error removing precheck details:", error);
-      showAlertMessage(error || "Failed to remove precheck details", "error");
+      console.error("Error removing verification details:", error);
+      showAlertMessage(error || "Failed to remove verification details", "error");
     } finally {
       setIsLoadingLocal(false);
     }
@@ -1588,7 +1588,7 @@ const MakePrecheck: React.FC = () => {
         showAlertMessage(successMsg, "success");
       })
       .catch((error) => {
-        alert(error.message || "Failed to export precheck details");
+        alert(error.message || "Failed to export verification details");
       });
   };
 
@@ -1658,7 +1658,7 @@ const MakePrecheck: React.FC = () => {
 
     if (!rawList || rawList.length === 0) {
       setSearchResults([]);
-      showAlertMessage("No precheck records found for the selected filter.", "warning");
+      showAlertMessage("No  records found for the selected filter.", "warning");
       return;
     }
 

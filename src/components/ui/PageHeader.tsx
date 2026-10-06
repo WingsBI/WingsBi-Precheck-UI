@@ -112,6 +112,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           variant="h3"
           sx={{
             fontWeight: 700,
+            fontSize: { xs: "1.2rem", sm: "1.5rem", md: "1.75rem" },
             fontFamily: FONT_FAMILY,
             color: '#6D2A8F',
             lineHeight: 1.3,

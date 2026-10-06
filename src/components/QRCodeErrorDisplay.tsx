@@ -59,7 +59,7 @@ const QRCodeErrorDisplay: React.FC<QRCodeErrorDisplayProps> = ({ error, onClose 
           <Divider sx={{ my: 1 }} />
           
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Please complete precheck for the following drawing numbers:
+            Please complete the verification for the following drawing numbers:
           </Typography>
           
           <Box sx={{ mt: 1, maxHeight: 200, overflowY: 'auto' }}>
@@ -83,7 +83,7 @@ const QRCodeErrorDisplay: React.FC<QRCodeErrorDisplayProps> = ({ error, onClose 
           
           {error.unsubmitedComponents.length > 1 && (
             <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-              Total {error.unsubmitedComponents.length} components need precheck completion
+              Total {error.unsubmitedComponents.length} components need verification to be completed
             </Typography>
           )}
         </Box>

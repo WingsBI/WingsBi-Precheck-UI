@@ -888,15 +888,15 @@ export default function Layout() {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1.2,
+              gap: { xs: 0.8, sm: 1.2 },
               cursor: "pointer",
             }}
             onClick={handleDrawerToggle}
           >
             <Box
               sx={{
-                width: 34,
-                height: 34,
+                width: { xs: 28, sm: 34 },
+                height: { xs: 28, sm: 34 },
                 borderRadius: "8px",
                 bgcolor: "white",
                 display: "flex",
@@ -904,12 +904,13 @@ export default function Layout() {
                 justifyContent: "center",
                 p: "4px",
                 boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                flexShrink: 0,
               }}
             >
               <img
                 src="/assets/logo.jpg"
                 alt="Wingsbi Logo"
-                style={{ height: 22, width: "auto", objectFit: "contain" }}
+                style={{ height: "100%", width: "auto", objectFit: "contain" }}
               />
             </Box>
             <Typography
@@ -918,14 +919,14 @@ export default function Layout() {
               component="div"
               sx={{
                 fontWeight: 700,
-                fontSize: "1.1rem",
+                fontSize: { xs: "0.925rem", sm: "1.1rem" },
                 letterSpacing: 0.3,
                 color: "white",
                 display: "flex",
                 alignItems: "center",
               }}
             >
-              Wingsbi
+              Verification Tool
             </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
@@ -938,6 +939,8 @@ export default function Layout() {
               <RobotLogoIcon
                 sx={{
                   mr: -0.2,
+                  width: { xs: 16, sm: 18 },
+                  height: { xs: 16, sm: 18 },
                 }}
               />
             }
@@ -946,12 +949,14 @@ export default function Layout() {
               color: "#6D2A8F",
               textTransform: "none",
               fontWeight: 700,
-              fontSize: "0.8rem",
+              fontSize: { xs: "0.85rem", sm: "1.05rem" },
+              letterSpacing: "0.2px",
+              lineHeight: 1,
               borderRadius: "50px",
-              px: 1.4,
+              px: { xs: 1.25, sm: 1.5 },
               py: "2px",
-              height: "28px",
-              minHeight: "unset",
+              height: { xs: 30, sm: 34 },
+              minHeight: { xs: 30, sm: 34 },
               boxShadow: "0 2px 6px rgba(0, 0, 0, 0.12)",
               transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
               border: "2px solid transparent",
@@ -973,7 +978,9 @@ export default function Layout() {
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 fontWeight: 700,
+                fontSize: { xs: "0.85rem", sm: "1.05rem" },
                 letterSpacing: "0.2px",
+                lineHeight: 1,
               }}
             >
               AI Assist

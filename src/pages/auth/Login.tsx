@@ -103,7 +103,7 @@ const Login: React.FC = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        width: "100vw",
+        width: "100%",
         background: "linear-gradient(90deg, #6D2A8F 0%, #D82578 100%)",
         display: "flex",
         alignItems: "center",

@@ -177,15 +177,15 @@ const Dashboard: React.FC = () => {
   );
 
   return (
-    <Box sx={{ flexGrow: 1, p: 3 }}>
+    <Box sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2, md: 3 } }}>
       <PageHeader
         title="Dashboard"
-        subtitle={`Welcome back${user?.userName ? `, ${user.userName}` : ""}! Access your precheck workspace modules.`}
+        subtitle={`Welcome back${user?.username ? `, ${user.username}` : ""}! Access your precheck workspace modules.`}
       />
 
-      <Grid container spacing={2}>
+      <Grid container spacing={{ xs: 1.5, sm: 2 }}>
         {filteredCards.map((card, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
             <Card
               sx={{
                 height: "100%",
