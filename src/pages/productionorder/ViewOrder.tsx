@@ -681,7 +681,7 @@ const ViewOrder: React.FC = () => {
       <Grid container spacing={1} sx={{ flexGrow: 1 }}>
         {/* Left Panel: BOM Details */}
         <Grid item xs={12} lg={selectedBomRow !== null ? 6 : 12}>
-          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column"}}>
+          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
             <TableCardHeader
               title={
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
@@ -691,7 +691,7 @@ const ViewOrder: React.FC = () => {
                       fontSize: "0.9rem",
                       fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                       color: "#1F2937",
-                      
+
                     }}
                   >
                     Material available in store
@@ -711,7 +711,7 @@ const ViewOrder: React.FC = () => {
                   </Typography>
                 </Box>
               }
-              
+
             />
 
             {renderBomTable()}
@@ -721,37 +721,37 @@ const ViewOrder: React.FC = () => {
         {/* Right Panel: Available QR Codes (Shown only when a row is clicked) */}
         {selectedBomRow !== null && (
           <Grid item xs={12} lg={6}>
-          <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
-            <TableCardHeader
-              title={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                  <Typography
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: "0.9rem",
-                      fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                      color: "#1F2937",
+            <TableCard sx={{ height: 520, display: "flex", flexDirection: "column" }}>
+              <TableCardHeader
+                title={
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: "0.9rem",
+                        fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        color: "#1F2937",
+                      }}
+                    >
+                      Available QR Codes
+                    </Typography>
+                  </Box>
+                }
+                count={qrCodeData.length}
+                actions={
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setSelectedBomRow(null);
+                      setQrCodeData([]);
                     }}
+                    title="Close QR details"
+                    sx={{ p: 0.25, color: "#667085", "&:hover": { color: "#101828", backgroundColor: "#F2F4F7" } }}
                   >
-                    Available QR Codes
-                  </Typography>
-                </Box>
-              }
-              count={qrCodeData.length}
-              actions={
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    setSelectedBomRow(null);
-                    setQrCodeData([]);
-                  }}
-                  title="Close QR details"
-                  sx={{ p: 0.25, color: "#667085", "&:hover": { color: "#101828", backgroundColor: "#F2F4F7" } }}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              }
-            />
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                }
+              />
 
               <TableContainer sx={{ overflowX: "auto", flexGrow: 1 }}>
                 <Table stickyHeader size="small" sx={{ width: "100%" }}>

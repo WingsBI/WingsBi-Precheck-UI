@@ -926,7 +926,7 @@ export default function Layout() {
                 alignItems: "center",
               }}
             >
-              Verification Tool
+              Assembly Verification Tool
             </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />

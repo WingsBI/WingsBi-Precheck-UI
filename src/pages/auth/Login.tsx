@@ -19,7 +19,7 @@ import { login, clearError } from "../../store/slices/authSlice";
 import type { RootState } from "../../store/store";
 
 interface LoginForm {
-  userId: string;
+  email: string;
   password: string;
 }
 
@@ -30,7 +30,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState<LoginForm>({
-    userId: "",
+    email: "",
     password: "",
   });
 
@@ -38,8 +38,8 @@ const Login: React.FC = () => {
 
   const validateForm = () => {
     const errors: Partial<LoginForm> = {};
-    if (!formData.userId.trim()) {
-      errors.userId = "User ID is required";
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
     }
     if (!formData.password.trim()) {
       errors.password = "Password is required";
@@ -179,18 +179,19 @@ const Login: React.FC = () => {
                   mb: 0.75,
                 }}
               >
-                <RequiredLabel text="User ID" required />
+                <RequiredLabel text="Email" required />
               </Typography>
               <TextField
                 fullWidth
                 size="small"
-                id="userId"
-                name="userId"
-                placeholder="Enter your user ID"
-                value={formData.userId}
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
                 onChange={handleChange}
-                error={!!formErrors.userId}
-                helperText={formErrors.userId}
+                error={!!formErrors.email}
+                helperText={formErrors.email}
                 disabled={isLoading}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -284,7 +285,7 @@ const Login: React.FC = () => {
             {error && (
               <Alert severity="error" sx={{ mb: 2, borderRadius: "8px", fontSize: "0.825rem" }}>
                 {error.toLowerCase().includes("invalid credentials") || error.toLowerCase().includes("deactivated")
-                  ? "Incorrect User ID or Password. Please double-check your credentials and try again."
+                  ? "Incorrect Email or Password. Please double-check your credentials and try again."
                   : error}
               </Alert>
             )}

@@ -80,7 +80,7 @@ export const SortableTableHeader: React.FC<SortableTableHeaderProps> = ({
         userSelect: "none",
         whiteSpace: "nowrap",
         "&:hover": {
-          color: isSortable && onSort ? COLOUR_ROLES.textSecondary: COLOUR_ROLES.textSecondary,
+          color: isSortable && onSort ? COLOUR_ROLES.textSecondary : COLOUR_ROLES.textSecondary,
         },
         ...sx,
       }}
