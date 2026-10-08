@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -72,18 +72,57 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [dispatch]);
 
-  // Close chatbot when unauthenticated or on public auth routes
+  // Auto-open chatbot ONCE on initial page load if logged in, but DO NOT auto-open on page route changes
+  const initialLoadHandled = useRef(false);
+
   useEffect(() => {
     if (!bootstrapped) return;
 
     const publicAuthRoutes = ['/login', '/register', '/forget-password', '/forgot-password'];
     const isAuthPage = publicAuthRoutes.includes(location.pathname.toLowerCase());
 
-    if (!token || isAuthPage) {
+    const getChatbot = () => {
       const mod = (window as any).MyChatbot;
-      const chatbot = mod?.default || mod?.MyChatbot || mod;
+      return mod?.default || mod?.MyChatbot || mod;
+    };
+
+    if (!token || isAuthPage) {
+      initialLoadHandled.current = false;
+      const chatbot = getChatbot();
       if (chatbot && typeof chatbot.close === 'function') {
         chatbot.close();
+      }
+      return;
+    }
+
+    // Auto-open ONLY on initial page load or fresh login, not on route changes
+    if (!initialLoadHandled.current) {
+      initialLoadHandled.current = true;
+
+      const tryOpen = () => {
+        const chatbot = getChatbot();
+        if (chatbot && typeof chatbot.open === 'function') {
+          chatbot.open();
+          return true;
+        }
+        return false;
+      };
+
+      if (!tryOpen()) {
+        const intervalId = setInterval(() => {
+          if (tryOpen()) {
+            clearInterval(intervalId);
+          }
+        }, 200);
+
+        const timeoutId = setTimeout(() => {
+          clearInterval(intervalId);
+        }, 5000);
+
+        return () => {
+          clearInterval(intervalId);
+          clearTimeout(timeoutId);
+        };
       }
     }
   }, [token, bootstrapped, location.pathname]);

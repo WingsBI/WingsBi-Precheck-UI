@@ -28,11 +28,16 @@ script.onload = () => {
   const mod = (window as any).MyChatbot;
   const chatbot = mod?.default || mod?.MyChatbot || mod;
   if (chatbot?.init) {
+    const publicAuthRoutes = ['/login', '/register', '/forget-password', '/forgot-password'];
+    const isAuthPage = publicAuthRoutes.includes(window.location.pathname.toLowerCase());
+    const token = cookieUtils.getToken();
+    const shouldOpen = Boolean(token && !isAuthPage);
+
     chatbot.init({
       chatApiUrl: import.meta.env.VITE_API_BASE_URL,
       position: 'bottom-right',
-      autoOpen: false,
-      showLauncher: false,
+      autoOpen: shouldOpen,
+      showLauncher: true,
       getAuthToken: () => cookieUtils.getToken() || null,
       themeOverrides: {
         primaryColor: '#6D2A8F',
@@ -42,12 +47,10 @@ script.onload = () => {
       }
     });
 
-    const publicAuthRoutes = ['/login', '/register', '/forget-password', '/forgot-password'];
-    const isAuthPage = publicAuthRoutes.includes(window.location.pathname.toLowerCase());
-    const token = cookieUtils.getToken();
-
     if (!token || isAuthPage) {
       if (typeof chatbot.close === 'function') chatbot.close();
+    } else {
+      if (typeof chatbot.open === 'function') chatbot.open();
     }
   }
 };
