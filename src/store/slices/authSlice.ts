@@ -37,12 +37,12 @@ export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email?: string; userId?: string; password: string }, { rejectWithValue }) => {
     try {
+      const identifier = credentials.userId || credentials.email || '';
       const payload = {
-        email: credentials.email || '',
-        userId: credentials.email ||  '',
+        userId: identifier,
         password: credentials.password,
       };
-      const response = await api.post('/api/Auth/Login', payload);
+      const response = await api.post('/api/Auth/login', payload);
       const token = response.data.token;
       
       if (!token) {
@@ -70,7 +70,7 @@ export const login = createAsyncThunk(
     } catch (error: any) {
       const serverMsg = error.response?.data?.message;
       if (!serverMsg || serverMsg.toLowerCase().includes('invalid credentials') || serverMsg.toLowerCase().includes('deactivated')) {
-        return rejectWithValue('Incorrect Email or Password. Please double-check your credentials and try again.');
+        return rejectWithValue('Incorrect User ID / Email or Password. Please double-check your credentials and try again.');
       }
       return rejectWithValue(serverMsg);
     }

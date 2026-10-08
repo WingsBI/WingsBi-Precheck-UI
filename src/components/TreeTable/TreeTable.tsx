@@ -12,6 +12,7 @@ import {
   Stack,
   Tooltip,
   useTheme,
+  CircularProgress,
 } from "@mui/material";
 import {
   KeyboardArrowDown,
@@ -40,6 +41,7 @@ interface TreeTableProps {
   height?: number;
   rowHeight?: number;
   enableVirtualization?: boolean;
+  loading?: boolean;
   onRowClick?: (row: any) => void;
   renderRowActions?: (row: any) => React.ReactNode;
 }
@@ -264,7 +266,8 @@ const VirtualizedTreeRow: React.FC<{
   );
 });
 
-export const TreeTable = React.forwardRef<any, TreeTableProps>(({
+export const TreeTable = ({
+  ref,
   data,
   columns,
   idField = "id",
@@ -272,9 +275,10 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
   height = 400,
   rowHeight = 53,
   enableVirtualization = false,
+  loading = false,
   onRowClick,
   renderRowActions,
-}, ref) => {
+}: TreeTableProps & { ref?: React.Ref<any> }) => {
   React.useImperativeHandle(ref, () => ({
     expandAll: handleExpandAll,
     collapseAll: handleCollapseAll,
@@ -532,9 +536,33 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
                 })}
               </TableRow>
             </TableHead>
-            {(!enableVirtualization || flattenedData.length === 0) && (
+            {(!enableVirtualization || flattenedData.length === 0 || loading) && (
               <TableBody>
-                {flattenedData.length > 0 ? (
+                {loading ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={effectiveColumns.length}
+                      align="center"
+                      sx={{ borderBottom: "none", py: 8 }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          py: 4,
+                          color: "#667085",
+                        }}
+                      >
+                        <CircularProgress size={32} color="primary" sx={{ mb: 2 }} />
+                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                          Loading SOP details...
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ) : flattenedData.length > 0 ? (
                   flattenedData.map((node, index) => (
                     <TreeRow
                       key={node.id}
@@ -580,6 +608,6 @@ export const TreeTable = React.forwardRef<any, TreeTableProps>(({
       </TableContainer>
     </Box>
   );
-});
+};
 
 export default TreeTable;

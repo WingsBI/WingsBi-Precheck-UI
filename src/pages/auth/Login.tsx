@@ -19,7 +19,7 @@ import { login, clearError } from "../../store/slices/authSlice";
 import type { RootState } from "../../store/store";
 
 interface LoginForm {
-  email: string;
+  userId: string;
   password: string;
 }
 
@@ -30,7 +30,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState<LoginForm>({
-    email: "",
+    userId: "",
     password: "",
   });
 
@@ -38,9 +38,17 @@ const Login: React.FC = () => {
 
   const validateForm = () => {
     const errors: Partial<LoginForm> = {};
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
+    const inputVal = formData.userId.trim();
+
+    if (!inputVal) {
+      errors.userId = "User ID or Email is required";
+    } else if (inputVal.includes("@")) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(inputVal)) {
+        errors.userId = "Invalid email format";
+      }
     }
+
     if (!formData.password.trim()) {
       errors.password = "Password is required";
     }
@@ -179,19 +187,19 @@ const Login: React.FC = () => {
                   mb: 0.75,
                 }}
               >
-                <RequiredLabel text="Email" required />
+                <RequiredLabel text="User ID / Email" required />
               </Typography>
               <TextField
                 fullWidth
                 size="small"
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                value={formData.email}
+                id="userId"
+                name="userId"
+                type="text"
+                placeholder="Enter your User ID or Email"
+                value={formData.userId}
                 onChange={handleChange}
-                error={!!formErrors.email}
-                helperText={formErrors.email}
+                error={!!formErrors.userId}
+                helperText={formErrors.userId}
                 disabled={isLoading}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -285,7 +293,7 @@ const Login: React.FC = () => {
             {error && (
               <Alert severity="error" sx={{ mb: 2, borderRadius: "8px", fontSize: "0.825rem" }}>
                 {error.toLowerCase().includes("invalid credentials") || error.toLowerCase().includes("deactivated")
-                  ? "Incorrect Email or Password. Please double-check your credentials and try again."
+                  ? "Incorrect User ID / Email or Password. Please double-check your credentials and try again."
                   : error}
               </Alert>
             )}

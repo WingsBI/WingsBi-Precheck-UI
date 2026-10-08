@@ -966,36 +966,19 @@ const ViewSOP: React.FC = () => {
 
           {/* Tree Table View */}
           <Box sx={{ overflow: "hidden" }}>
-            {isLoading ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  py: 8,
-                  color: "#667085",
-                }}
-              >
-                <CircularProgress size={32} color="primary" sx={{ mb: 2 }} />
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  Loading SOP details...
-                </Typography>
-              </Box>
-            ) : (
-              <TreeTable
-                ref={treeTableRef}
-                data={treeData}
-                columns={treeColumns}
-                idField="id"
-                parentIdField="parentId"
-                height={600}
-                enableVirtualization={Boolean(assemblyData && assemblyData.length > 80)}
-                onRowClick={(row) => {
-                  setSelectedNode(row);
-                }}
-              />
-            )}
+            <TreeTable
+              ref={treeTableRef}
+              data={treeData}
+              columns={treeColumns}
+              idField="id"
+              parentIdField="parentId"
+              height={600}
+              loading={isLoading}
+              enableVirtualization={Boolean(assemblyData && assemblyData.length > 80)}
+              onRowClick={(row) => {
+                setSelectedNode(row);
+              }}
+            />
           </Box>
         </TableCard>
       ) : (
