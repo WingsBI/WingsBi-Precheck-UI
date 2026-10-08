@@ -162,6 +162,19 @@ export const forgetPassword = createAsyncThunk(
   }
 );
 
+export const logoutUser = createAsyncThunk(
+  'auth/logoutUser',
+  async (_, { dispatch }) => {
+    try {
+      await api.post('/api/Auth/logout');
+    } catch (error: any) {
+      console.warn('Logout API call notice:', error?.message);
+    } finally {
+      dispatch(logout());
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
