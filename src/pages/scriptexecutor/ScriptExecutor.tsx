@@ -967,14 +967,7 @@ export default function ScriptExecutor() {
         endpoint = "/api/script/RunQRCodeImport";
       }
 
-      const payload = activeTab === TABS.MASTER_DATA
-        ? {
-            fileName1: uploadedFileNamesFromServer[0],
-            fileName2: uploadedFileNamesFromServer[1],
-          }
-        : {
-            fileName: uploadedFileNamesFromServer,
-          };
+      const payload = { fileName: uploadedFileNamesFromServer };
       const runResponse = await api.post(endpoint, payload);
       const responseData = runResponse.data || {};
 
