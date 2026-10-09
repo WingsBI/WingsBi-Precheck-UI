@@ -38,9 +38,17 @@ const Login: React.FC = () => {
 
   const validateForm = () => {
     const errors: Partial<LoginForm> = {};
-    if (!formData.userId.trim()) {
-      errors.userId = "User ID is required";
+    const inputVal = formData.userId.trim();
+
+    if (!inputVal) {
+      errors.userId = "User ID or Email is required";
+    } else if (inputVal.includes("@")) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(inputVal)) {
+        errors.userId = "Invalid email format";
+      }
     }
+
     if (!formData.password.trim()) {
       errors.password = "Password is required";
     }
@@ -179,14 +187,15 @@ const Login: React.FC = () => {
                   mb: 0.75,
                 }}
               >
-                <RequiredLabel text="User ID" required />
+                <RequiredLabel text="User ID / Email" required />
               </Typography>
               <TextField
                 fullWidth
                 size="small"
                 id="userId"
                 name="userId"
-                placeholder="Enter your user ID"
+                type="text"
+                placeholder="Enter your User ID or Email"
                 value={formData.userId}
                 onChange={handleChange}
                 error={!!formErrors.userId}
@@ -284,7 +293,7 @@ const Login: React.FC = () => {
             {error && (
               <Alert severity="error" sx={{ mb: 2, borderRadius: "8px", fontSize: "0.825rem" }}>
                 {error.toLowerCase().includes("invalid credentials") || error.toLowerCase().includes("deactivated")
-                  ? "Incorrect User ID or Password. Please double-check your credentials and try again."
+                  ? "Incorrect User ID / Email or Password. Please double-check your credentials and try again."
                   : error}
               </Alert>
             )}

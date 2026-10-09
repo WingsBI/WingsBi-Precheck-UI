@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle, useRef, useMemo } from "react";
+import { useState, useImperativeHandle, useRef, useMemo, startTransition } from "react";
 import {
   Box,
   CircularProgress,
@@ -91,8 +91,8 @@ interface TabPanelProps {
 
 function TabPanel({ children, value, index }: TabPanelProps) {
   return (
-    <Box role="tabpanel" hidden={value !== index}>
-      {value === index && <Box>{children}</Box>}
+    <Box role="tabpanel" hidden={value !== index} sx={{ display: value === index ? "block" : "none" }}>
+      {children}
     </Box>
   );
 }
@@ -224,7 +224,7 @@ function RoleRowActionMenu({ row, isAdmin = true, onEdit, onDelete }: RoleRowAct
   );
 }
 
-const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
+const RoleTab = ({ showSnackbar, ref }: TabProps & { ref?: React.Ref<TabHandle> }) => {
   const { data: userRoles = [], isLoading, error } = useUserRoles();
   const { data: users = [] } = useUsers();
   const addMutation = useAddUserRole();
@@ -413,9 +413,6 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
             pagination: {
               paginationModel: { pageSize: 10 },
             },
-            sorting: {
-              sortModel: [{ field: "role", sort: "asc" }],
-            },
           }}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
@@ -489,9 +486,9 @@ const RoleTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
       />
     </>
   );
-});
+};
 
-const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) => {
+const DepartmentTab = ({ showSnackbar, ref }: TabProps & { ref?: React.Ref<TabHandle> }) => {
   const { data: departments = [], isLoading, error } = useDepartments();
   const { data: users = [] } = useUsers();
   const addMutation = useAddDepartment();
@@ -704,9 +701,6 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
             pagination: {
               paginationModel: { pageSize: 10 },
             },
-            sorting: {
-              sortModel: [{ field: "name", sort: "asc" }],
-            },
           }}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
@@ -774,7 +768,7 @@ const DepartmentTab = forwardRef<TabHandle, TabProps>(({ showSnackbar }, ref) =>
       </Dialog>
     </>
   );
-});
+};
 
 export default function RoleManagement() {
   const [activeTab, setActiveTab] = useState(0);
@@ -815,7 +809,7 @@ export default function RoleManagement() {
   };
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
+    startTransition(() => setActiveTab(newValue));
   };
 
   const handleOpenAdd = () => {
@@ -888,6 +882,7 @@ export default function RoleManagement() {
               backgroundColor: "primary.main",
               height: 3,
               borderRadius: "3px 3px 0 0",
+              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important",
             },
           }}
         >

@@ -1,9 +1,9 @@
 import {
-  forwardRef,
   useImperativeHandle,
   useRef,
   useState,
   useEffect,
+  startTransition,
 } from "react";
 import {
   Box,
@@ -104,8 +104,8 @@ interface TabPanelProps {
 
 function TabPanel({ children, value, index }: TabPanelProps) {
   return (
-    <Box role="tabpanel" hidden={value !== index}>
-      {value === index && <Box>{children}</Box>}
+    <Box role="tabpanel" hidden={value !== index} sx={{ display: value === index ? "block" : "none" }}>
+      {children}
     </Box>
   );
 }
@@ -190,9 +190,6 @@ function GenericTable<T extends { id: number }>({
           loading={loading}
           initialState={{
             pagination: { paginationModel: { pageSize: 10 } },
-            sorting: {
-              sortModel: [{ field: "srNo", sort: "asc" }],
-            },
           }}
           pageSizeOptions={[10, 20, 50]}
           disableRowSelectionOnClick
@@ -295,10 +292,15 @@ const formatDate = (val?: string | null) => {
 };
 
 //unit tab
-const UnitTab = forwardRef<
-  TabHandle,
-  { createdBy: number; showSnackbar: (msg: string, severity?: "success" | "error") => void }
->(function UnitTab({ createdBy, showSnackbar }, ref) {
+const UnitTab = ({
+  createdBy,
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  showSnackbar: (msg: string, severity?: "success" | "error") => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
   const { data: units = [], isLoading: loading, error: fetchError } = useUnits();
   const { data: users = [] } = useUsers();
   const addMutation = useAddUnit();
@@ -484,15 +486,22 @@ const UnitTab = forwardRef<
       />
     </>
   );
-});
+};
 
 // stage tab
 const STAGE_TYPES = ["IR", "MSN"] as const;
 
-const StageTab = forwardRef<
-  TabHandle,
-  { createdBy: number; stageFilter?: string; showSnackbar: (msg: string, severity?: "success" | "error") => void }
->(function StageTab({ createdBy, stageFilter = "IR", showSnackbar }, ref) {
+const StageTab = ({
+  createdBy,
+  stageFilter = "IR",
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  stageFilter?: string;
+  showSnackbar: (msg: string, severity?: "success" | "error") => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
   const { data: allStages = [], isLoading: loading, error: fetchError } = useAllStages();
   const { data: users = [] } = useUsers();
   const addMutation = useAddStage();
@@ -705,13 +714,18 @@ const StageTab = forwardRef<
       />
     </>
   );
-});
+};
 
 // material tab
-const MaterialTab = forwardRef<
-  TabHandle,
-  { createdBy: number; showSnackbar: (msg: string, severity?: "success" | "error") => void }
->(function MaterialTab({ createdBy, showSnackbar }, ref) {
+const MaterialTab = ({
+  createdBy,
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  showSnackbar: (msg: string, severity?: "success" | "error") => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
   const { data: shapes = [], isLoading: loading, error: fetchError } = useShapes();
   const { data: users = [] } = useUsers();
   const addMutation = useAddShape();
@@ -903,13 +917,18 @@ const MaterialTab = forwardRef<
       />
     </>
   );
-});
+};
 
 // production series
-const ProductionSeriesTab = forwardRef<
-  TabHandle,
-  { createdBy: number; showSnackbar: (msg: string, severity?: "success" | "error") => void }
->(function ProductionSeriesTab({ createdBy, showSnackbar }, ref) {
+const ProductionSeriesTab = ({
+  createdBy,
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  showSnackbar: (msg: string, severity?: "success" | "error") => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
 
   const { data: productionSeries = [], isLoading: loading, error: fetchError } =
     useProductionSeries();
@@ -1151,22 +1170,21 @@ const ProductionSeriesTab = forwardRef<
       />
     </>
   );
-});
+};
 
-const SignatureTab = forwardRef<
-  TabHandle,
-  {
-    createdBy: number;
-    users: any[];
-    showSnackbar: (
-      msg: string,
-      severity?: "success" | "error"
-    ) => void;
-  }
->(function SignatureTab(
-  { users, showSnackbar },
-  ref
-) {
+const SignatureTab = ({
+  users,
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  users: any[];
+  showSnackbar: (
+    msg: string,
+    severity?: "success" | "error"
+  ) => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
   const queryClient = useQueryClient();
   const { data: usersWithSignatures = [], isLoading: loading, error: fetchError } = useUsersWithSignatures();
 
@@ -1492,7 +1510,7 @@ const SignatureTab = forwardRef<
       </Dialog>
     </>
   );
-});
+};
 
 
 // tab labels
@@ -1579,7 +1597,7 @@ export default function AddComponents({ hideHeader = false }: { hideHeader?: boo
       >
         <Tabs
           value={activeTab}
-          onChange={(_e, newValue) => setActiveTab(newValue)}
+          onChange={(_e, newValue) => startTransition(() => setActiveTab(newValue))}
           textColor="primary"
           indicatorColor="primary"
           aria-label="master data tabs"
@@ -1594,12 +1612,14 @@ export default function AddComponents({ hideHeader = false }: { hideHeader?: boo
               px: 1.5,
               minHeight: 40,
               color: "#475467",
+              transition: "color 0.15s ease",
             },
             "& .MuiTab-root.Mui-selected": { color: "primary.main", fontWeight: 700 },
             "& .MuiTabs-indicator": {
               backgroundColor: "primary.main",
               height: 3,
               borderRadius: "3px 3px 0 0",
+              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important",
             },
           }}
         >

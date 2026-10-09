@@ -164,7 +164,6 @@ export const commonDataGridSx = {
   "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus-visible, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader:focus-visible, & .MuiDataGrid-columnHeader--focused, & .MuiDataGrid-columnHeaderTitleContainer:focus, & .MuiDataGrid-columnHeaderTitleContainer:focus-within": {
     outline: "none !important",
     boxShadow: "none !important",
-    border: "none !important",
   },
   "& .MuiDataGrid-sortIcon": {
     color: "#6D2A8F !important",
@@ -305,7 +304,6 @@ export const adminDataGridSx = {
   "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within, & .MuiDataGrid-cell:focus-visible, & .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-columnHeader:focus-visible, & .MuiDataGrid-columnHeader--focused, & .MuiDataGrid-columnHeaderTitleContainer:focus, & .MuiDataGrid-columnHeaderTitleContainer:focus-within": {
     outline: "none !important",
     boxShadow: "none !important",
-    border: "none !important",
   },
   "& .MuiDataGrid-sortIcon": {
     color: "#6D2A8F !important",

@@ -1251,7 +1251,7 @@ export default function GenerateIRMSN() {
                                 variant="body2"
                                 sx={{
                                   fontWeight: 700,
-                                  color: "primary.main",
+                                  color: "text.primary",
                                   fontSize: "0.875rem",
                                   lineHeight: 1.3,
                                   textAlign: "left !important",

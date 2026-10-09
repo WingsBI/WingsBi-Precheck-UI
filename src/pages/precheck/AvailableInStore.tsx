@@ -604,7 +604,7 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                 fontSize: { xs: "1.15rem", sm: "1.35rem" },
               }}
             >
-             Stored Components
+              Stored Components
             </Typography>
             <Typography variant="body2" sx={{ color: "#667085", mt: 0.25, fontSize: "0.8rem" }}>
               View and filter Stored Components and QR codes.
@@ -926,13 +926,13 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                   <TableContainer sx={{ overflowX: "auto", overflowY: "auto", flexGrow: 1 }}>
                     <Table stickyHeader size="small" sx={{ width: "100%" }}>
                       <TableHead>
-                        <TableRow>
+                        <TableRow sx={{ height: 40 }}>
                           <SortableTableHeader label="Sr No" sortKey="sr" activeSortColumn={bomSortColumn} sortDirection={bomSortDirection} onSort={handleBomSort} align="center" />
                           <SortableTableHeader label="Item Code" sortKey="lnitemcode" activeSortColumn={bomSortColumn} sortDirection={bomSortDirection} onSort={handleBomSort} align="center" />
                           <SortableTableHeader label="Part Number" sortKey="drawingNumber" activeSortColumn={bomSortColumn} sortDirection={bomSortDirection} onSort={handleBomSort} align="center" />
-                          <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Prod. Series</TableCell>
-                          <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Type</TableCell>
-                          <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Total QR Code</TableCell>
+                          <SortableTableHeader label="Prod. Series" isSortable={false} align="center" />
+                          <SortableTableHeader label="Type" isSortable={false} align="center" />
+                          <SortableTableHeader label="Total QR Code" isSortable={false} align="center" />
                         </TableRow>
                       </TableHead>
                       <TableBody>
@@ -1025,17 +1025,13 @@ const AvailableInStore: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = fal
                     <TableContainer sx={{ overflowX: "auto", overflowY: "auto", flexGrow: 1 }}>
                       <Table stickyHeader size="small" sx={{ width: "100%" }}>
                         <TableHead>
-                          <TableRow>
+                          <TableRow sx={{ height: 40 }}>
                             <SortableTableHeader label="QR Code Number" sortKey="qrCodeNumber" activeSortColumn={qrSortColumn} sortDirection={qrSortDirection} onSort={handleQrSort} align="center" />
-                            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">ID</TableCell>
-                            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Qty</TableCell>
-                            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Unit</TableCell>
-                            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">
-                              <Tooltip title="Production Order Number" arrow placement="bottom">
-                                <span>PO Number</span>
-                              </Tooltip>
-                            </TableCell>
-                            <TableCell sx={{ fontWeight: 700, backgroundColor: "#F9FAFB !important", color: "#475467", fontSize: "0.8rem", borderBottom: "1px solid #EAECF0", py: 1, px: 1.5 }} align="center">Location</TableCell>
+                            <SortableTableHeader label="ID" isSortable={false} align="center" />
+                            <SortableTableHeader label="Qty" isSortable={false} align="center" />
+                            <SortableTableHeader label="Unit" isSortable={false} align="center" />
+                            <SortableTableHeader label="PO Number" tooltip="Production Order Number" isSortable={false} align="center" />
+                            <SortableTableHeader label="Location" isSortable={false} align="center" />
                             <SortableTableHeader label="Created On" sortKey="createdDate" activeSortColumn={qrSortColumn} sortDirection={qrSortDirection} onSort={handleQrSort} align="center" />
                           </TableRow>
                         </TableHead>

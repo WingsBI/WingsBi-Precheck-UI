@@ -54,7 +54,7 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import type { RootState } from "../store/store";
-import { logout } from "../store/slices/authSlice";
+import { logout, logoutUser } from "../store/slices/authSlice";
 import { clearGeneratedNumber, clearTables } from "../store/slices/irmsnSlice";
 import { clearAllData as clearCommonData } from "../store/slices/commonSlice";
 import { clearError as clearDashboardError } from "../store/slices/dashboardSlice";
@@ -511,21 +511,26 @@ export default function Layout() {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    dispatch(clearGeneratedNumber());
-    dispatch(clearTables());
-    dispatch(clearCommonData());
-    dispatch(clearDashboardError());
-    dispatch(clearPrecheckError());
-    dispatch(clearPrecheckData());
-    dispatch(clearQrcodeError());
-    dispatch(clearQRCodeList());
-    dispatch(clearBarcodeDetails());
-    dispatch(clearSopError());
-    dispatch(clearSopData());
-    navigate("/login");
-    handleProfileMenuClose();
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser() as any);
+    } catch (err) {
+      console.error("Logout API error:", err);
+    } finally {
+      dispatch(clearGeneratedNumber());
+      dispatch(clearTables());
+      dispatch(clearCommonData());
+      dispatch(clearDashboardError());
+      dispatch(clearPrecheckError());
+      dispatch(clearPrecheckData());
+      dispatch(clearQrcodeError());
+      dispatch(clearQRCodeList());
+      dispatch(clearBarcodeDetails());
+      dispatch(clearSopError());
+      dispatch(clearSopData());
+      navigate("/login");
+      handleProfileMenuClose();
+    }
   };
 
   const handleAskAIClick = () => {
@@ -926,7 +931,7 @@ export default function Layout() {
                 alignItems: "center",
               }}
             >
-              Verification Tool
+              Assembly Verification Tool
             </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
