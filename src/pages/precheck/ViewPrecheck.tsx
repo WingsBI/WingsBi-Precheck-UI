@@ -1262,7 +1262,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                   return (
                     <li {...optionProps} key={key}>
                       <Box sx={{ display: "flex", flexDirection: "column", width: "100%", py: 0.1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: "primary.main", fontSize: "0.82rem" }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary", fontSize: "0.82rem" }}>
                           {lnCode}
                         </Typography>
                         {dwgNum ? (
@@ -1346,7 +1346,7 @@ export const ViewPrecheck: React.FC<{ hideHeader?: boolean }> = ({ hideHeader = 
                   return (
                     <li {...optionProps} key={key}>
                       <Box sx={{ display: "flex", flexDirection: "column", width: "100%", py: 0.1 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: "primary.main", fontSize: "0.82rem" }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary", fontSize: "0.82rem" }}>
                           {dwgNum}
                         </Typography>
                         {lnCode ? (

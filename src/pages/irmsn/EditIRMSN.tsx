@@ -450,7 +450,7 @@ export default function EditIRMSN() {
                         <Typography
                           variant="body2"
                           fontWeight="600"
-                          sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                          sx={{ fontSize: "0.875rem", color: "text.primary" }}
                         >
                           {drawingNo.startsWith("Drawing:")
                             ? drawingNo
@@ -603,7 +603,7 @@ export default function EditIRMSN() {
                         <Typography
                           variant="body2"
                           fontWeight="600"
-                          sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                          sx={{ fontSize: "0.875rem", color: "text.primary" }}
                         >
                           {poNum.startsWith("PO:") ? poNum : `PO: ${poNum}`}
                         </Typography>

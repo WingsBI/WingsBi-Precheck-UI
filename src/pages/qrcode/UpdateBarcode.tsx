@@ -686,7 +686,7 @@ const UpdateBarcode: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {lnCode.startsWith("LN:")
                               ? lnCode
@@ -813,7 +813,7 @@ const UpdateBarcode: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {drawingNo.startsWith("Part No:")
                               ? drawingNo
@@ -1234,7 +1234,7 @@ const UpdateBarcode: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            color="primary"
+                            color="text.primary"
                           >
                             PO: {option.productionOrderNumber}
                           </Typography>

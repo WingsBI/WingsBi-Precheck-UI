@@ -241,7 +241,7 @@ const PrecheckFormControls: React.FC<PrecheckFormControlsProps> = ({
                 <Typography
                   variant="body2"
                   fontWeight="600"
-                  color="primary"
+                  color="text.primary"
                 >
                   PO: {option.productionOrderNumber}
                 </Typography>

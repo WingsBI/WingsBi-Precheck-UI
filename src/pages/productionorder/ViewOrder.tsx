@@ -562,7 +562,7 @@ const ViewOrder: React.FC = () => {
               return (
                 <li {...optionProps} key={key}>
                   <Box sx={{ display: "flex", flexDirection: "column", py: 0.5, width: "100%" }}>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: "primary.main", fontSize: "0.875rem" }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary", fontSize: "0.875rem" }}>
                       {poNum}
                     </Typography>
                     {(lnCode || dwgNum || nom || compType) && (

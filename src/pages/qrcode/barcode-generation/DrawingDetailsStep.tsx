@@ -364,7 +364,7 @@ function DrawingDetailsStep({
                           <Typography
                             variant="body2"
                             fontWeight="700"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {option.productionOrderNumber}
                           </Typography>
@@ -893,7 +893,7 @@ function DrawingDetailsStep({
                           <Typography
                             variant="body2"
                             fontWeight="700"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {drawingNo}
                           </Typography>
@@ -1353,7 +1353,7 @@ function DrawingDetailsStep({
                           <Typography
                             variant="body2"
                             fontWeight="700"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {drawingNo}
                           </Typography>
