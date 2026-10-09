@@ -423,27 +423,29 @@ export const ScriptErrorDialog: React.FC<ScriptErrorDialogProps> = ({
     >
       <Box
         sx={{
-          background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-          color: "white",
+          bgcolor: "white",
+          color: "primary.main",
           px: 3,
           py: 2,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          borderBottom: "1px solid",
+          borderColor: "neutral.border",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <WarningIcon sx={{ fontSize: 28 }} />
+          <WarningIcon sx={{ fontSize: 28, color: "primary.main" }} />
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2, color: "white" }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2, color: "primary.main" }}>
               Script Execution Failed
             </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.9, fontSize: "0.775rem" }}>
+            <Typography variant="caption" sx={{ color: "primary.main", opacity: 0.85, fontSize: "0.775rem" }}>
               Execution encountered an error. See details below:
             </Typography>
           </Box>
         </Box>
-        <IconButton size="small" onClick={onClose} sx={{ color: "white", p: 0.5 }}>
+        <IconButton size="small" onClick={onClose} sx={{ color: "primary.main", p: 0.5 }}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </Box>

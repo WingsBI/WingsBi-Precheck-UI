@@ -227,7 +227,7 @@ export default function Layout() {
   // Menu items structure
   const menuItems: MenuItem[] = [
     {
-      text: "Dashboard",
+      text: "Analytics Dashboard",
       pageName: "Dashboard",
       icon: <DashboardIcon />,
       path: "/dashboard",

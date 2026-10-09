@@ -373,7 +373,7 @@ export const KpiDashboard: React.FC = () => {
         <Box sx={{ flex: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
             <Typography variant="h5" sx={{ fontWeight: 800, color: "primary.main", letterSpacing: "-0.02em" }}>
-              Production & Traceability Overview
+              Analytics Dashboard
             </Typography>
 
             <Chip
@@ -451,7 +451,7 @@ export const KpiDashboard: React.FC = () => {
               },
             }}
           >
-            <Tab label="Production & Traceability Overview" />
+            <Tab label="Analytics Dashboard" />
             <Tab label="Production Order Details" />
           </Tabs>
         </Box>
