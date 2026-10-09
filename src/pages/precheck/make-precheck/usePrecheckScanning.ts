@@ -356,7 +356,7 @@ export const usePrecheckScanning = ({
               (existingVPRow && Number(existingVPRow.remainingQuantity) <= 0)
             ) {
               showAlertMessage(
-                "Precheck is already completed.",
+                "Part verification is already completed.",
                 "warning"
               );
               return;
@@ -408,7 +408,7 @@ export const usePrecheckScanning = ({
 
             if (!sourceMatch) {
               showAlertMessage(
-                "QR code is already scanned or precheck is completed.",
+                "QR code is already scanned or part verification is completed.",
                 "warning"
               );
               return;
@@ -439,7 +439,7 @@ export const usePrecheckScanning = ({
 
             if (!sourceMatch) {
               showAlertMessage(
-                "QR code is already scanned or precheck is completed.",
+                "QR code is already scanned or part verification is completed.",
                 "warning"
               );
               return;
@@ -751,7 +751,7 @@ export const usePrecheckScanning = ({
           );
         }
       } else {
-        showAlertMessage("Excel precheck processed successfully!", "success");
+        showAlertMessage("Excel file processed successfully!", "success");
       }
 
       if (onExcelUploadSuccess) {

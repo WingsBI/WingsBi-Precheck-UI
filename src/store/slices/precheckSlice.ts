@@ -82,6 +82,7 @@ export const viewPrecheckDetails = createAsyncThunk(
   "precheck/viewPrecheckDetails",
   async (request: any, { rejectWithValue }) => {
     try {
+      console.log("Calling ViewPrecheck API with params:", request);
       const response = await api.get("/api/precheck/ViewPrecheck", {
         params: request,
       });
@@ -89,7 +90,7 @@ export const viewPrecheckDetails = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to view precheck details",
+        error.response?.data?.message || "Failed to view verification details",
       );
     }
   },
@@ -124,7 +125,7 @@ export const viewPrecheckByParameters = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to view precheck details by parameters",
+        error.response?.data?.message || "Failed to view verification details ",
       );
     }
   },
@@ -140,7 +141,7 @@ export const getPrecheckStatus = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to get precheck status",
+        error.response?.data?.message || "Failed to get verification status",
       );
     }
   },
@@ -195,16 +196,21 @@ export const getAvailableComponentsForBOM = createAsyncThunk(
   "precheck/getAvailableComponentsForBOM",
   async (
     requestData: {
-      prodSeriesId: number;
-      drawingNumberId: number;
-      quantity: number;
+      prodSeriesId?: number | string;
+      drawingNumberId?: number | string;
+      quantity?: number;
     },
     { rejectWithValue },
   ) => {
     try {
+      const payload = {
+        prodSeriesId: requestData.prodSeriesId && !isNaN(Number(requestData.prodSeriesId)) ? Number(requestData.prodSeriesId) : 0,
+        drawingNumberId: requestData.drawingNumberId && !isNaN(Number(requestData.drawingNumberId)) ? Number(requestData.drawingNumberId) : 0,
+        quantity: requestData.quantity && !isNaN(Number(requestData.quantity)) ? Number(requestData.quantity) : 0,
+      };
       const response = await api.post(
         "/api/Precheck/GetAvailablComponents",
-        requestData,
+        payload,
       );
       return response.data;
     } catch (error: any) {
@@ -350,17 +356,17 @@ export const exportPrecheckDetails = createAsyncThunk(
 
         return {
           success: true,
-          message: "Precheck details exported successfully",
+          message: "Verification details exported successfully",
         };
       } else {
         throw new Error("No file content received from the API");
       }
     } catch (error: any) {
-      console.error("Error exporting precheck details:", error);
+      console.error("Error exporting verification details:", error);
       return rejectWithValue(
         error.response?.data?.message ||
         error.message ||
-        "Failed to export precheck details",
+        "Failed to export verification details",
       );
     }
   },
@@ -432,17 +438,17 @@ export const exportViewPrecheckDetails = createAsyncThunk(
 
         return {
           success: true,
-          message: "Precheck details exported successfully",
+          message: "Verification details exported successfully",
         };
       } else {
         throw new Error("No file content received from the API");
       }
     } catch (error: any) {
-      console.error("Error exporting view precheck details:", error);
+      console.error("Error exporting verification details:", error);
       return rejectWithValue(
         error.response?.data?.message ||
         error.message ||
-        "Failed to export precheck details"
+        "Failed to export verification details"
       );
     }
   }
@@ -482,17 +488,17 @@ export const downloadBulkPrecheckTemplate = createAsyncThunk(
 
         return {
           success: true,
-          message: "Bulk precheck template downloaded successfully",
+          message: "Bulk verification template downloaded successfully",
         };
       } else {
         throw new Error("No file content received from the API");
       }
     } catch (error: any) {
-      console.error("Error downloading bulk precheck template:", error);
+      console.error("Error downloading bulk verification template:", error);
       return rejectWithValue(
         error.response?.data?.message ||
         error.message ||
-        "Failed to download bulk precheck template",
+        "Failed to download verification template",
       );
     }
   },
@@ -721,7 +727,7 @@ export const resetQrQuantity = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to reset precheck quantity",
+        error.response?.data?.message || "Failed to reset  quantity",
       );
     }
   },
@@ -745,7 +751,7 @@ export const deletePrecheckDetails = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete precheck details",
+        error.response?.data?.message || "Failed to delete verification details",
       );
     }
   },
@@ -758,6 +764,7 @@ export const removePrecheckDetails = createAsyncThunk(
       productionOrderNumber: string;
       idNumber: number;
       drawingNumberId: number;
+      QrIdNumber?: string;
     },
     { rejectWithValue },
   ) => {
@@ -769,7 +776,7 @@ export const removePrecheckDetails = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to remove precheck details",
+        error.response?.data?.message || "Failed to remove verification details",
       );
     }
   },
@@ -912,7 +919,9 @@ const precheckSlice = createSlice({
       })
       .addCase(getAvailableComponentsForBOM.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.availableComponents = action.payload;
+        state.availableComponents = Array.isArray(action.payload)
+          ? action.payload
+          : action.payload?.data || [];
         state.error = null;
       })
       .addCase(getAvailableComponentsForBOM.rejected, (state, action) => {

@@ -18,6 +18,7 @@ import {
   gridPageSizeSelector,
   gridRowCountSelector,
 } from "@mui/x-data-grid";
+import { TABLE_TOKENS } from "./tableStyles";
 
 export interface CustomPaginationProps {
   page: number;
@@ -47,16 +48,24 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        p: 0.75,
-        px: 2,
-        borderTop: "1px solid #EAECF0",
+        minHeight: TABLE_TOKENS.footerHeight,
+        px: TABLE_TOKENS.footerPx,
+        py: TABLE_TOKENS.footerPy,
+        borderTop: `1px solid ${TABLE_TOKENS.footerBorderColor}`,
         backgroundColor: "#ffffff",
         flexWrap: "wrap",
         gap: 1,
       }}
     >
       <Stack direction="row" alignItems="center" spacing={1}>
-        <Typography variant="body2" sx={{ color: "#475467", fontSize: "0.775rem", fontWeight: 500 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: TABLE_TOKENS.footerTextColor,
+            fontSize: TABLE_TOKENS.footerFontSize,
+            fontWeight: 500,
+          }}
+        >
           Rows per page
         </Typography>
         <Select
@@ -66,9 +75,14 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
           disabled={disabled}
           sx={{
             height: 26,
-            fontSize: "0.725rem",
+            fontSize: TABLE_TOKENS.footerFontSize,
             borderRadius: "6px",
-            "& .MuiSelect-select": { py: 0.15, px: 0.85, pr: "20px !important", fontSize: "0.725rem" },
+            "& .MuiSelect-select": {
+              py: 0.15,
+              px: 0.85,
+              pr: "20px !important",
+              fontSize: TABLE_TOKENS.footerFontSize,
+            },
             "& .MuiSelect-icon": { fontSize: 16 },
             "& .MuiOutlinedInput-notchedOutline": { borderColor: "#D0D5DD" },
             "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "#98A2B3" },
@@ -76,7 +90,7 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
           }}
         >
           {pageSizeOptions.map((opt) => (
-            <MenuItem key={opt} value={opt} sx={{ fontSize: "0.725rem" }}>
+            <MenuItem key={opt} value={opt} sx={{ fontSize: TABLE_TOKENS.footerFontSize }}>
               {opt}
             </MenuItem>
           ))}
@@ -84,7 +98,14 @@ export const CustomPagination: React.FC<CustomPaginationProps> = ({
       </Stack>
 
       <Stack direction="row" alignItems="center" spacing={1.5}>
-        <Typography variant="body2" sx={{ color: "#475467", fontSize: "0.775rem", fontWeight: 500 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: TABLE_TOKENS.footerTextColor,
+            fontSize: TABLE_TOKENS.footerFontSize,
+            fontWeight: 500,
+          }}
+        >
           {totalCount > 0
             ? `${startRow.toLocaleString()}–${endRow.toLocaleString()} of ${totalCount.toLocaleString()}`
             : "0–0 of 0"}
@@ -146,4 +167,3 @@ export const DataGridCustomPagination: React.FC = () => {
     </Box>
   );
 };
-

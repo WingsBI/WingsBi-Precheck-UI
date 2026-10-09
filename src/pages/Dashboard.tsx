@@ -41,6 +41,8 @@ interface DashboardCard {
   route: string;
 }
 
+import PageHeader from "../components/ui/PageHeader";
+
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
@@ -57,7 +59,7 @@ const Dashboard: React.FC = () => {
       description: "Upload and view Production Order details and status",
       icon: <ShoppingCartIcon sx={{ fontSize: 40 }} />,
       color: "#df2e78ff",
-      route: "/production-order/upload",
+      route: "/production-order/history",
     },
     {
       title: "Generate IR, MSN",
@@ -65,7 +67,7 @@ const Dashboard: React.FC = () => {
       description: "Access and manage gen. ir msn no. related tasks",
       icon: <QrCodeIcon sx={{ fontSize: 40 }} />,
       color: "#9C27B0",
-      route: "/irmsn/generate",
+      route: "/irmsn/new",
     },
     {
       title: "Generate QR Code",
@@ -73,31 +75,31 @@ const Dashboard: React.FC = () => {
       description: "Access and manage Barcode generation related tasks",
       icon: <QrCodeScannerIcon sx={{ fontSize: 40 }} />,
       color: "#FF9800",
-      route: "/qrcode/generate",
+      route: "/qrcode/new",
     },
     {
-      title: "Run Precheck",
-      pageName: "Run Precheck",
+      title: "Part Verification",
+      pageName: "Part Verification",
       description: "Access and manage make pre-check related tasks",
       icon: <FactCheckIcon sx={{ fontSize: 40 }} />,
       color: "#2196F3",
-      route: "/precheck/make",
+      route: "/verification/parts",
     },
     {
-      title: "View Precheck",
-      pageName: "Precheck History",
-      description: "Access and view precheck details and status",
+      title: "Verification History",
+      pageName: "Verification History",
+      description: "Access and view verification details and status",
       icon: <FactCheckIcon sx={{ fontSize: 40 }} />,
       color: "#3F51B5",
-      route: "/precheck/view",
+      route: "/verification/history",
     },
     {
       title: "Material Requisition",
-      pageName: "Run Precheck",
+      pageName: "Material Requisition",
       description: "Add and view Material Requisition details",
       icon: <ReceiptLongIcon sx={{ fontSize: 40 }} />,
       color: "#3fb1b5ff",
-      route: "/materialrequisition",
+      route: "/verification/material-requisition",
     },
     {
       title: "Store Consumption",
@@ -105,7 +107,7 @@ const Dashboard: React.FC = () => {
       description: "Access and manage Store Consumption related tasks",
       icon: <InventoryIcon sx={{ fontSize: 40 }} />,
       color: "#4CAF50",
-      route: "/precheck/store-in",
+      route: "/qrcode/store-in",
     },
     {
       title: "Assembly Explorer",
@@ -113,15 +115,15 @@ const Dashboard: React.FC = () => {
       description: "Access and manage Assembly related tasks",
       icon: <MenuBookIcon sx={{ fontSize: 40 }} />,
       color: "#F44336",
-      route: "/sop/view",
+      route: "/assembly/explorer",
     },
     {
       title: "Bulk Import",
       pageName: "Bulk Import",
       description: "Access and Manage Bulk Import related tasks",
-      icon: <CloudUploadIcon sx={{ fontSize: 40 }} />,
+      icon: <CloudUploadIcon />,
       color: "#009688",
-      route: "/scriptexecutor",
+      route: "/bulk-import",
     },
     {
       title: "Components",
@@ -129,7 +131,7 @@ const Dashboard: React.FC = () => {
       description: "Access and manage Components related tasks",
       icon: <CategoryIcon sx={{ fontSize: 40 }} />,
       color: "#f1b40bff",
-      route: "/components",
+      route: "/assembly/components",
     },
     {
       title: "Admin Master",
@@ -137,7 +139,7 @@ const Dashboard: React.FC = () => {
       description: "Access and manage Admin related tasks",
       icon: <SettingIcon sx={{ fontSize: 40 }} />,
       color: "#3F51B5",
-      route: "/adminmaster/rolemanagement",
+      route: "/adminmaster/role-management",
     },
   ];
 

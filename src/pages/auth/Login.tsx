@@ -5,7 +5,6 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   Link,
   Card,
   CardContent,
@@ -14,6 +13,8 @@ import {
   Alert,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import ActionButton from "../../components/ui/ActionButton";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { login, clearError } from "../../store/slices/authSlice";
 import type { RootState } from "../../store/store";
 
@@ -37,9 +38,17 @@ const Login: React.FC = () => {
 
   const validateForm = () => {
     const errors: Partial<LoginForm> = {};
-    if (!formData.userId.trim()) {
-      errors.userId = "User ID is required";
+    const inputVal = formData.userId.trim();
+
+    if (!inputVal) {
+      errors.userId = "User ID or Email is required";
+    } else if (inputVal.includes("@")) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(inputVal)) {
+        errors.userId = "Invalid email format";
+      }
     }
+
     if (!formData.password.trim()) {
       errors.password = "Password is required";
     }
@@ -59,6 +68,11 @@ const Login: React.FC = () => {
 
         if (login.fulfilled.match(resultAction)) {
           console.log("Login successful, navigating to dashboard");
+          const mod = (window as any).MyChatbot;
+          const chatbot = mod?.default || mod?.MyChatbot || mod;
+          if (chatbot && typeof chatbot.open === "function") {
+            chatbot.open();
+          }
           navigate("/dashboard", { replace: true });
         } else if (login.rejected.match(resultAction)) {
           console.log("Login failed:", resultAction.payload);
@@ -97,7 +111,7 @@ const Login: React.FC = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        width: "100vw",
+        width: "100%",
         background: "linear-gradient(90deg, #6D2A8F 0%, #D82578 100%)",
         display: "flex",
         alignItems: "center",
@@ -173,14 +187,15 @@ const Login: React.FC = () => {
                   mb: 0.75,
                 }}
               >
-                User ID
+                <RequiredLabel text="User ID / Email" required />
               </Typography>
               <TextField
                 fullWidth
                 size="small"
                 id="userId"
                 name="userId"
-                placeholder="Enter your user ID"
+                type="text"
+                placeholder="Enter your User ID or Email"
                 value={formData.userId}
                 onChange={handleChange}
                 error={!!formErrors.userId}
@@ -221,7 +236,7 @@ const Login: React.FC = () => {
                     fontSize: "0.825rem",
                   }}
                 >
-                  Password
+                  <RequiredLabel text="Password" required />
                 </Typography>
               </Box>
               <TextField
@@ -278,32 +293,21 @@ const Login: React.FC = () => {
             {error && (
               <Alert severity="error" sx={{ mb: 2, borderRadius: "8px", fontSize: "0.825rem" }}>
                 {error.toLowerCase().includes("invalid credentials") || error.toLowerCase().includes("deactivated")
-                  ? "Incorrect User ID or Password. Please double-check your credentials and try again."
+                  ? "Incorrect User ID / Email or Password. Please double-check your credentials and try again."
                   : error}
               </Alert>
             )}
 
-            <Button
+            <ActionButton
+              variant="primary"
+              size="standard"
               fullWidth
               type="submit"
-              variant="contained"
               disabled={isLoading}
-              sx={{
-                mt: 1.5,
-                height: 40,
-                fontWeight: 600,
-                fontSize: "0.875rem",
-                textTransform: "none",
-                borderRadius: "8px",
-                backgroundColor: "#6D2A8F",
-                color: "#ffffff",
-                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                "&:hover": { backgroundColor: "#582075" },
-                "&.Mui-disabled": { backgroundColor: "#EAECF0", color: "#98A2B3" },
-              }}
+              sx={{ mt: 1.5 }}
             >
               {isLoading ? "Logging in..." : "Login"}
-            </Button>
+            </ActionButton>
 
             <Box mt={2.5} textAlign="center">
               <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.825rem" }}>

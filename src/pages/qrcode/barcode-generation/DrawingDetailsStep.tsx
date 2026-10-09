@@ -19,6 +19,7 @@ import {
 import { Controller } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import StepHeader from "./StepHeader";
+import RequiredLabel from "../../../components/ui/RequiredLabel";
 import type { DrawingNumber, Shape } from "../../../types";
 
 interface DrawingDetailsStepProps {
@@ -143,7 +144,7 @@ function DrawingDetailsStep({
         boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
       }}
     >
-      <StepHeader number={1} title="Basic Details" />
+      <StepHeader title="Basic Details" />
 
       {/* Top QR Type Radio Group */}
       <Box sx={{ mb: 1.5 }}>
@@ -363,7 +364,7 @@ function DrawingDetailsStep({
                           <Typography
                             variant="body2"
                             fontWeight="700"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {option.productionOrderNumber}
                           </Typography>
@@ -380,9 +381,10 @@ function DrawingDetailsStep({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="PO Number *"
+                      label={<RequiredLabel text="Production Order No" required />}
                       fullWidth
                       size="small"
+                      InputLabelProps={{ shrink: true }}
                       inputRef={ref}
                       onKeyDown={handlePOKeyDown}
                       onClick={() => setOpenPO(true)}
@@ -549,7 +551,7 @@ function DrawingDetailsStep({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Production Series *"
+                        label={<RequiredLabel text="Production Series" required />}
                         inputRef={ref}
                         onClick={() => setOpenProdSeries(true)}
                         onFocus={(e) => {
@@ -574,11 +576,14 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel>Unit *</InputLabel>
+                  <InputLabel id="id-unit-label">
+                    <RequiredLabel text="Unit" required />
+                  </InputLabel>
                   <Select
                     {...field}
+                    labelId="id-unit-label"
                     value={currentUnitVal}
-                    label="Unit *"
+                    label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {
                       field.onChange(e);
                       if (e.target.value) {
@@ -639,7 +644,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="IR Number *"
+                    label={<RequiredLabel text="IR Number" required />}
                     onClick={() => setOpenIR(true)}
                     onFocus={(e) => {
                       setOpenIR(true);
@@ -694,7 +699,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="MSN Number *"
+                    label={<RequiredLabel text="MSN Number" required />}
                     inputRef={ref}
                     onClick={() => setOpenMSN(true)}
                     onFocus={(e) => {
@@ -716,7 +721,7 @@ function DrawingDetailsStep({
               render={({ field, fieldState: { error } }) => (
                 <DatePicker
                   {...field}
-                  label="MFG Date *"
+                  label={<RequiredLabel text="MFG Date" required />}
                   maxDate={new Date()}
                   slotProps={{
                     textField: {
@@ -888,7 +893,7 @@ function DrawingDetailsStep({
                           <Typography
                             variant="body2"
                             fontWeight="700"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {drawingNo}
                           </Typography>
@@ -908,7 +913,7 @@ function DrawingDetailsStep({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="RM Part Number *"
+                      label={<RequiredLabel text="RM Part Number" required />}
                       inputRef={ref}
                       onClick={() => setOpenDrawing(true)}
                       onFocus={(e) => {
@@ -993,7 +998,7 @@ function DrawingDetailsStep({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Production Series *"
+                        label={<RequiredLabel text="Production Series" required />}
                         inputRef={ref}
                         onClick={() => setOpenProdSeries(true)}
                         onFocus={(e) => {
@@ -1020,11 +1025,14 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel>Unit *</InputLabel>
+                  <InputLabel id="fim-unit-label">
+                    <RequiredLabel text="Unit" required />
+                  </InputLabel>
                   <Select
                     {...field}
+                    labelId="fim-unit-label"
                     value={currentUnitVal}
-                    label="Unit *"
+                    label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {
                       field.onChange(e);
                       if (e.target.value) {
@@ -1085,7 +1093,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="IR Number *"
+                    label={<RequiredLabel text="IR Number" required />}
                     onClick={() => setOpenIR(true)}
                     onFocus={(e) => {
                       setOpenIR(true);
@@ -1138,7 +1146,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="MSN Number *"
+                    label={<RequiredLabel text="MSN Number" required />}
                     inputRef={ref}
                     onClick={() => setOpenMSN(true)}
                     onFocus={(e) => {
@@ -1173,7 +1181,7 @@ function DrawingDetailsStep({
               render={({ field, fieldState: { error } }) => (
                 <DatePicker
                   {...field}
-                  label="MFG Date *"
+                  label={<RequiredLabel text="MFG Date" required />}
                   maxDate={new Date()}
                   slotProps={{
                     textField: {
@@ -1345,7 +1353,7 @@ function DrawingDetailsStep({
                           <Typography
                             variant="body2"
                             fontWeight="700"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {drawingNo}
                           </Typography>
@@ -1365,7 +1373,7 @@ function DrawingDetailsStep({
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="RM Part Number *"
+                      label={<RequiredLabel text="RM Part Number" required />}
                       inputRef={ref}
                       onClick={() => setOpenDrawing(true)}
                       onFocus={(e) => {
@@ -1450,7 +1458,7 @@ function DrawingDetailsStep({
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Production Series *"
+                        label={<RequiredLabel text="Production Series" required />}
                         inputRef={ref}
                         onClick={() => setOpenProdSeries(true)}
                         onFocus={(e) => {
@@ -1477,11 +1485,14 @@ function DrawingDetailsStep({
 
               return (
                 <FormControl fullWidth error={!!error || !!errors.unit} size="small">
-                  <InputLabel>Unit *</InputLabel>
+                  <InputLabel id="si-unit-label">
+                    <RequiredLabel text="Unit" required />
+                  </InputLabel>
                   <Select
                     {...field}
+                    labelId="si-unit-label"
                     value={currentUnitVal}
-                    label="Unit *"
+                    label={<RequiredLabel text="Unit" required />}
                     onChange={(e) => {
                       field.onChange(e);
                       if (e.target.value) {
@@ -1542,7 +1553,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="IR Number *"
+                    label={<RequiredLabel text="IR Number" required />}
                     onClick={() => setOpenIR(true)}
                     onFocus={(e) => {
                       setOpenIR(true);
@@ -1595,7 +1606,7 @@ function DrawingDetailsStep({
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="MSN Number *"
+                    label={<RequiredLabel text="MSN Number" required />}
                     inputRef={ref}
                     onClick={() => setOpenMSN(true)}
                     onFocus={(e) => {
@@ -1658,7 +1669,7 @@ function DrawingDetailsStep({
               render={({ field, fieldState: { error } }) => (
                 <DatePicker
                   {...field}
-                  label="MFG Date *"
+                  label={<RequiredLabel text="MFG Date" required />}
                   maxDate={new Date()}
                   slotProps={{
                     textField: {

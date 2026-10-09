@@ -1,19 +1,20 @@
 import { Provider } from 'react-redux';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { theme } from './theme/theme';
 import { store } from './store/store';
+import type { AppDispatch, RootState } from './store/store';
 // Removed initializeAuth to prevent auto-login from cookies/localStorage
 import AppRoutes from './routes';
 import { cookieUtils } from './utils/cookieUtils';
 import { decodeJwt } from './utils/jwtUtils';
 import { setAuthFromStorage } from './store/slices/authSlice';
-import type { AppDispatch } from './store/store';
 
 // Create QueryClient for TanStack Query
 const queryClient = new QueryClient({
@@ -30,7 +31,9 @@ const queryClient = new QueryClient({
 // Rehydrate auth from session cookie on first load (not persistent across browser restarts)
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const location = useLocation();
   const [bootstrapped, setBootstrapped] = useState(false);
+  const token = useSelector((state: RootState) => state.auth.user?.token) || cookieUtils.getToken() || null;
 
   useEffect(() => {
     try {
@@ -45,13 +48,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         sessionStorage.setItem(SESSION_SENTINEL_KEY, '1');
       }
 
-      const token = cookieUtils.getToken();
-      if (token) {
-        const decoded: any = decodeJwt(token);
+      const currentToken = cookieUtils.getToken();
+      if (currentToken) {
+        const decoded: any = decodeJwt(currentToken);
         const now = Date.now() / 1000;
         if (decoded?.exp && decoded.exp > now) {
           dispatch(setAuthFromStorage({
-            token,
+            token: currentToken,
             id: decoded.id,
             userid: decoded.userid,
             username: decoded.username,
@@ -68,6 +71,61 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setBootstrapped(true);
     }
   }, [dispatch]);
+
+  // Auto-open chatbot ONCE on initial page load if logged in, but DO NOT auto-open on page route changes
+  const initialLoadHandled = useRef(false);
+
+  useEffect(() => {
+    if (!bootstrapped) return;
+
+    const publicAuthRoutes = ['/login', '/register', '/forget-password', '/forgot-password'];
+    const isAuthPage = publicAuthRoutes.includes(location.pathname.toLowerCase());
+
+    const getChatbot = () => {
+      const mod = (window as any).MyChatbot;
+      return mod?.default || mod?.MyChatbot || mod;
+    };
+
+    if (!token || isAuthPage) {
+      initialLoadHandled.current = false;
+      const chatbot = getChatbot();
+      if (chatbot && typeof chatbot.close === 'function') {
+        chatbot.close();
+      }
+      return;
+    }
+
+    // Auto-open ONLY on initial page load or fresh login, not on route changes
+    if (!initialLoadHandled.current) {
+      initialLoadHandled.current = true;
+
+      const tryOpen = () => {
+        const chatbot = getChatbot();
+        if (chatbot && typeof chatbot.open === 'function') {
+          chatbot.open();
+          return true;
+        }
+        return false;
+      };
+
+      if (!tryOpen()) {
+        const intervalId = setInterval(() => {
+          if (tryOpen()) {
+            clearInterval(intervalId);
+          }
+        }, 200);
+
+        const timeoutId = setTimeout(() => {
+          clearInterval(intervalId);
+        }, 5000);
+
+        return () => {
+          clearInterval(intervalId);
+          clearTimeout(timeoutId);
+        };
+      }
+    }
+  }, [token, bootstrapped, location.pathname]);
 
   // Add visibility change listener to track tab switching
   useEffect(() => {

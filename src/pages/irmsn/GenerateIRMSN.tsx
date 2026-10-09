@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, Controller } from "react-hook-form";
 
@@ -18,14 +18,16 @@ import {
   Stack,
   CircularProgress,
   Alert,
-  Snackbar,
 } from "@mui/material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import {
   ContentCopy as CopyIcon,
   Refresh as RefreshIcon,
   Check as CheckIcon,
   FileDownload as DownloadIcon,
 } from "@mui/icons-material";
+import PageHeader from "../../components/ui/PageHeader";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 
 import type { RootState, AppDispatch } from "../../store/store";
 import type { DrawingNumber, FormData as BaseFormData } from "../../types";
@@ -588,13 +590,11 @@ export default function GenerateIRMSN() {
   const requiredFields =
     formMode === "ManufacturingItem"
       ? [
-        !!documentType,
         !!watchedPoNumber,
         !!watchedIdRange,
         !!watchedStage,
       ]
       : [
-        !!documentType,
         !!watch("drawingNumber"),
         !!watchedIdRange,
         !!watchedStage,
@@ -605,52 +605,31 @@ export default function GenerateIRMSN() {
     "& .MuiOutlinedInput-root": {
       backgroundColor: "#F9FAFB",
     },
-    "& .MuiInputLabel-root": {
-      backgroundColor: "#ffffff",
-      px: 0.5,
-    },
     "& .MuiInputBase-input": {
       color: "#344054",
+      fontWeight: 500,
     },
   };
 
-  const standardInputStyle = {
-    "& .MuiInputLabel-root": {
-      backgroundColor: "#ffffff",
-      px: 0.5,
-    },
-  };
+  const standardInputStyle = {};
 
   return (
     <Box
       sx={{
         py: { xs: 1, sm: 1.25 },
         px: { xs: 1.5, sm: 2 },
-        minHeight: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#FAFAFA",
         width: "100%",
         boxSizing: "border-box",
         pb: 2,
       }}
     >
-      {/* Header Section */}
-      <Box sx={{ mb: 1 }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            fontSize: { xs: "1.25rem", sm: "1.5rem" },
-          }}
-        >
-          New IR/MSN
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#667085", mt: 0.15, fontSize: "0.825rem" }}>
-          Generate a new Inspection Report (IR) or Memo Stage Number (MSN) for an order line.
-        </Typography>
-      </Box>
+      {/* Page Header */}
+      <PageHeader
+        title="New IR/MSN"
+        subtitle="Generate a new Inspection Report (IR) or Memo Stage Number (MSN)."
+      />
 
       {/* Read-only Context Bar */}
       <Paper
@@ -668,7 +647,58 @@ export default function GenerateIRMSN() {
           flexWrap: "wrap",
           gap: 1,
         }}
-      >
+      >  <Stack direction="row" alignItems="center" spacing={2.5} flexWrap="wrap" sx={{ mb: 0.25 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: "#101828", fontSize: "0.85rem" }}>
+                Item
+              </Typography>
+
+              {/* Mode Switcher Radio Buttons (Right next to Item title) */}
+              <RadioGroup
+                row
+                value={formMode}
+                onChange={(e) => {
+                  const newMode = e.target.value as "ManufacturingItem" | "PurchaseItem";
+                  handleModeChange(newMode);
+                }}
+                sx={{ alignItems: "center" }}
+              >
+                <FormControlLabel
+                  value="ManufacturingItem"
+                  control={
+                    <Radio
+                      size="small"
+                      sx={{
+                        color: "primary.main",
+                        "&.Mui-checked": { color: "primary.main" },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: "#344054", fontSize: "0.825rem" }}>
+                      Manufacturing Item
+                    </Typography>
+                  }
+                  sx={{ mr: 2 }}
+                />
+                <FormControlLabel
+                  value="PurchaseItem"
+                  control={
+                    <Radio
+                      size="small"
+                      sx={{
+                        color: "primary.main",
+                        "&.Mui-checked": { color: "primary.main" },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: "#344054", fontSize: "0.825rem" }}>
+                      Purchase Item
+                    </Typography>
+                  }
+                />
+              </RadioGroup>
+            </Stack>
         <Stack direction="row" alignItems="center" spacing={3} flexWrap="wrap">
           <Typography variant="body2" sx={{ color: "#667085" }}>
             Generated by{" "}
@@ -796,75 +826,17 @@ export default function GenerateIRMSN() {
         >
           {/* Card 1 Header: Title + Mode Radios */}
           <Box sx={{ mb: 1.25 }}>
-            <Stack direction="row" alignItems="center" spacing={2.5} flexWrap="wrap" sx={{ mb: 0.25 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: "#101828", fontSize: "0.85rem" }}>
-                Item
-              </Typography>
-
-              {/* Mode Switcher Radio Buttons (Right next to Item title) */}
-              <RadioGroup
-                row
-                value={formMode}
-                onChange={(e) => {
-                  const newMode = e.target.value as "ManufacturingItem" | "PurchaseItem";
-                  handleModeChange(newMode);
-                }}
-                sx={{ alignItems: "center" }}
-              >
-                <FormControlLabel
-                  value="ManufacturingItem"
-                  control={
-                    <Radio
-                      size="small"
-                      sx={{
-                        color: "primary.main",
-                        "&.Mui-checked": { color: "primary.main" },
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: "#344054", fontSize: "0.825rem" }}>
-                      Manufacturing Item
-                    </Typography>
-                  }
-                  sx={{ mr: 2 }}
-                />
-                <FormControlLabel
-                  value="PurchaseItem"
-                  control={
-                    <Radio
-                      size="small"
-                      sx={{
-                        color: "primary.main",
-                        "&.Mui-checked": { color: "primary.main" },
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: "#344054", fontSize: "0.825rem" }}>
-                      Purchase Item
-                    </Typography>
-                  }
-                />
-              </RadioGroup>
-            </Stack>
-
-            <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.8rem" }}>
-              {formMode === "ManufacturingItem"
-                ? "Pick the order line — Part Number, Item Code, Item description, production series and project fill in automatically."
-                : "Pick the Part Number — item description, Item Code, project, production series, operation and build no. fill in automatically."}
-            </Typography>
-          </Box>
-
-          {/* Document Type Radio Buttons */}
+            
+             {/* Document Type Radio Buttons */}
           <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap" sx={{ mb: 1.5 }}>
-            <Typography variant="body2" sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
-              Document type *
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600, color: "#344054", whiteSpace: "nowrap" }}>
+                <RequiredLabel text="Document type" required={false} />
+              </Typography>
+            </Box>
             <Controller
               name="documentType"
               control={control}
-              rules={{ required: "Document type is required" }}
               render={({ field }) => (
                 <RadioGroup
                   row
@@ -911,6 +883,14 @@ export default function GenerateIRMSN() {
               )}
             />
           </Stack>
+            <Typography variant="body2" sx={{ color: "#667085", fontSize: "0.8rem" }}>
+              {formMode === "ManufacturingItem"
+                ? "Pick the order line — Part Number, Item Code, Item description, production series and project fill in automatically."
+                : "Pick the Part Number — item description, Item Code, project, production series, operation and build no. fill in automatically."}
+            </Typography>
+          </Box>
+
+         
 
           {/* Form Controls Grid */}
           {formMode === "ManufacturingItem" ? (
@@ -918,185 +898,188 @@ export default function GenerateIRMSN() {
             <Grid container spacing={1.5}>
               {/* Row 1: PO Number *, Part NumberNo. auto-filled, Item Code auto-filled */}
               <Grid item xs={12} sm={6} md={4}>
-                <Controller
-                  name="poNumber"
-                  control={control}
-                  rules={{ required: "PO number is required" }}
-                  render={({ field: { onChange, ref } }) => (
-                    <Autocomplete
-                      size="small"
-                      autoHighlight
-                      autoSelect
-                      options={Array.isArray(poNumbers) ? poNumbers : []}
-                      getOptionLabel={(option) => {
-                        if (typeof option === "string") return option;
-                        return option.productionOrderNumber || "";
-                      }}
-                      value={selectedPO}
-                      loading={poLoading}
-                      onInputChange={(_, inputValue) => setPOSearchText(inputValue)}
-                      onChange={(_, newValue) => {
-                        if (newValue && typeof newValue !== "string") {
-                          setSelectedPO(newValue);
-                          onChange(newValue.productionOrderNumber || "");
-                          setValue("projectNumber", newValue.projectNumber || "");
-                          setValue("productionSeries", newValue.productionSeries || "");
-                          if (newValue.prodSeriesId) {
-                            setValue("ProdSeriesId", newValue.prodSeriesId);
-                          }
-                          setValue("buildNumber", newValue.buildNumber || "");
+                <Box sx={{ position: "relative", width: "100%" }}>
+                  <Controller
+                    name="poNumber"
+                    control={control}
+                    rules={{ required: "PO number is required" }}
+                    render={({ field: { onChange, ref } }) => (
+                      <Autocomplete
+                        size="small"
+                        autoHighlight
+                        autoSelect
+                        options={Array.isArray(poNumbers) ? poNumbers : []}
+                        getOptionLabel={(option) => {
+                          if (typeof option === "string") return option;
+                          return option.productionOrderNumber || "";
+                        }}
+                        value={selectedPO}
+                        loading={poLoading}
+                        onInputChange={(_, inputValue) => setPOSearchText(inputValue)}
+                        onChange={(_, newValue) => {
+                          if (newValue && typeof newValue !== "string") {
+                            setSelectedPO(newValue);
+                            onChange(newValue.productionOrderNumber || "");
+                            setValue("projectNumber", newValue.projectNumber || "");
+                            setValue("productionSeries", newValue.productionSeries || "");
+                            if (newValue.prodSeriesId) {
+                              setValue("ProdSeriesId", newValue.prodSeriesId);
+                            }
+                            setValue("buildNumber", newValue.buildNumber || "");
 
-                          if (newValue.drawingNumber) {
-                            const drawingFromPO: Partial<DrawingNumber> = {
-                              id: newValue.drawingNumberId,
-                              drawingNumber: newValue.drawingNumber,
-                              lnItemCode: newValue.lnItemCode,
-                              nomenclature: newValue.nomenclature,
-                              componentType: newValue.componentType,
-                            };
+                            if (newValue.drawingNumber) {
+                              const drawingFromPO: Partial<DrawingNumber> = {
+                                id: newValue.drawingNumberId,
+                                drawingNumber: newValue.drawingNumber,
+                                lnItemCode: newValue.lnItemCode,
+                                nomenclature: newValue.nomenclature,
+                                componentType: newValue.componentType,
+                              };
 
-                            setSelectedDrawingManufacturing(drawingFromPO as DrawingNumber);
-                            setValue("drawingNumber", newValue.drawingNumber || "");
-                            setValue("nomenclature", newValue.nomenclature || "");
-                            setValue("lnItemCode", newValue.lnItemCode || "");
+                              setSelectedDrawingManufacturing(drawingFromPO as DrawingNumber);
+                              setValue("drawingNumber", newValue.drawingNumber || "");
+                              setValue("nomenclature", newValue.nomenclature || "");
+                              setValue("lnItemCode", newValue.lnItemCode || "");
+                            }
+                          } else {
+                            setSelectedPO(null);
+                            onChange("");
+                            setValue("buildNumber", "");
                           }
-                        } else {
-                          setSelectedPO(null);
-                          onChange("");
-                          setValue("buildNumber", "");
+                        }}
+                        isOptionEqualToValue={(option, val) =>
+                          option.productionOrderNumber ===
+                          (typeof val === "string" ? val : val?.productionOrderNumber)
                         }
-                      }}
-                      isOptionEqualToValue={(option, val) =>
-                        option.productionOrderNumber ===
-                        (typeof val === "string" ? val : val?.productionOrderNumber)
-                      }
-                      filterOptions={(options, { inputValue }) => {
-                        if (!inputValue) return options.slice(0, 100);
-                        const searchLower = inputValue.toLowerCase();
-                        return options
-                          .filter((option) => {
-                            const po = (option.productionOrderNumber || "").toLowerCase();
-                            const dwg = (option.drawingNumber || "").toLowerCase();
-                            const ln = (option.lnItemCode || "").toLowerCase();
-                            const nom = (option.nomenclature || "").toLowerCase();
-                            const proj = (option.projectNumber || "").toLowerCase();
-                            const series = (option.productionSeries || (option as any).productionSeriesName || "").toLowerCase();
-                            return (
-                              po.includes(searchLower) ||
-                              dwg.includes(searchLower) ||
-                              ln.includes(searchLower) ||
-                              nom.includes(searchLower) ||
-                              proj.includes(searchLower) ||
-                              series.includes(searchLower)
-                            );
-                          })
-                          .slice(0, 100);
-                      }}
-                      ListboxProps={{
-                        sx: {
-                          "& .MuiAutocomplete-option": {
-                            alignItems: "flex-start !important",
-                            textAlign: "left !important",
-                          },
-                        },
-                      }}
-                      renderOption={(props, option) => {
-                        const { key, ...optionProps } = props;
-                        const lnPart = option.lnItemCode ? `LN: ${option.lnItemCode}` : "";
-                        const nomPart = option.nomenclature || "";
-                        const subtitle1 = [lnPart, nomPart].filter(Boolean).join(" | ");
-                        const projectPart = option.projectNumber || "";
-                        const seriesPart = option.productionSeries || (option as any).productionSeriesName || "";
-                        const compTypePart = option.componentType || "";
-                        const subtitle2 = [projectPart, seriesPart, compTypePart].filter(Boolean).join(" | ");
-
-                        return (
-                          <Box
-                            component="li"
-                            key={key}
-                            {...optionProps}
-                            sx={{
-                              py: 1,
-                              px: 1.5,
-                              display: "flex !important",
-                              flexDirection: "column !important",
+                        filterOptions={(options, { inputValue }) => {
+                          if (!inputValue) return options.slice(0, 100);
+                          const searchLower = inputValue.toLowerCase();
+                          return options
+                            .filter((option) => {
+                              const po = (option.productionOrderNumber || "").toLowerCase();
+                              const dwg = (option.drawingNumber || "").toLowerCase();
+                              const ln = (option.lnItemCode || "").toLowerCase();
+                              const nom = (option.nomenclature || "").toLowerCase();
+                              const proj = (option.projectNumber || "").toLowerCase();
+                              const series = (option.productionSeries || (option as any).productionSeriesName || "").toLowerCase();
+                              return (
+                                po.includes(searchLower) ||
+                                dwg.includes(searchLower) ||
+                                ln.includes(searchLower) ||
+                                nom.includes(searchLower) ||
+                                proj.includes(searchLower) ||
+                                series.includes(searchLower)
+                              );
+                            })
+                            .slice(0, 100);
+                        }}
+                        ListboxProps={{
+                          sx: {
+                            "& .MuiAutocomplete-option": {
                               alignItems: "flex-start !important",
-                              justifyContent: "flex-start !important",
                               textAlign: "left !important",
-                              width: "100%",
-                              borderBottom: "1px solid #F2F4F7",
-                              "&:last-child": { borderBottom: "none" },
-                              "&.Mui-focused, &:hover": { backgroundColor: "#F9FAFB" },
-                              "&.Mui-selected": { backgroundColor: "#F2F4F7" },
-                            }}
-                          >
-                            <Typography
-                              variant="body2"
+                            },
+                          },
+                        }}
+                        renderOption={(props, option) => {
+                          const { key, ...optionProps } = props;
+                          const lnPart = option.lnItemCode ? `LN: ${option.lnItemCode}` : "";
+                          const nomPart = option.nomenclature || "";
+                          const subtitle1 = [lnPart, nomPart].filter(Boolean).join(" | ");
+                          const projectPart = option.projectNumber || "";
+                          const seriesPart = option.productionSeries || (option as any).productionSeriesName || "";
+                          const compTypePart = option.componentType || "";
+                          const subtitle2 = [projectPart, seriesPart, compTypePart].filter(Boolean).join(" | ");
+
+                          return (
+                            <Box
+                              component="li"
+                              key={key}
+                              {...optionProps}
                               sx={{
-                                fontWeight: 700,
-                                color: "#101828",
-                                fontSize: "0.875rem",
-                                lineHeight: 1.3,
+                                py: 1,
+                                px: 1.5,
+                                display: "flex !important",
+                                flexDirection: "column !important",
+                                alignItems: "flex-start !important",
+                                justifyContent: "flex-start !important",
                                 textAlign: "left !important",
                                 width: "100%",
+                                borderBottom: "1px solid #F2F4F7",
+                                "&:last-child": { borderBottom: "none" },
+                                "&.Mui-focused, &:hover": { backgroundColor: "#F9FAFB" },
+                                "&.Mui-selected": { backgroundColor: "#F2F4F7" },
                               }}
                             >
-                              {typeof option === "string" ? option : option.productionOrderNumber || option.drawingNumber || ""}
-                            </Typography>
-                            {subtitle1 && (
                               <Typography
-                                variant="caption"
+                                variant="body2"
                                 sx={{
-                                  color: "#667085",
-                                  fontSize: "0.775rem",
-                                  lineHeight: 1.35,
-                                  mt: 0.25,
+                                  fontWeight: 700,
+                                  color: "#101828",
+                                  fontSize: "0.875rem",
+                                  lineHeight: 1.3,
                                   textAlign: "left !important",
                                   width: "100%",
                                 }}
                               >
-                                {subtitle1}
+                                {typeof option === "string" ? option : option.productionOrderNumber || option.drawingNumber || ""}
                               </Typography>
-                            )}
-                            {subtitle2 && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: "#667085",
-                                  fontSize: "0.775rem",
-                                  lineHeight: 1.35,
-                                  textAlign: "left !important",
-                                  width: "100%",
-                                }}
-                              >
-                                {subtitle2}
-                              </Typography>
-                            )}
-                          </Box>
-                        );
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="PO Number *"
-                          fullWidth
-                          size="small"
-                          error={!!errors.poNumber}
-                          helperText={errors.poNumber?.message}
-                          inputRef={ref}
-                          sx={standardInputStyle}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === "Tab") {
-                              const inputValue = (e.target as HTMLInputElement).value;
-                              handlePOCommit(inputValue);
-                            }
-                          }}
-                          onBlur={(e) => handlePOCommit(e.target.value)}
-                        />
-                      )}
-                    />
-                  )}
-                />
+                              {subtitle1 && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#667085",
+                                    fontSize: "0.775rem",
+                                    lineHeight: 1.35,
+                                    mt: 0.25,
+                                    textAlign: "left !important",
+                                    width: "100%",
+                                  }}
+                                >
+                                  {subtitle1}
+                                </Typography>
+                              )}
+                              {subtitle2 && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#667085",
+                                    fontSize: "0.775rem",
+                                    lineHeight: 1.35,
+                                    textAlign: "left !important",
+                                    width: "100%",
+                                  }}
+                                >
+                                  {subtitle2}
+                                </Typography>
+                              )}
+                            </Box>
+                          );
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label={<RequiredLabel text="Production Order Number" required />}
+                            fullWidth
+                            size="small"
+                          
+                            error={!!errors.poNumber}
+                            helperText={errors.poNumber?.message}
+                            inputRef={ref}
+                            sx={standardInputStyle}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === "Tab") {
+                                const inputValue = (e.target as HTMLInputElement).value;
+                                handlePOCommit(inputValue);
+                              }
+                            }}
+                            onBlur={(e) => handlePOCommit(e.target.value)}
+                          />
+                        )}
+                      />
+                    )}
+                  />
+                </Box>
               </Grid>
 
               <Grid item xs={12} sm={6} md={4}>
@@ -1106,7 +1089,6 @@ export default function GenerateIRMSN() {
                   fullWidth
                   size="small"
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               </Grid>
@@ -1118,7 +1100,6 @@ export default function GenerateIRMSN() {
                   fullWidth
                   size="small"
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               </Grid>
@@ -1131,7 +1112,6 @@ export default function GenerateIRMSN() {
                   fullWidth
                   size="small"
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               </Grid>
@@ -1143,7 +1123,6 @@ export default function GenerateIRMSN() {
                   fullWidth
                   size="small"
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               </Grid>
@@ -1155,7 +1134,6 @@ export default function GenerateIRMSN() {
                   fullWidth
                   size="small"
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               </Grid>
@@ -1165,166 +1143,169 @@ export default function GenerateIRMSN() {
             <Grid container spacing={1.5}>
               {/* Row 1: Part NumberNumber *, Item Description, Item Code */}
               <Grid item xs={12} sm={6} md={4}>
-                <Controller
-                  name="drawingNumber"
-                  control={control}
-                  rules={{ required: "Part Number is required" }}
-                  render={({ field: { onChange }, fieldState: { error } }) => (
-                    <Autocomplete
-                      size="small"
-                      options={Array.isArray(allDrawingNumbers) ? allDrawingNumbers : []}
-                      loading={isDrawingsLoading}
-                      getOptionLabel={(option) =>
-                        typeof option === "string" ? option : option?.drawingNumber || ""
-                      }
-                      value={selectedDrawingPurchase}
-                      onChange={(_, newValue) => {
-                        if (newValue && typeof newValue !== "string") {
-                          setSelectedDrawingPurchase(newValue);
-                          onChange(newValue.drawingNumber || "");
-
-                          const itemDesc = (newValue as any).itemDescription || newValue.nomenclature || "";
-                          setValue("itemDescription", itemDesc);
-                          setValue("nomenclature", itemDesc);
-                          setValue("lnItemCode", newValue.lnItemCode || "");
-                          setValue("projectNumber", newValue.project || (newValue as any).projectNumber || "");
-
-                          const seriesName = (newValue as any).productionSeries || (newValue as any).productionSeriesName || (newValue.availableSeries && newValue.availableSeries.length > 0 ? newValue.availableSeries[0] : "");
-                          const seriesId = (newValue as any).prodSeriesId || (newValue as any).productionSeriesId || (newValue.availableSeriesId && newValue.availableSeriesId.length > 0 ? newValue.availableSeriesId[0] : undefined);
-                          setValue("productionSeries", seriesName);
-                          if (seriesId) {
-                            setValue("ProdSeriesId", seriesId);
-                          }
-                          setValue("operationNumber", (newValue as any).operationNumber || (newValue as any).operation || "");
-                          setValue("buildNumber", (newValue as any).buildNumber || "");
-                        } else {
-                          setSelectedDrawingPurchase(null);
-                          onChange("");
-                          setValue("itemDescription", "");
-                          setValue("nomenclature", "");
-                          setValue("lnItemCode", "");
-                          setValue("projectNumber", "");
-                          setValue("productionSeries", "");
-                          setValue("ProdSeriesId", undefined);
-                          setValue("operationNumber", "");
-                          setValue("buildNumber", "");
+                <Box sx={{ position: "relative", width: "100%" }}>
+                  <Controller
+                    name="drawingNumber"
+                    control={control}
+                    rules={{ required: "Part Number is required" }}
+                    render={({ field: { onChange }, fieldState: { error } }) => (
+                      <Autocomplete
+                        size="small"
+                        options={Array.isArray(allDrawingNumbers) ? allDrawingNumbers : []}
+                        loading={isDrawingsLoading}
+                        getOptionLabel={(option) =>
+                          typeof option === "string" ? option : option?.drawingNumber || ""
                         }
-                      }}
-                      filterOptions={(options, { inputValue }) => {
-                        if (!inputValue) return options.slice(0, 100);
-                        const searchLower = inputValue.toLowerCase();
-                        return options
-                          .filter((option) => {
-                            const dwg = (option.drawingNumber || "").toLowerCase();
-                            const ln = (option.lnItemCode || "").toLowerCase();
-                            const nom = (option.nomenclature || "").toLowerCase();
-                            const proj = (option.project || (option as any).projectNumber || "").toLowerCase();
-                            const series = ((option as any).productionSeries || (option as any).productionSeriesName || (option.availableSeries ? option.availableSeries.join(" ") : "")).toLowerCase();
-                            return (
-                              dwg.includes(searchLower) ||
-                              ln.includes(searchLower) ||
-                              nom.includes(searchLower) ||
-                              proj.includes(searchLower) ||
-                              series.includes(searchLower)
-                            );
-                          })
-                          .slice(0, 100);
-                      }}
-                      ListboxProps={{
-                        sx: {
-                          "& .MuiAutocomplete-option": {
-                            alignItems: "flex-start !important",
-                            textAlign: "left !important",
-                          },
-                        },
-                      }}
-                      renderOption={(props, option) => {
-                        const { key, ...optionProps } = props;
-                        const lnPart = option.lnItemCode ? `Item Code: ${option.lnItemCode}` : "";
-                        const nomPart = option.nomenclature || "";
-                        const subtitle1 = [lnPart, nomPart].filter(Boolean).join(" | ");
-                        const projectPart = option.project || (option as any).projectNumber || "";
-                        const seriesPart = (option as any).productionSeries || (option as any).productionSeriesName || (option.availableSeries && option.availableSeries.length > 0 ? option.availableSeries.join(", ") : "");
-                        const compTypePart = option.componentType || "";
-                        const subtitle2 = [projectPart, seriesPart, compTypePart].filter(Boolean).join(" | ");
+                        value={selectedDrawingPurchase}
+                        onChange={(_, newValue) => {
+                          if (newValue && typeof newValue !== "string") {
+                            setSelectedDrawingPurchase(newValue);
+                            onChange(newValue.drawingNumber || "");
 
-                        return (
-                          <Box
-                            component="li"
-                            key={key}
-                            {...optionProps}
-                            sx={{
-                              py: 1,
-                              px: 1.5,
-                              display: "flex !important",
-                              flexDirection: "column !important",
+                            const itemDesc = (newValue as any).itemDescription || newValue.nomenclature || "";
+                            setValue("itemDescription", itemDesc);
+                            setValue("nomenclature", itemDesc);
+                            setValue("lnItemCode", newValue.lnItemCode || "");
+                            setValue("projectNumber", newValue.project || (newValue as any).projectNumber || "");
+
+                            const seriesName = (newValue as any).productionSeries || (newValue as any).productionSeriesName || (newValue.availableSeries && newValue.availableSeries.length > 0 ? newValue.availableSeries[0] : "");
+                            const seriesId = (newValue as any).prodSeriesId || (newValue as any).productionSeriesId || (newValue.availableSeriesId && newValue.availableSeriesId.length > 0 ? newValue.availableSeriesId[0] : undefined);
+                            setValue("productionSeries", seriesName);
+                            if (seriesId) {
+                              setValue("ProdSeriesId", seriesId);
+                            }
+                            setValue("operationNumber", (newValue as any).operationNumber || (newValue as any).operation || "");
+                            setValue("buildNumber", (newValue as any).buildNumber || "");
+                          } else {
+                            setSelectedDrawingPurchase(null);
+                            onChange("");
+                            setValue("itemDescription", "");
+                            setValue("nomenclature", "");
+                            setValue("lnItemCode", "");
+                            setValue("projectNumber", "");
+                            setValue("productionSeries", "");
+                            setValue("ProdSeriesId", undefined);
+                            setValue("operationNumber", "");
+                            setValue("buildNumber", "");
+                          }
+                        }}
+                        filterOptions={(options, { inputValue }) => {
+                          if (!inputValue) return options.slice(0, 100);
+                          const searchLower = inputValue.toLowerCase();
+                          return options
+                            .filter((option) => {
+                              const dwg = (option.drawingNumber || "").toLowerCase();
+                              const ln = (option.lnItemCode || "").toLowerCase();
+                              const nom = (option.nomenclature || "").toLowerCase();
+                              const proj = (option.project || (option as any).projectNumber || "").toLowerCase();
+                              const series = ((option as any).productionSeries || (option as any).productionSeriesName || (option.availableSeries ? option.availableSeries.join(" ") : "")).toLowerCase();
+                              return (
+                                dwg.includes(searchLower) ||
+                                ln.includes(searchLower) ||
+                                nom.includes(searchLower) ||
+                                proj.includes(searchLower) ||
+                                series.includes(searchLower)
+                              );
+                            })
+                            .slice(0, 100);
+                        }}
+                        ListboxProps={{
+                          sx: {
+                            "& .MuiAutocomplete-option": {
                               alignItems: "flex-start !important",
-                              justifyContent: "flex-start !important",
                               textAlign: "left !important",
-                              width: "100%",
-                              borderBottom: "1px solid #F2F4F7",
-                              "&:last-child": { borderBottom: "none" },
-                              "&.Mui-focused, &:hover": { backgroundColor: "#F9FAFB" },
-                              "&.Mui-selected": { backgroundColor: "#F2F4F7" },
-                            }}
-                          >
-                            <Typography
-                              variant="body2"
+                            },
+                          },
+                        }}
+                        renderOption={(props, option) => {
+                          const { key, ...optionProps } = props;
+                          const lnPart = option.lnItemCode ? `Item Code: ${option.lnItemCode}` : "";
+                          const nomPart = option.nomenclature || "";
+                          const subtitle1 = [lnPart, nomPart].filter(Boolean).join(" | ");
+                          const projectPart = option.project || (option as any).projectNumber || "";
+                          const seriesPart = (option as any).productionSeries || (option as any).productionSeriesName || (option.availableSeries && option.availableSeries.length > 0 ? option.availableSeries.join(", ") : "");
+                          const compTypePart = option.componentType || "";
+                          const subtitle2 = [projectPart, seriesPart, compTypePart].filter(Boolean).join(" | ");
+
+                          return (
+                            <Box
+                              component="li"
+                              key={key}
+                              {...optionProps}
                               sx={{
-                                fontWeight: 700,
-                                color: "primary.main",
-                                fontSize: "0.875rem",
-                                lineHeight: 1.3,
+                                py: 1,
+                                px: 1.5,
+                                display: "flex !important",
+                                flexDirection: "column !important",
+                                alignItems: "flex-start !important",
+                                justifyContent: "flex-start !important",
                                 textAlign: "left !important",
                                 width: "100%",
+                                borderBottom: "1px solid #F2F4F7",
+                                "&:last-child": { borderBottom: "none" },
+                                "&.Mui-focused, &:hover": { backgroundColor: "#F9FAFB" },
+                                "&.Mui-selected": { backgroundColor: "#F2F4F7" },
                               }}
                             >
-                              {typeof option === "string" ? option : option.drawingNumber || ""}
-                            </Typography>
-                            {subtitle1 && (
                               <Typography
-                                variant="caption"
+                                variant="body2"
                                 sx={{
-                                  color: "#667085",
-                                  fontSize: "0.775rem",
-                                  lineHeight: 1.35,
-                                  mt: 0.25,
+                                  fontWeight: 700,
+                                  color: "text.primary",
+                                  fontSize: "0.875rem",
+                                  lineHeight: 1.3,
                                   textAlign: "left !important",
                                   width: "100%",
                                 }}
                               >
-                                {subtitle1}
+                                {typeof option === "string" ? option : option.drawingNumber || ""}
                               </Typography>
-                            )}
-                            {subtitle2 && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: "#667085",
-                                  fontSize: "0.775rem",
-                                  lineHeight: 1.35,
-                                  textAlign: "left !important",
-                                  width: "100%",
-                                }}
-                              >
-                                {subtitle2}
-                              </Typography>
-                            )}
-                          </Box>
-                        );
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Part Number *"
-                          error={!!error}
-                          helperText={error?.message}
-                          sx={standardInputStyle}
-                        />
-                      )}
-                    />
-                  )}
-                />
+                              {subtitle1 && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#667085",
+                                    fontSize: "0.775rem",
+                                    lineHeight: 1.35,
+                                    mt: 0.25,
+                                    textAlign: "left !important",
+                                    width: "100%",
+                                  }}
+                                >
+                                  {subtitle1}
+                                </Typography>
+                              )}
+                              {subtitle2 && (
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: "#667085",
+                                    fontSize: "0.775rem",
+                                    lineHeight: 1.35,
+                                    textAlign: "left !important",
+                                    width: "100%",
+                                  }}
+                                >
+                                  {subtitle2}
+                                </Typography>
+                              )}
+                            </Box>
+                          );
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label={<RequiredLabel text="Part Number" required />}
+                           
+                            error={!!error}
+                            helperText={error?.message}
+                            sx={standardInputStyle}
+                          />
+                        )}
+                      />
+                    )}
+                  />
+                </Box>
               </Grid>
 
               <Grid item xs={12} sm={6} md={4}>
@@ -1334,7 +1315,6 @@ export default function GenerateIRMSN() {
                   fullWidth
                   size="small"
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               </Grid>
@@ -1346,7 +1326,6 @@ export default function GenerateIRMSN() {
                   fullWidth
                   size="small"
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               </Grid>
@@ -1391,7 +1370,6 @@ export default function GenerateIRMSN() {
                   fullWidth
                   size="small"
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               </Grid>
@@ -1417,23 +1395,26 @@ export default function GenerateIRMSN() {
           <Grid container spacing={1.5}>
             {/* Row 1: ID Number(s) *, Quantity, Build No. auto-filled */}
             <Grid item xs={12} sm={6} md={4}>
-              <Controller
-                name="idRange"
-                control={control}
-                rules={{ required: "ID Number(s) is required" }}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    label="ID Number(s) *"
-                    placeholder="e.g. 1,2,3 or 1-5"
-                    fullWidth
-                    size="small"
-                    error={!!errors.idRange}
-                    helperText={errors.idRange?.message || "Comma-separated or a range (e.g. 1,2,3 or 1-5)"}
-                    sx={standardInputStyle}
-                  />
-                )}
-              />
+              <Box sx={{ position: "relative", width: "100%" }}>
+                <Controller
+                  name="idRange"
+                  control={control}
+                  rules={{ required: "ID Number(s) is required" }}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label={<RequiredLabel text="ID Number(s)" required />}
+                      placeholder="e.g. 1,2,3 or 1-5"
+                      fullWidth
+                      size="small"
+                   
+                      error={!!errors.idRange}
+                      helperText={errors.idRange?.message || "Comma-separated or a range (e.g. 1,2,3 or 1-5)"}
+                      sx={standardInputStyle}
+                    />
+                  )}
+                />
+              </Box>
             </Grid>
 
             <Grid item xs={12} sm={6} md={4}>
@@ -1448,6 +1429,7 @@ export default function GenerateIRMSN() {
                     type="number"
                     fullWidth
                     size="small"
+                 
                     error={!!errors.quantity}
                     sx={standardInputStyle}
                   />
@@ -1466,6 +1448,7 @@ export default function GenerateIRMSN() {
                       label="Build No."
                       fullWidth
                       size="small"
+                     
                       sx={standardInputStyle}
                     />
                   )}
@@ -1476,8 +1459,8 @@ export default function GenerateIRMSN() {
                   value={watchedBuildNumber || ""}
                   fullWidth
                   size="small"
+                 
                   InputProps={{ readOnly: true }}
-                  InputLabelProps={{ shrink: true }}
                   sx={readOnlyInputStyle}
                 />
               )}
@@ -1503,46 +1486,49 @@ export default function GenerateIRMSN() {
           <Grid container spacing={1.5}>
             {/* Row 1: Stage *, Operation, Inspected by · auto-filled */}
             <Grid item xs={12} sm={6} md={4}>
-              <Controller
-                name="stage"
-                control={control}
-                rules={{ required: "Stage is required" }}
-                render={({ field: { onChange, value }, fieldState: { error } }) => (
-                  <Autocomplete
-                    size="small"
-                    options={Array.isArray(stages) ? stages : []}
-                    loading={stagesLoading}
-                    getOptionLabel={(option) =>
-                      typeof option === "string" ? option : option?.stage || option?.stageName || ""
-                    }
-                    value={
-                      Array.isArray(stages)
-                        ? stages.find((s) => (s.stage || s.stageName) === value) || null
-                        : null
-                    }
-                    onChange={(_, newValue) => {
-                      if (newValue && typeof newValue !== "string") {
-                        const stageLabel = newValue.stage || newValue.stageName || "";
-                        const stId = newValue.id ?? newValue.stageId;
-                        onChange(stageLabel);
-                        setValue("stageId", stId);
-                      } else {
-                        onChange("");
-                        setValue("stageId", undefined);
+              <Box sx={{ position: "relative", width: "100%" }}>
+                <Controller
+                  name="stage"
+                  control={control}
+                  rules={{ required: "Stage is required" }}
+                  render={({ field: { onChange, value }, fieldState: { error } }) => (
+                    <Autocomplete
+                      size="small"
+                      options={Array.isArray(stages) ? stages : []}
+                      loading={stagesLoading}
+                      getOptionLabel={(option) =>
+                        typeof option === "string" ? option : option?.stage || option?.stageName || ""
                       }
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Stage *"
-                        error={!!error}
-                        helperText={error?.message}
-                        sx={standardInputStyle}
-                      />
-                    )}
-                  />
-                )}
-              />
+                      value={
+                        Array.isArray(stages)
+                          ? stages.find((s) => (s.stage || s.stageName) === value) || null
+                          : null
+                      }
+                      onChange={(_, newValue) => {
+                        if (newValue && typeof newValue !== "string") {
+                          const stageLabel = newValue.stage || newValue.stageName || "";
+                          const stId = newValue.id ?? newValue.stageId;
+                          onChange(stageLabel);
+                          setValue("stageId", stId);
+                        } else {
+                          onChange("");
+                          setValue("stageId", undefined);
+                        }
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={<RequiredLabel text="Stage" required />}
+                        
+                          error={!!error}
+                          helperText={error?.message}
+                          sx={standardInputStyle}
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </Box>
             </Grid>
 
             <Grid item xs={12} sm={6} md={4}>
@@ -1552,7 +1538,7 @@ export default function GenerateIRMSN() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Operation"
+                    label="Operation Number"
                     fullWidth
                     size="small"
                     sx={standardInputStyle}
@@ -1563,12 +1549,11 @@ export default function GenerateIRMSN() {
 
             <Grid item xs={12} sm={6} md={4}>
               <TextField
-                label="Inspected by "
+                label="Generated By "
                 value={currentUser || ""}
                 fullWidth
                 size="small"
                 InputProps={{ readOnly: true }}
-                InputLabelProps={{ shrink: true }}
                 sx={readOnlyInputStyle}
               />
             </Grid>
@@ -1670,16 +1655,12 @@ export default function GenerateIRMSN() {
         </Paper>
       </form>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 }

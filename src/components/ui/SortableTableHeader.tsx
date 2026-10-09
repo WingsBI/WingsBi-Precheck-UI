@@ -1,0 +1,120 @@
+import React from "react";
+import { TableCell, Box, Tooltip } from "@mui/material";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import { COLOUR_ROLES } from "../tableStyles";
+
+export interface SortableTableHeaderProps {
+  label: string;
+  tooltip?: string;
+  columnKey?: string;
+  sortKey?: string;
+  sortColumn?: string | null;
+  activeSortColumn?: string | null;
+  sortDirection?: "asc" | "desc";
+  /**
+   * Called with the column key when sorting, or null to clear the sort.
+   * Cycle: none → asc → desc → null (clear)
+   */
+  onSort?: (columnKey: string | null) => void;
+  align?: "left" | "center" | "right";
+  width?: number | string;
+  minWidth?: number | string;
+  isSortable?: boolean;
+  sx?: any;
+}
+
+export const SortableTableHeader: React.FC<SortableTableHeaderProps> = ({
+  label,
+  tooltip,
+  columnKey,
+  sortKey,
+  sortColumn,
+  activeSortColumn,
+  sortDirection = "asc",
+  onSort,
+  align = "left",
+  width,
+  minWidth,
+  isSortable = true,
+  sx,
+}) => {
+  const effectiveKey = columnKey || sortKey || "";
+  const effectiveSortCol = sortColumn ?? activeSortColumn ?? "";
+  const isSorted = Boolean(effectiveKey && effectiveSortCol === effectiveKey);
+
+  const handleClick = () => {
+    if (isSortable && onSort && effectiveKey) {
+      if (isSorted && sortDirection === "desc") {
+        // 3rd click: clear the sort
+        onSort(null);
+      } else {
+        // 1st click (not sorted) → asc, 2nd click (asc) → desc
+        onSort(effectiveKey);
+      }
+    }
+  };
+
+  const tooltipText =
+    tooltip ||
+    (label.trim().toLowerCase() === "po number" ? "Production Order Number" : undefined);
+
+  const labelContent = <span>{label}</span>;
+
+  return (
+    <TableCell
+      align={align}
+      onClick={handleClick}
+      sx={{
+        fontWeight: 700,
+        fontFamily: '"Nunito Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        backgroundColor: COLOUR_ROLES.headerBg,
+        color: COLOUR_ROLES.textSecondary,
+        fontSize: "0.8rem",
+        borderBottom: `1px solid ${COLOUR_ROLES.hairline}`,
+        py: 0.75,
+        px: 1,
+        width,
+        minWidth,
+        cursor: isSortable && onSort ? "pointer" : "default",
+        userSelect: "none",
+        whiteSpace: "nowrap",
+        "&:hover": {
+          color: isSortable && onSort ? COLOUR_ROLES.textSecondary : COLOUR_ROLES.textSecondary,
+        },
+        ...sx,
+      }}
+    >
+      <Box
+        sx={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 0.4,
+          justifyContent: align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start",
+          width: "100%",
+        }}
+      >
+        {tooltipText ? (
+          <Tooltip title={tooltipText} arrow placement="bottom">
+            {labelContent}
+          </Tooltip>
+        ) : (
+          labelContent
+        )}
+        {isSortable && onSort && (
+          isSorted ? (
+            sortDirection === "asc" ? (
+              <ArrowUpwardIcon sx={{ fontSize: 13, color: COLOUR_ROLES.primary }} />
+            ) : (
+              <ArrowDownwardIcon sx={{ fontSize: 13, color: COLOUR_ROLES.primary }} />
+            )
+          ) : (
+            <ArrowDownwardIcon sx={{ fontSize: 13, color: "#9CA3AF", opacity: 0.4 }} />
+          )
+        )}
+      </Box>
+    </TableCell>
+  );
+};
+
+export default SortableTableHeader;

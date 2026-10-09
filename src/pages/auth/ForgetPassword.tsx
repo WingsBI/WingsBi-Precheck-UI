@@ -5,7 +5,6 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
   Card,
   CardContent,
   Grid,
@@ -15,10 +14,27 @@ import {
   Alert,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import ActionButton from "../../components/ui/ActionButton";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { useSecurityQuestions } from "../../hooks/useMasterData";
 import { forgetPassword } from "../../store/slices/authSlice";
 import { CustomMessageBox } from "../../utils/notifications";
 import type { RootState } from "../../store/store";
+
+const commonSelectProps = {
+  MenuProps: {
+    PaperProps: {
+      sx: {
+        maxHeight: 260,
+        width: "0 !important",
+        "& .MuiMenuItem-root": {
+          whiteSpace: "normal",
+          wordBreak: "break-word",
+        },
+      },
+    },
+  },
+};
 
 const ForgetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -144,7 +160,7 @@ const ForgetPassword: React.FC = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        width: "100vw",
+        width: "100%",
         background: "linear-gradient(90deg, #6D2A8F 0%, #D82578 100%)",
         display: "flex",
         alignItems: "center",
@@ -222,7 +238,7 @@ const ForgetPassword: React.FC = () => {
                   mb: 0.75,
                 }}
               >
-                User ID
+                <RequiredLabel text="User ID" required />
               </Typography>
               <TextField
                 fullWidth
@@ -260,7 +276,7 @@ const ForgetPassword: React.FC = () => {
                     mb: 0.75,
                   }}
                 >
-                  Security Question
+                  <RequiredLabel text="Security Question" required />
                 </Typography>
                 <TextField
                   select
@@ -268,6 +284,7 @@ const ForgetPassword: React.FC = () => {
                   size="small"
                   id="securityQuestion"
                   name="securityQuestion"
+                  SelectProps={commonSelectProps}
                   value={formData.securityQuestion}
                   onChange={handleChange}
                   error={!!formErrors.securityQuestion}
@@ -302,7 +319,7 @@ const ForgetPassword: React.FC = () => {
                     mb: 0.75,
                   }}
                 >
-                  Security Answer
+                  <RequiredLabel text="Security Answer" required />
                 </Typography>
                 <TextField
                   fullWidth
@@ -341,7 +358,7 @@ const ForgetPassword: React.FC = () => {
                     mb: 0.75,
                   }}
                 >
-                  New Password
+                  <RequiredLabel text="New Password" required />
                 </Typography>
                 <TextField
                   fullWidth
@@ -393,7 +410,7 @@ const ForgetPassword: React.FC = () => {
                     mb: 0.75,
                   }}
                 >
-                  Confirm Password
+                  <RequiredLabel text="Confirm Password" required />
                 </Typography>
                 <TextField
                   fullWidth
@@ -450,45 +467,23 @@ const ForgetPassword: React.FC = () => {
             <Box
               sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2, gap: 2 }}
             >
-              <Button
+              <ActionButton
+                variant="secondary"
+                size="standard"
                 component={RouterLink}
                 to="/login"
-                variant="outlined"
-                sx={{
-                  height: 40,
-                  px: 2.5,
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  borderColor: "#D0D5DD",
-                  color: "#344054",
-                  "&:hover": { backgroundColor: "#F9FAFB", borderColor: "#98A2B3", color: "#101828" },
-                }}
               >
                 Back to Login
-              </Button>
+              </ActionButton>
 
-              <Button
+              <ActionButton
+                variant="primary"
+                size="standard"
                 type="submit"
-                variant="contained"
                 disabled={isLoading}
-                sx={{
-                  height: 40,
-                  px: 3,
-                  fontWeight: 600,
-                  fontSize: "0.875rem",
-                  textTransform: "none",
-                  borderRadius: "8px",
-                  backgroundColor: "#6D2A8F",
-                  color: "#ffffff",
-                  boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                  "&:hover": { backgroundColor: "#582075" },
-                  "&.Mui-disabled": { backgroundColor: "#EAECF0", color: "#98A2B3" },
-                }}
               >
                 {isLoading ? "Resetting..." : "Reset Password"}
-              </Button>
+              </ActionButton>
             </Box>
           </form>
         </CardContent>

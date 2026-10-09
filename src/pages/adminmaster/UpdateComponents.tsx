@@ -22,13 +22,13 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  Snackbar,
   debounce,
   IconButton,
   Stack,
 } from "@mui/material";
-import api from "../../services/api";
-
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import PageHeader from "../../components/ui/PageHeader";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { Save as SaveIcon, Refresh as RefreshIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -42,6 +42,7 @@ import {
   clearError,
 } from "../../store/slices/qrcodeSlice";
 import { useFetchAllDrawingNumbers, useUnits } from "../../hooks/useMasterData";
+import api from "@/services/api";
 
 // Create typed versions of the hooks
 const useAppDispatch: () => AppDispatch = useDispatch;
@@ -458,7 +459,7 @@ export default function InsertMappings() {
       } else {
         // In edit mode, navigate back after delay
         setTimeout(() => {
-          navigate("/components");
+          navigate("/assembly/components");
         }, 1500);
       }
     } catch (error: any) {
@@ -503,44 +504,10 @@ export default function InsertMappings() {
           mx: "auto",
         }}
       >
-        {/* Header Section */}
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={2}
-          sx={{ mb: 1 }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            {fromView && (
-              <IconButton
-                onClick={() => navigate(-1)}
-                sx={{
-                  color: "primary.main",
-                  p: 0.5,
-                  "&:hover": { backgroundColor: "grey.100" },
-                }}
-              >
-                <ArrowBackIcon />
-              </IconButton>
-            )}
-            <Box>
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 700,
-                  color: "primary.main",
-                  fontSize: { xs: "1.25rem", sm: "1.5rem" },
-                }}
-              >
-                {isEditMode ? "Update Component" : "Add Component"}
-              </Typography>
-              <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-                {isEditMode ? "Update master component details and item mappings." : "Add a new component master to the system."}
-              </Typography>
-            </Box>
-          </Box>
-        </Stack>
+        <PageHeader
+          title={isEditMode ? "Edit Component" : "Add Component"}
+          onBack={() => navigate(-1)}
+        />
 
         {/* Success/Error Messages */}
         {successMessage && (
@@ -566,8 +533,7 @@ export default function InsertMappings() {
         {/* Main Form */}
         <Card elevation={2} sx={{ mb: 3 }}>
           <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              {/* Ln item code , Drawing Number, Nomenclature*/}
+            <form onSubmit={handleSubmit(onSubmit)}>              {/* Ln item code , Drawing Number, Nomenclature*/}
               <Grid container spacing={2} sx={{ mb: 2 }}>
                 <Grid item xs={12} md={4}>
                   {!isEditMode ? (
@@ -578,9 +544,10 @@ export default function InsertMappings() {
                       render={({ field }) => (
                         <TextField
                           {...field}
-                          label="Item Code *"
+                          label={<RequiredLabel text="Item Code" required />}
                           fullWidth
                           size="small"
+                       
                           error={!!errors.lnItemCode}
                           helperText={errors.lnItemCode?.message}
                         />
@@ -632,7 +599,7 @@ export default function InsertMappings() {
                                     py: 0.5,
                                   }}
                                 >
-                                  <Typography variant="body2" fontWeight="bold" sx={{ color: "primary.main" }}>
+                                  <Typography variant="body2" fontWeight="bold" sx={{ color: "text.primary" }}>
                                     {typeof option === "string"
                                       ? option
                                       : option.lnItemCode}
@@ -661,7 +628,8 @@ export default function InsertMappings() {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label="Item Code *"
+                              label={<RequiredLabel text="Item Code" required />}
+                        
                               InputProps={{
                                 ...params.InputProps,
                                 endAdornment: (
@@ -695,9 +663,10 @@ export default function InsertMappings() {
                       render={({ field }) => (
                         <TextField
                           {...field}
-                          label="Part Number *"
+                          label={<RequiredLabel text="Part Number" required />}
                           fullWidth
                           size="small"
+                      
                           error={!!errors.drawingNumber}
                           helperText={errors.drawingNumber?.message}
                         />
@@ -759,7 +728,7 @@ export default function InsertMappings() {
                                     py: 0.5,
                                   }}
                                 >
-                                  <Typography variant="body2" fontWeight="bold" sx={{ color: "primary.main" }}>
+                                  <Typography variant="body2" fontWeight="bold" sx={{ color: "text.primary" }}>
                                     {typeof option === "string"
                                       ? option
                                       : option.drawingNumber}
@@ -788,8 +757,9 @@ export default function InsertMappings() {
                           renderInput={(params) => (
                             <TextField
                               {...params}
-                              label="Part Number *"
+                              label={<RequiredLabel text="Part Number" required />}
                               fullWidth
+                             
                               error={!!errors.drawingNumber}
                               helperText={errors.drawingNumber?.message || ""}
                               InputProps={{
@@ -825,6 +795,7 @@ export default function InsertMappings() {
                         label="Item Description"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       //disabled={!selectedDrawing}
                       />
                     )}
@@ -844,8 +815,8 @@ export default function InsertMappings() {
                         size="small"
                       //disabled={!selectedDrawing}
                       >
-                        <InputLabel>Component Type</InputLabel>
-                        <Select {...field} label="Component Type">
+                        <InputLabel id="component-type-select-label">Component Type</InputLabel>
+                        <Select {...field} labelId="component-type-select-label" label="Component Type">
                           <MenuItem value="">
                             <em>None</em>
                           </MenuItem>
@@ -868,6 +839,7 @@ export default function InsertMappings() {
                         label="Component Code"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       />
                     )}
                   />
@@ -882,6 +854,7 @@ export default function InsertMappings() {
                         label="Available For"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       />
                     )}
                   />
@@ -899,8 +872,8 @@ export default function InsertMappings() {
                         fullWidth
                         size="small"
                       >
-                        <InputLabel>Document Type</InputLabel>
-                        <Select {...field} label="Document Type">
+                        <InputLabel id="document-type-select-label">Document Type</InputLabel>
+                        <Select {...field} labelId="document-type-select-label" label="Document Type">
                           <MenuItem value="">
                             <em>None</em>
                           </MenuItem>
@@ -948,7 +921,7 @@ export default function InsertMappings() {
                           return (
                             <li {...optionProps} key={key}>
                               <Box sx={{ display: "flex", flexDirection: "column", py: 0.5 }}>
-                                <Typography variant="body2" fontWeight="bold" sx={{ color: "primary.main" }}>
+                                <Typography variant="body2" fontWeight="bold" sx={{ color: "text.primary" }}>
                                   {typeof option === "string" ? option : option.drawingNumber}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary">
@@ -965,6 +938,7 @@ export default function InsertMappings() {
                             label="Assembly Number"
                             fullWidth
                             size="small"
+                            InputLabelProps={{ shrink: true }}
                             InputProps={{
                               ...params.InputProps,
                               endAdornment: (
@@ -1021,7 +995,7 @@ export default function InsertMappings() {
                           return (
                             <li {...optionProps} key={key}>
                               <Box sx={{ display: "flex", flexDirection: "column", py: 0.5 }}>
-                                <Typography variant="body2" fontWeight="bold" sx={{ color: "primary.main" }}>
+                                <Typography variant="body2" fontWeight="bold" sx={{ color: "text.primary" }}>
                                   {typeof option === "string" ? option : option.lnItemCode}
                                 </Typography>
                                 <Typography variant="caption" color="text.secondary">
@@ -1038,6 +1012,7 @@ export default function InsertMappings() {
                             label="Assembly Item Code"
                             fullWidth
                             size="small"
+                            InputLabelProps={{ shrink: true }}
                             InputProps={{
                               ...params.InputProps,
                               endAdornment: (
@@ -1072,6 +1047,7 @@ export default function InsertMappings() {
                         label="Rack Location"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       />
                     )}
                   />
@@ -1085,8 +1061,8 @@ export default function InsertMappings() {
                         fullWidth
                         size="small"
                       >
-                        <InputLabel>Unit</InputLabel>
-                        <Select {...field} label="Unit">
+                        <InputLabel id="unit-name-select-label">Unit</InputLabel>
+                        <Select {...field} labelId="unit-name-select-label" label="Unit">
                           <MenuItem value="">
                             <em>None</em>
                           </MenuItem>
@@ -1110,6 +1086,7 @@ export default function InsertMappings() {
                         label="Has Expiry"
                         fullWidth
                         size="small"
+                        InputLabelProps={{ shrink: true }}
                       />
                     )}
                   />
@@ -1130,6 +1107,7 @@ export default function InsertMappings() {
                           type="number"
                           fullWidth
                           size="small"
+                          InputLabelProps={{ shrink: true }}
                         />
                       )}
                     />
@@ -1146,6 +1124,7 @@ export default function InsertMappings() {
                           label="Position No"
                           fullWidth
                           size="small"
+                          InputLabelProps={{ shrink: true }}
                         />
                       )}
                     />
@@ -1311,7 +1290,7 @@ export default function InsertMappings() {
               setPrecheckDialogOpen(false);
               setSavedFormData(null);
               setTimeout(() => {
-                navigate("/components");
+                navigate("/assembly/components");
               }, 500);
             }}
             variant="outlined"
@@ -1347,7 +1326,7 @@ export default function InsertMappings() {
                 setPrecheckDialogOpen(false);
                 setSavedFormData(null);
                 setTimeout(() => {
-                  navigate("/components");
+                  navigate("/assembly/components");
                 }, 1500);
               }
             }}
@@ -1366,22 +1345,13 @@ export default function InsertMappings() {
         </DialogActions>
       </Dialog>
 
-      {/* Precheck Snackbar */}
-      <Snackbar
+      {/* Precheck ToastSnackbar */}
+      <ToastSnackbar
         open={precheckSnackbar.open}
-        autoHideDuration={4000}
+        message={precheckSnackbar.message}
+        severity={precheckSnackbar.severity}
         onClose={() => setPrecheckSnackbar({ ...precheckSnackbar, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={() => setPrecheckSnackbar({ ...precheckSnackbar, open: false })}
-          severity={precheckSnackbar.severity}
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {precheckSnackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </LocalizationProvider>
   );
 }

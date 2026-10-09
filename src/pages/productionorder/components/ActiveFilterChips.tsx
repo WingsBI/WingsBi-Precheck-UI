@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography, Chip, Button, Stack } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
 
 export interface FilterChipItem {
   id: string;
@@ -59,18 +60,19 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
             key={chip.id}
             label={chip.label}
             onDelete={chip.onRemove}
+            deleteIcon={<ClearIcon sx={{ fontSize: 14 }} />}
             size="small"
             sx={{
-              backgroundColor: "#F2F4F7",
-              color: "#344054",
+              backgroundColor: "#F3E8F8",
+              color: "#6D2A8F",
               fontWeight: 600,
-              fontSize: "0.8rem",
-              borderRadius: "16px",
-              border: "1px solid #E9EAEB",
+              fontSize: "0.775rem",
+              borderRadius: "6px",
+              height: 26,
               "& .MuiChip-deleteIcon": {
-                color: "#667085",
+                color: "#6D2A8F",
                 fontSize: 14,
-                "&:hover": { color: "#344054" },
+                "&:hover": { color: "#571F73" },
               },
             }}
           />
@@ -81,13 +83,13 @@ export const ActiveFilterChips: React.FC<ActiveFilterChipsProps> = ({
           size="small"
           onClick={onClearAll}
           sx={{
-            color: "primary.main",
+            color: "#6D2A8F",
             fontWeight: 600,
-            fontSize: "0.8rem",
+            fontSize: "0.775rem",
             textTransform: "none",
             p: 0,
             minWidth: "auto",
-            "&:hover": { backgroundColor: "transparent", textDecoration: "underline" },
+            "&:hover": { backgroundColor: "transparent", textDecoration: "underline", color: "#571F73" },
           }}
         >
           Clear all

@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -21,9 +21,9 @@ import {
   Avatar,
   Menu,
   MenuItem,
-  Stack,
   Collapse,
- 
+
+  Button,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -50,14 +50,11 @@ import {
   People as PeopleIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
   Storage as StorageIcon,
-  PlayArrow as PlayArrowIcon,
-  Warehouse as WarehouseIcon,
-  MoveToInbox as MoveToInboxIcon,
-  Inventory as InventoryIcon,
+  PlaylistAddCheck,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import type { RootState } from "../store/store";
-import { logout } from "../store/slices/authSlice";
+import { logout, logoutUser } from "../store/slices/authSlice";
 import { clearGeneratedNumber, clearTables } from "../store/slices/irmsnSlice";
 import { clearAllData as clearCommonData } from "../store/slices/commonSlice";
 import { clearError as clearDashboardError } from "../store/slices/dashboardSlice";
@@ -88,11 +85,21 @@ interface MenuItem {
   subItems?: MenuItem[];
 }
 
+const isItemActive = (item: MenuItem, currentPath: string): boolean => {
+  if (item.subItems && item.subItems.length > 0) {
+    return item.subItems.some(
+      (sub) => currentPath === sub.path || currentPath.startsWith(sub.path + "/")
+    );
+  }
+  return currentPath === item.path || currentPath.startsWith(item.path + "/");
+};
+
 const Main = styled("main")(({ theme }) => ({
   flexGrow: 1,
   padding: 0,
   marginLeft: 0,
   minWidth: 0,
+  overflowX: "hidden",
   [theme.breakpoints.up("lg")]: {
     paddingLeft: 0,
   },
@@ -114,6 +121,7 @@ const StyledDrawer = styled(Drawer, {
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
+  overflowX: "hidden",
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.enteringScreen,
@@ -124,7 +132,7 @@ const StyledDrawer = styled(Drawer, {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    overflowX: "hidden",
+    overflowX: "hidden !important",
     background: "#ffffff",
     borderRight: "1px solid rgba(0, 0, 0, 0.08)",
     boxShadow: "2px 0 8px rgba(0,0,0,0.05)",
@@ -132,6 +140,8 @@ const StyledDrawer = styled(Drawer, {
     top: 0,
     height: "100vh",
     zIndex: 1200,
+    display: "flex",
+    flexDirection: "column",
   },
 }));
 
@@ -157,6 +167,34 @@ const LogoBox = styled(Box, {
 
 const STORE_ROLE = "Store";
 
+const RobotLogoIcon = (props: { sx?: any }) => (
+  <Box
+    component="svg"
+    viewBox="0 0 80 80"
+    sx={{
+      width: 18,
+      height: 18,
+      display: "inline-block",
+      flexShrink: 0,
+      overflow: "visible",
+      ...props.sx,
+    }}
+  >
+    <g>
+      <line x1="40" y1="8" x2="40" y2="18" stroke="#6D2A8F" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="40" cy="7" r="3" fill="#F5A524" />
+      <rect x="7" y="34" width="6" height="16" rx="3" fill="#6D2A8F" opacity=".85" />
+      <rect x="67" y="34" width="6" height="16" rx="3" fill="#6D2A8F" opacity=".85" />
+      <rect x="12" y="18" width="56" height="46" rx="16" fill="#6D2A8F" />
+      <rect x="19" y="26" width="42" height="30" rx="11" fill="#1E1B3A" />
+      <g>
+        <rect x="28" y="34" width="7" height="11" rx="3.5" fill="#F6D3F5" />
+        <rect x="45" y="34" width="7" height="11" rx="3.5" fill="#F6D3F5" />
+      </g>
+      <path d="M35 50 Q40 53 45 50" stroke="#F6D3F5" strokeWidth="2" fill="none" strokeLinecap="round" />
+    </g>
+  </Box>
+);
 
 export default function Layout() {
   const theme = useTheme();
@@ -194,12 +232,7 @@ export default function Layout() {
       icon: <DashboardIcon />,
       path: "/dashboard",
     },
-    {
-      text: "Bulk Import",
-      pageName: "Bulk Import",
-      icon: <CloudUploadIcon />,
-      path: "/scriptexecutor",
-    },
+
     {
       text: "Production Order",
       pageName: "Production Order",
@@ -210,7 +243,7 @@ export default function Layout() {
           text: "Manage Orders",
           pageName: "Manage Orders",
           icon: <AssignmentIcon />,
-          path: "/production-order/upload",
+          path: "/production-order/history",
         },
       ],
     },
@@ -224,13 +257,13 @@ export default function Layout() {
           text: "IR/MSN List",
           pageName: "IR/MSN List",
           icon: <ListAltIcon />,
-          path: "/irmsn/view",
+          path: "/irmsn/list",
         },
         {
           text: "New IR/MSN",
           pageName: "New IR/MSN",
           icon: <AddIcon />,
-          path: "/irmsn/generate",
+          path: "/irmsn/new",
         },
       ],
     },
@@ -244,73 +277,66 @@ export default function Layout() {
           text: "QR Code List",
           pageName: "QR Code List",
           icon: <ListAltIcon />,
-          path: "/qrcode/view",
+          path: "/qrcode/list",
         },
         {
           text: "New QR Code",
           pageName: "New QR Code",
           icon: <AddIcon />,
-          path: "/qrcode/generate",
+          path: "/qrcode/new",
         },
-      ],
-    },
-    {
-      text: "Precheck",
-      pageName: "Precheck",
-      icon: <FactCheckIcon />,
-      path: "/precheck",
-      subItems: [
-        {
-          text: "Precheck History",
-          pageName: "Precheck History",
-          icon: <HistoryIcon />,
-          path: "/precheck/view",
-        },
-        {
-          text: "Run Precheck",
-          pageName: "Run Precheck",
-          icon: <PlayArrowIcon />,
-          path: "/precheck/make",
-        },
-      ],
-    },
-    {
-      text: "Store",
-      pageName: "Store",
-      icon: <StoreIcon />,
-      path: "/store",
-      subItems: [
         {
           text: "Store In",
           pageName: "Store In",
-          icon: <MoveToInboxIcon />,
-          path: "/precheck/store-in",
-        },
-        {
-          text: "Available In Store",
-          pageName: "Available In Store",
-          icon: <InventoryIcon />,
-          path: "/precheck/available-in-store",
+          icon: <StoreIcon />,
+          path: "/qrcode/store-in",
         },
       ],
     },
+    {
+      text: "Verification",
+      pageName: "Precheck",
+      icon: <FactCheckIcon />,
+      path: "/verification",
+      subItems: [
+        {
+          text: "Verification History",
+          pageName: "Verification History",
+          icon: <HistoryIcon />,
+          path: "/verification/history",
+        },
+        {
+          text: "Part Verification",
+          pageName: "Part Verification",
+          icon: < PlaylistAddCheck />,
+          path: "/verification/parts",
+        },
+        {
+          text: "Material Requisition",
+          pageName: "Material Requisition",
+          icon: <AssignmentIcon />,
+          path: "/verification/material-requisition",
+        },
+      ],
+    },
+
     {
       text: "Assembly",
       pageName: "Assembly",
       icon: <MenuBookIcon />,
-      path: "/sop",
+      path: "/assembly",
       subItems: [
         {
           text: "Assembly Explorer",
           pageName: "Assembly Explorer",
           icon: <AccountTreeIcon />,
-          path: "/sop/view",
+          path: "/assembly/explorer",
         },
         {
           text: "Components",
           pageName: "Components",
           icon: <ExtensionIcon />,
-          path: "/components",
+          path: "/assembly/components",
         },
       ],
     },
@@ -321,23 +347,30 @@ export default function Layout() {
       path: "/adminmaster",
       subItems: [
         {
+          text: "Bulk Import",
+          pageName: "Bulk Import",
+          icon: <CloudUploadIcon />,
+          path: "/adminmaster/bulk-import",
+        },
+        {
           text: "User Management",
           pageName: "User Management",
           icon: <PeopleIcon />,
-          path: "/adminmaster/usermanagement",
+          path: "/adminmaster/user-management",
         },
         {
           text: "Role Management",
           pageName: "Role Management",
           icon: <SettingsIcon />,
-          path: "/adminmaster/rolemanagement",
+          path: "/adminmaster/role-management",
         },
         {
           text: "Master Data",
           pageName: "Master Data",
           icon: <StorageIcon />,
-          path: "/adminmaster/addcomponents",
+          path: "/adminmaster/master-data",
         },
+
       ],
     },
   ];
@@ -454,7 +487,7 @@ export default function Layout() {
   };
 
   const handleNavigation = (path: string) => {
-    if (hasPendingScans && location.pathname === "/precheck/make") {
+    if (hasPendingScans && (location.pathname === "/verification/parts" || location.pathname === "/verification")) {
       setNextLocation(path);
       setNavigationDialogOpen(true);
     } else {
@@ -478,21 +511,46 @@ export default function Layout() {
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    dispatch(clearGeneratedNumber());
-    dispatch(clearTables());
-    dispatch(clearCommonData());
-    dispatch(clearDashboardError());
-    dispatch(clearPrecheckError());
-    dispatch(clearPrecheckData());
-    dispatch(clearQrcodeError());
-    dispatch(clearQRCodeList());
-    dispatch(clearBarcodeDetails());
-    dispatch(clearSopError());
-    dispatch(clearSopData());
-    navigate("/login");
-    handleProfileMenuClose();
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser() as any);
+    } catch (err) {
+      console.error("Logout API error:", err);
+    } finally {
+      dispatch(clearGeneratedNumber());
+      dispatch(clearTables());
+      dispatch(clearCommonData());
+      dispatch(clearDashboardError());
+      dispatch(clearPrecheckError());
+      dispatch(clearPrecheckData());
+      dispatch(clearQrcodeError());
+      dispatch(clearQRCodeList());
+      dispatch(clearBarcodeDetails());
+      dispatch(clearSopError());
+      dispatch(clearSopData());
+      navigate("/login");
+      handleProfileMenuClose();
+    }
+  };
+
+  const handleAskAIClick = () => {
+    const chatbot = (window as any).MyChatbot || (window as any).WiBiChatbot;
+    if (chatbot && typeof chatbot.open === "function") {
+      chatbot.open();
+    } else if (chatbot && typeof chatbot.toggle === "function") {
+      chatbot.toggle();
+    } else {
+      const widget = document.getElementById("wibi-chatbot-widget") || document.querySelector(".wibi-chatbot-widget");
+      if (widget) {
+        widget.classList.add("open", "is-open");
+        (widget as HTMLElement).style.setProperty("display", "block", "important");
+        (widget as HTMLElement).style.setProperty("opacity", "1", "important");
+        (widget as HTMLElement).style.setProperty("visibility", "visible", "important");
+        (widget as HTMLElement).style.setProperty("pointer-events", "auto", "important");
+      } else {
+        console.warn("[WingsBi Precheck] Chatbot widget is loading or not initialized yet.");
+      }
+    }
   };
 
   const drawerContent = (isDesktopVersion: boolean = false) => (
@@ -530,159 +588,282 @@ export default function Layout() {
         </IconButton>
       </LogoBox>
 
-      <List sx={{ flex: 1, py: 1 }}>
-        {getFilteredMenuItems().map((item) => (
-          <Box key={item.text}>
-            <ListItem disablePadding sx={{ display: "block" }}>
-              <Tooltip
-                title={!isSidebarOpen && isDesktopVersion ? item.text : ""}
-                placement="right"
-                arrow
-              >
-                <ListItemButton
-                  onClick={() => handleItemClick(item)}
-                  sx={{
-                    minHeight: 46,
-                    px: isSidebarOpen || !isDesktopVersion ? 2.5 : 1.5,
-                    justifyContent: isSidebarOpen || !isDesktopVersion ? "initial" : "center",
-                    mx: 1,
-                    mb: 0.5,
-                    borderRadius: 2,
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      backgroundColor: "rgba(109, 42, 143, 0.08)",
-                      transform: "translateX(4px)",
-                    },
-                    backgroundColor: location.pathname.startsWith(item.path)
-                      ? "rgba(109, 42, 143, 0.12)"
-                      : "transparent",
-                  }}
+      <List
+        sx={{
+          flex: 1,
+          py: 1,
+          overflowY: isSidebarOpen || !isDesktopVersion ? "auto" : "hidden",
+          overflowX: "hidden",
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        {getFilteredMenuItems().map((item) => {
+          const isActive = isItemActive(item, location.pathname);
+          return (
+            <Box key={item.text}>
+              <ListItem disablePadding sx={{ display: "block" }}>
+                <Tooltip
+                  title={!isSidebarOpen && isDesktopVersion ? item.text : ""}
+                  placement="right"
+                  arrow
                 >
-                  {item.icon && (
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: isSidebarOpen || !isDesktopVersion ? 3 : 0,
-                        justifyContent: "center",
-                        color: location.pathname.startsWith(item.path)
-                          ? "#6D2A8F"
-                          : "text.secondary",
-                      }}
-                    >
-                      {item.icon}
-                    </ListItemIcon>
-                  )}
-                  <ListItemText
-                    primary={item.text}
+                  <ListItemButton
+                    onClick={() => handleItemClick(item)}
                     sx={{
-                      flex: 1,
-                      opacity: isSidebarOpen || !isDesktopVersion ? 1 : 0,
-                      display: isSidebarOpen || !isDesktopVersion ? "block" : "none",
-                      "& .MuiListItemText-primary": {
-                        fontSize: "0.9rem",
-                        fontWeight: location.pathname.startsWith(item.path)
-                          ? 600
-                          : 500,
-                        color: location.pathname.startsWith(item.path)
-                          ? "#6D2A8F"
-                          : "text.primary",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
+                      minHeight: 46,
+                      px: isSidebarOpen || !isDesktopVersion ? 2.5 : 1.5,
+                      justifyContent: isSidebarOpen || !isDesktopVersion ? "initial" : "center",
+                      mx: 1,
+                      mb: 0.5,
+                      borderRadius: 2,
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        backgroundColor: "rgba(109, 42, 143, 0.08)",
+                        transform: "translateX(4px)",
                       },
+                      backgroundColor: isActive
+                        ? "rgba(109, 42, 143, 0.12)"
+                        : "transparent",
                     }}
-                  />
-
-                  {item.subItems &&
-                    item.subItems.length > 0 &&
-                    (isSidebarOpen || !isDesktopVersion) && (
-                      <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
-                        {expandedItems.includes(item.text) ? (
-                          <ExpandLessIcon sx={{ color: "text.secondary", fontSize: "1.25rem" }} />
-                        ) : (
-                          <ExpandMoreIcon sx={{ color: "text.secondary", fontSize: "1.25rem" }} />
-                        )}
-                      </Box>
-                    )}
-                </ListItemButton>
-              </Tooltip>
-            </ListItem>
-
-            {item.subItems && item.subItems.length > 0 && (
-              <Collapse
-                in={
-                  expandedItems.includes(item.text) &&
-                  (isSidebarOpen || !isDesktopVersion)
-                }
-                timeout="auto"
-                unmountOnExit
-              >
-                <List component="div" disablePadding>
-                  {item.subItems.map((subItem) => (
-                    <ListItemButton
-                      key={subItem.text}
-                      onClick={() => handleSubItemClick(subItem)}
-                      sx={{
-                        pl: 3.5,
-                        pr: 1.5,
-                        py: 1,
-                        mx: 1,
-                        mb: 0.5,
-                        borderRadius: 2,
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                          backgroundColor: "rgba(109, 42, 143, 0.05)",
-                          transform: "translateX(4px)",
-                        },
-                        backgroundColor:
-                          location.pathname === subItem.path
-                            ? "rgba(109, 42, 143, 0.1)"
-                            : "transparent",
-                      }}
-                    >
-                      {subItem.icon && (
-                        <ListItemIcon
-                          sx={{
-                            minWidth: 32,
-                            color:
-                              location.pathname === subItem.path
-                                ? "#6D2A8F"
-                                : "text.secondary",
-                          }}
-                        >
-                          {subItem.icon}
-                        </ListItemIcon>
-                      )}
-                      <ListItemText
-                        primary={subItem.text}
+                  >
+                    {item.icon && (
+                      <ListItemIcon
                         sx={{
-                          "& .MuiListItemText-primary": {
-                            fontSize: "0.825rem",
-                            fontWeight:
-                              location.pathname === subItem.path ? 600 : 400,
-                            color:
-                              location.pathname === subItem.path
-                                ? "#6D2A8F"
-                                : "text.secondary",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                          },
+                          minWidth: 0,
+                          mr: isSidebarOpen || !isDesktopVersion ? 3 : 0,
+                          justifyContent: "center",
+                          color: isActive
+                            ? "#6D2A8F"
+                            : "text.secondary",
                         }}
-                      />
-                    </ListItemButton>
-                  ))}
-                </List>
-              </Collapse>
-            )}
-          </Box>
-        ))}
+                      >
+                        {item.icon}
+                      </ListItemIcon>
+                    )}
+                    <ListItemText
+                      primary={item.text}
+                      sx={{
+                        flex: 1,
+                        opacity: isSidebarOpen || !isDesktopVersion ? 1 : 0,
+                        display: isSidebarOpen || !isDesktopVersion ? "block" : "none",
+                        "& .MuiListItemText-primary": {
+                          fontSize: "0.9rem",
+                          fontWeight: isActive
+                            ? 600
+                            : 500,
+                          color: isActive
+                            ? "#6D2A8F"
+                            : "text.primary",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        },
+                      }}
+                    />
+
+                    {item.subItems &&
+                      item.subItems.length > 0 &&
+                      (isSidebarOpen || !isDesktopVersion) && (
+                        <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
+                          {expandedItems.includes(item.text) ? (
+                            <ExpandLessIcon sx={{ color: "text.secondary", fontSize: "1.25rem" }} />
+                          ) : (
+                            <ExpandMoreIcon sx={{ color: "text.secondary", fontSize: "1.25rem" }} />
+                          )}
+                        </Box>
+                      )}
+                  </ListItemButton>
+                </Tooltip>
+              </ListItem>
+
+              {item.subItems && item.subItems.length > 0 && (
+                <Collapse
+                  in={
+                    expandedItems.includes(item.text) &&
+                    (isSidebarOpen || !isDesktopVersion)
+                  }
+                  timeout="auto"
+                  unmountOnExit
+                >
+                  <List component="div" disablePadding>
+                    {item.subItems.map((subItem) => (
+                      <ListItemButton
+                        key={subItem.text}
+                        onClick={() => handleSubItemClick(subItem)}
+                        sx={{
+                          pl: 3.5,
+                          pr: 1.5,
+                          py: 1,
+                          mx: 1,
+                          mb: 0.5,
+                          borderRadius: 2,
+                          transition: "all 0.2s ease",
+                          "&:hover": {
+                            backgroundColor: "rgba(109, 42, 143, 0.05)",
+                            transform: "translateX(4px)",
+                          },
+                          backgroundColor:
+                            location.pathname === subItem.path
+                              ? "rgba(109, 42, 143, 0.1)"
+                              : "transparent",
+                        }}
+                      >
+                        {subItem.icon && (
+                          <ListItemIcon
+                            sx={{
+                              minWidth: 32,
+                              color:
+                                location.pathname === subItem.path
+                                  ? "#6D2A8F"
+                                  : "text.secondary",
+                            }}
+                          >
+                            {subItem.icon}
+                          </ListItemIcon>
+                        )}
+                        <ListItemText
+                          primary={subItem.text}
+                          sx={{
+                            "& .MuiListItemText-primary": {
+                              fontSize: "0.825rem",
+                              fontWeight:
+                                location.pathname === subItem.path ? 600 : 400,
+                              color:
+                                location.pathname === subItem.path
+                                  ? "#6D2A8F"
+                                  : "text.secondary",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            },
+                          }}
+                        />
+                      </ListItemButton>
+                    ))}
+                  </List>
+                </Collapse>
+              )}
+            </Box>
+          );
+        })}
       </List>
+
+      {/* Bottom Profile Card */}
+      <Box
+        sx={{
+          mt: "auto",
+          p: isSidebarOpen || !isDesktopVersion ? 1.25 : 0.75,
+          borderTop: "1px solid rgba(0, 0, 0, 0.08)",
+          backgroundColor: "#ffffff",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Tooltip
+          title={!isSidebarOpen && isDesktopVersion ? `${user?.username || "John Smith"} (${user?.role || user?.department || "Administrator"})` : ""}
+          placement="right"
+          arrow
+        >
+          <ListItemButton
+            onClick={handleProfileMenuOpen}
+            sx={{
+              p: isSidebarOpen || !isDesktopVersion ? 1 : 0.75,
+              px: isSidebarOpen || !isDesktopVersion ? 1 : 0,
+              borderRadius: "14px",
+              width: "100%",
+              transition: "all 0.2s ease",
+              "&:hover": {
+                backgroundColor: "rgba(109, 42, 143, 0.06)",
+              },
+              display: "flex",
+              alignItems: "center",
+              justifyContent: isSidebarOpen || !isDesktopVersion ? "space-between" : "center",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: isSidebarOpen || !isDesktopVersion ? 1.5 : 0,
+                justifyContent: isSidebarOpen || !isDesktopVersion ? "flex-start" : "center",
+                width: isSidebarOpen || !isDesktopVersion ? "auto" : "100%",
+                minWidth: 0,
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: "#E9D5FF",
+                  color: "#6D2A8F",
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                  boxShadow: "0 2px 6px rgba(109, 42, 143, 0.15)",
+                  flexShrink: 0,
+                  mx: isSidebarOpen || !isDesktopVersion ? 0 : "auto",
+                }}
+              >
+                {user?.username
+                  ? user.username
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase()
+                  : "JS"}
+              </Avatar>
+
+              {(isSidebarOpen || !isDesktopVersion) && (
+                <Box sx={{ overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 700,
+                      color: "#1F2937",
+                      fontSize: "0.875rem",
+                      lineHeight: 1.2,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {user?.username || "John Smith"}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "#6B7280",
+                      fontSize: "0.75rem",
+                      fontWeight: 400,
+                      display: "block",
+                      lineHeight: 1.2,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {user?.role || user?.department || "Administrator"}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+
+            {(isSidebarOpen || !isDesktopVersion) && (
+              <SettingsIcon sx={{ color: "#6B7280", fontSize: "1.2rem", mr: 1, flexShrink: 0 }} />
+            )}
+          </ListItemButton>
+        </Tooltip>
+      </Box>
     </>
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden", width: "100%" }}>
       <CssBaseline />
 
       {/* App Bar */}
@@ -707,108 +888,142 @@ export default function Layout() {
             <MenuIcon />
           </IconButton>
 
-          {/* Godrej Aerospace Title */}
+          {/* Wingsbi Logo & Title */}
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
+              gap: { xs: 0.8, sm: 1.2 },
+              cursor: "pointer",
             }}
+            onClick={handleDrawerToggle}
           >
-            <img
-              src="/assets/logo.jpg"
-              alt="Wingsbi Logo"
-              style={{ height: 28, marginRight: 8, borderRadius: 8 }}
-            />
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{
-                  fontWeight: 600,
-                  fontSize: "1.05rem",
-                  letterSpacing: 0.5,
-                  color: "white",
-                  display: "flex",
-                  alignItems: "center",
-                }}
-              >
-                Wingsbi
-              </Typography>
+            <Box
+              sx={{
+                width: { xs: 28, sm: 34 },
+                height: { xs: 28, sm: 34 },
+                borderRadius: "8px",
+                bgcolor: "white",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                p: "4px",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                flexShrink: 0,
+              }}
+            >
+              <img
+                src="/assets/logo.jpg"
+                alt="Wingsbi Logo"
+                style={{ height: "100%", width: "auto", objectFit: "contain" }}
+              />
             </Box>
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: "0.925rem", sm: "1.1rem" },
+                letterSpacing: 0.3,
+                color: "white",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              Assembly Verification Tool
+            </Typography>
           </Box>
           <Box sx={{ flexGrow: 1 }} />
 
-          {/* User Profile */}
-          {user && (
-            <Box sx={{ display: "flex", alignItems: "center", ml: 2 }}>
-              <Stack
-                alignItems="flex-end"
-                sx={{ mr: 1.5, display: { xs: "none", sm: "flex" } }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 600, color: "white", fontSize: "0.825rem", lineHeight: 1.2 }}
-                >
-                  {user?.username}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ color: "rgba(255,255,255,0.8)", fontSize: "0.7rem", lineHeight: 1.1 }}
-                >
-                  {user?.department} - {user?.role}
-                </Typography>
-              </Stack>
-              <IconButton
-                size="small"
-                edge="end"
-                aria-label="account of current user"
-                onClick={handleProfileMenuOpen}
+          {/* AI Assist Button */}
+          <Button
+            onClick={handleAskAIClick}
+            size="small"
+            startIcon={
+              <RobotLogoIcon
                 sx={{
-                  padding: "4px",
-                  "&:hover": {
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  },
+                  mr: -0.2,
+                  width: { xs: 16, sm: 18 },
+                  height: { xs: 16, sm: 18 },
                 }}
-              >
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    color: "white",
-                    fontSize: "0.85rem",
-                    fontWeight: 600,
-                    border: "1.5px solid rgba(255,255,255,0.3)",
-                  }}
-                >
-                  {user?.username?.substring(0, 2).toUpperCase() || "U"}
-                </Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleProfileMenuClose}
-                onClick={handleProfileMenuClose}
-                PaperProps={{
-                  sx: {
-                    boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-                    borderRadius: 2,
-                    mt: 1,
-                  },
-                }}
-              >
-                <MenuItem onClick={handleLogout}>
-                  <ListItemIcon>
-                    <LogoutIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary="Logout" />
-                </MenuItem>
-              </Menu>
+              />
+            }
+            sx={{
+              backgroundColor: "#ffffff",
+              color: "#6D2A8F",
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: { xs: "0.85rem", sm: "1.05rem" },
+              letterSpacing: "0.2px",
+              lineHeight: 1,
+              borderRadius: "50px",
+              px: { xs: 1.25, sm: 1.5 },
+              py: "2px",
+              height: { xs: 30, sm: 34 },
+              minHeight: { xs: 30, sm: 34 },
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.12)",
+              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+              border: "2px solid transparent",
+              "&:hover": {
+                backgroundColor: "#ffffff",
+                boxShadow: "0 0 0 3.5px rgba(255, 255, 255, 0.45), 0 3px 10px rgba(0, 0, 0, 0.18)",
+                transform: "translateY(-1px)",
+              },
+              "&:active": {
+                transform: "translateY(0)",
+                boxShadow: "0 0 0 2px rgba(255, 255, 255, 0.5)",
+              },
+            }}
+          >
+            <Box
+              component="span"
+              sx={{
+                background: "linear-gradient(90deg, #6D2A8F 0%, #D82578 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: 700,
+                fontSize: { xs: "0.85rem", sm: "1.05rem" },
+                letterSpacing: "0.2px",
+                lineHeight: 1,
+              }}
+            >
+              AI Assist
             </Box>
-          )}
+          </Button>
         </Toolbar>
       </StyledAppBar>
+
+      {/* Logout Dropdown Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleProfileMenuClose}
+        onClick={handleProfileMenuClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        PaperProps={{
+          sx: {
+            boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+            borderRadius: 2,
+            mb: 1,
+            minWidth: 160,
+          },
+        }}
+      >
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText primary="Logout" sx={{ color: "error.main" }} />
+        </MenuItem>
+      </Menu>
 
       <Drawer
         variant="temporary"

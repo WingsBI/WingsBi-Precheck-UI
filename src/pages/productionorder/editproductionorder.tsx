@@ -10,14 +10,12 @@ import {
   Stack,
   CircularProgress,
   Alert,
-  Snackbar,
 } from "@mui/material";
-import {
-  ArrowBack as ArrowBackIcon,
-  Save as SaveIcon,
-} from "@mui/icons-material";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import { useForm, Controller } from "react-hook-form";
 import { useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
+import PageHeader from "../../components/ui/PageHeader";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import {
@@ -239,30 +237,11 @@ export default function EditProductionOrder() {
   };
 
   return (
-    <Box sx={{ py: 1.5, px: { xs: 1.5, sm: 2.5 }, bgcolor: 'background.paper', minHeight: '100vh' }}>
-      {/* Header Section */}
-      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
-        <IconButton
-          onClick={handleBack}
-          sx={{
-            color: "primary.main",
-            p: 0.5,
-            "&:hover": { backgroundColor: "grey.100" },
-          }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            fontSize: { xs: "1.25rem", sm: "1.5rem" },
-          }}
-        >
-          Edit Production Order: {initialData.productionOrderNumber || id}
-        </Typography>
-      </Stack>
+    <Box sx={{ py: 1.5, px: { xs: 1.5, sm: 2.5 } }}>
+      <PageHeader
+        title={`Edit Production Order: ${initialData.productionOrderNumber || id}`}
+        onBack={handleBack}
+      />
 
       {apiError && (
         <Alert severity="error" sx={{ mb: 2, borderRadius: "8px" }} onClose={() => dispatch(resetUploadState())}>
@@ -290,10 +269,11 @@ export default function EditProductionOrder() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="PO Number"
+                    label="Production Order Number"
                     fullWidth
                     size="small"
                     disabled
+                    InputLabelProps={{ shrink: true }}
                     sx={{
                       "& .MuiInputBase-input.Mui-disabled": { WebkitTextFillColor: "#344054", fontWeight: 600 },
                     }}
@@ -311,6 +291,7 @@ export default function EditProductionOrder() {
                     label="Item Code"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                     InputProps={{ readOnly: true }}
                     sx={{
                       "& .MuiInputBase-input": { color: "#344054", fontWeight: 600 },
@@ -329,6 +310,7 @@ export default function EditProductionOrder() {
                     label="Item Description"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                     InputProps={{ readOnly: true }}
                     sx={{
                       "& .MuiInputBase-input": { color: "#344054" },
@@ -349,6 +331,7 @@ export default function EditProductionOrder() {
                     label="Project Code"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                   />
                 )}
               />
@@ -363,6 +346,7 @@ export default function EditProductionOrder() {
                     label="Project Description"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                   />
                 )}
               />
@@ -373,6 +357,7 @@ export default function EditProductionOrder() {
                 fullWidth
                 size="small"
                 value={selectedProductionSeries?.productionSeries || ""}
+                InputLabelProps={{ shrink: true }}
                 InputProps={{ readOnly: true }}
                 sx={{
                   "& .MuiInputBase-input": { color: "#344054", fontWeight: 600 },
@@ -392,6 +377,7 @@ export default function EditProductionOrder() {
                     type="number"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                   />
                 )}
               />
@@ -404,10 +390,11 @@ export default function EditProductionOrder() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Quantity *"
+                    label={<RequiredLabel text="Quantity" required />}
                     type="number"
                     fullWidth
                     size="small"
+                    InputLabelProps={{ shrink: true }}
                     error={!!errors.quantity}
                     helperText={errors.quantity?.message}
                   />
@@ -530,16 +517,12 @@ export default function EditProductionOrder() {
         </form>
       </Paper>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbarOpen}
-        autoHideDuration={snackbarSeverity === "error" ? null : 4000}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: "100%", borderRadius: "8px" }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 }

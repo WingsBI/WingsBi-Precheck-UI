@@ -72,10 +72,24 @@ export const cookieUtils = {
     Cookies.remove(USER_COOKIE_NAME, { path: '/' });
   },
 
-  // Clear all authentication cookies
+  // Clear all authentication cookies and chatbot session state
   clearAuth: (): void => {
     cookieUtils.removeToken();
     cookieUtils.removeUser();
+    try {
+      localStorage.removeItem('wibi_chatbot_session_id');
+      localStorage.removeItem('wibi_chatbot_has_history');
+    } catch (_) {}
+    const mod = (window as any).MyChatbot;
+    const chatbot = mod?.default || mod?.MyChatbot || mod;
+    if (chatbot) {
+      if (typeof chatbot.clearSession === 'function') {
+        chatbot.clearSession();
+      }
+      if (typeof chatbot.close === 'function') {
+        chatbot.close();
+      }
+    }
   },
 
   // Check if user is authenticated (has valid token)

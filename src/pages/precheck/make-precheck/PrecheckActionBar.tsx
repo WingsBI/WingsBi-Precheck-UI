@@ -2,7 +2,6 @@ import React, { useState, useMemo } from "react";
 import {
   Box,
   TextField,
-  Button,
   Typography,
   Stack,
   CircularProgress,
@@ -11,8 +10,8 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   Grid,
+  Tooltip,
 } from "@mui/material";
 import {
   QrCodeScanner as QrCodeScannerIcon,
@@ -20,10 +19,10 @@ import {
   CloudUpload as UploadIcon,
   Cancel as CancelIcon,
   KeyboardArrowDown as KeyboardArrowDownIcon,
-  Refresh as RefreshIcon,
-  FilterList as FilterListIcon,
-  CropFree as CropFreeIcon,
+  
 } from "@mui/icons-material";
+import PageHeader from "../../../components/ui/PageHeader";
+import ActionButton from "../../../components/ui/ActionButton";
 import type { GridItem } from "./types";
 
 interface PrecheckActionBarProps {
@@ -45,7 +44,6 @@ interface PrecheckActionBarProps {
   selectedLnItemCode?: string;
 
   searchResults?: GridItem[];
-  filterRemainingOnly?: boolean;
 
   onBarcodeChange: (value: string) => void;
   onBarcodeKeyDown: (e: React.KeyboardEvent) => void;
@@ -54,7 +52,6 @@ interface PrecheckActionBarProps {
   onDownloadTemplate: () => void;
   onMakePrecheck: () => void;
   onSubmitPrecheck: () => void;
-  onToggleFilter?: () => void;
   onExport?: () => void;
   onReset?: () => void;
   onChangeOrder?: () => void;
@@ -70,8 +67,6 @@ interface PrecheckActionBarProps {
 }
 
 export interface PrecheckHeaderBarProps {
-  filterRemainingOnly?: boolean;
-  onToggleFilter?: () => void;
   onExport?: () => void;
   onReset?: () => void;
   onUploadExcel: () => void;
@@ -84,8 +79,6 @@ export interface PrecheckHeaderBarProps {
 }
 
 export const PrecheckHeaderBar: React.FC<PrecheckHeaderBarProps> = ({
-  filterRemainingOnly = false,
-  onToggleFilter,
   onExport,
   onReset,
   onUploadExcel,
@@ -108,160 +101,95 @@ export const PrecheckHeaderBar: React.FC<PrecheckHeaderBarProps> = ({
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        mb: 0.6,
-        mt: 0.25,
-        width: "100%",
-      }}
-    >
-      {/* Title */}
-      <Box>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            fontSize: { xs: "1.25rem", sm: "1.5rem" },
-          }}
-        >
-          Run Precheck
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#667085", mt: 0.25 }}>
-          Scan items, verify component quality, and complete precheck inspection logs.
-        </Typography>
-      </Box>
-
-      {/* Top Right "More v" Action Button */}
-      <Box>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={handleMoreMenuOpen}
-          endIcon={<KeyboardArrowDownIcon sx={{ fontSize: "1.125rem", color: "text.secondary" }} />}
-          sx={{
-            height: 34,
-            borderRadius: "6px",
-            borderColor: "grey.300",
-            color: "text.secondary",
-            textTransform: "none",
-            fontWeight: 600,
-            fontSize: "0.8rem",
-            backgroundColor: "background.paper",
-            "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-          }}
-        >
-          More
-        </Button>
-
-        {/* More Menu Dropdown */}
-        <Menu
-          anchorEl={moreMenuAnchor}
-          open={isMoreMenuOpen}
-          onClose={handleMoreMenuClose}
-          transitionDuration={0}
-          PaperProps={{
-            elevation: 4,
-            sx: {
-              borderRadius: "12px",
-              mt: 1,
-              minWidth: 210,
-              border: "1px solid #E5E7EB",
-            },
-          }}
-        >
-          {onToggleFilter && (
-            <MenuItem
-              onClick={() => {
-                handleMoreMenuClose();
-                onToggleFilter();
-              }}
-              disabled={!isSubmitEnabled}
-            >
-              <ListItemIcon>
-                <FilterListIcon fontSize="small" sx={{ color: "#2563EB" }} />
-              </ListItemIcon>
-              <ListItemText
-                primary={filterRemainingOnly ? "Show All Items" : "Remaining Precheck"}
-              />
-            </MenuItem>
-          )}
+    <PageHeader
+      title="Part Verification"
+      subtitle="Scan items, verify component quality, and complete precheck."
+      actions={
+        <Stack direction="row" spacing={1} alignItems="center">
+          <ActionButton
+            variant="secondary"
+            size="small"
+            onClick={handleMoreMenuOpen}
+            endIcon={<KeyboardArrowDownIcon sx={{ fontSize: "1.125rem", color: "text.secondary" }} />}
+          >
+            Bulk Verification
+          </ActionButton>
 
           {onExport && (
-            <MenuItem
-              onClick={() => {
-                handleMoreMenuClose();
-                onExport();
-              }}
-              disabled={!isSubmitEnabled}
+            <ActionButton
+              variant="secondary"
+              size="small"
+              onClick={onExport}
+              disabled={!isSubmitEnabled || isLoadingLocal}
+              startIcon={<FileDownloadIcon fontSize="small" />}
             >
-              <ListItemIcon>
-                <FileDownloadIcon fontSize="small" sx={{ color: "#059669" }} />
-              </ListItemIcon>
-              <ListItemText primary="Export BOM" />
-            </MenuItem>
+              Export
+            </ActionButton>
           )}
 
-          <Divider sx={{ my: 0.5 }} />
-
-          <MenuItem
-            onClick={() => {
-              handleMoreMenuClose();
-              onUploadExcel();
+          {/* More Menu Dropdown */}
+          <Menu
+            anchorEl={moreMenuAnchor}
+            open={isMoreMenuOpen}
+            onClose={handleMoreMenuClose}
+            transitionDuration={0}
+            PaperProps={{
+              elevation: 4,
+              sx: {
+                borderRadius: "12px",
+                mt: 1,
+                minWidth: 110,
+                border: "1px solid #E5E7EB",
+              },
             }}
-            disabled={uploadInProgress}
           >
-            <ListItemIcon>
-              {uploadInProgress ? (
-                <CircularProgress size={18} color="primary" />
-              ) : (
-                <UploadIcon fontSize="small" sx={{ color: "#D97706" }} />
-              )}
-            </ListItemIcon>
-            <ListItemText primary={uploadInProgress ? "Uploading..." : "Upload Excel..."} />
-          </MenuItem>
+            <Tooltip title="Import Excel file for bulk verification" placement="left" arrow>
+              <span>
+                <MenuItem
+                  onClick={() => {
+                    handleMoreMenuClose();
+                    onUploadExcel();
+                  }}
+                  disabled={uploadInProgress}
+                >
+                  <ListItemIcon>
+                    {uploadInProgress ? (
+                      <CircularProgress size={18} color="primary" />
+                    ) : (
+                      <UploadIcon fontSize="small" sx={{ color: "#D97706" }} />
+                    )}
+                  </ListItemIcon>
+                  <ListItemText primary={uploadInProgress ? "Uploading..." : "Import"} />
+                </MenuItem>
+              </span>
+            </Tooltip>
 
-          <MenuItem
-            onClick={() => {
-              handleMoreMenuClose();
-              onDownloadTemplate();
-            }}
-            disabled={downloadTemplateInProgress || uploadInProgress}
-          >
-            <ListItemIcon>
-              {downloadTemplateInProgress ? (
-                <CircularProgress size={18} color="primary" />
-              ) : (
-                <FileDownloadIcon fontSize="small" sx={{ color: "#4B5563" }} />
-              )}
-            </ListItemIcon>
-            <ListItemText
-              primary={downloadTemplateInProgress ? "Downloading..." : "Download Template"}
-            />
-          </MenuItem>
-
-          <Divider sx={{ my: 0.5 }} />
-
-          {onReject && (
-            <MenuItem
-              onClick={() => {
-                handleMoreMenuClose();
-                onReject();
-              }}
-              disabled={isLoadingLocal}
-            >
-              <ListItemIcon>
-                <CancelIcon fontSize="small" sx={{ color: "#DC2626" }} />
-              </ListItemIcon>
-              <ListItemText primary="Reject Order" />
-            </MenuItem>
-          )}
-        </Menu>
-      </Box>
-    </Box>
+            <Tooltip title="Download Excel template for bulk verification" placement="left" arrow>
+              <span>
+                <MenuItem
+                  onClick={() => {
+                    handleMoreMenuClose();
+                    onDownloadTemplate();
+                  }}
+                  disabled={downloadTemplateInProgress || uploadInProgress}
+                >
+                  <ListItemIcon>
+                    {downloadTemplateInProgress ? (
+                      <CircularProgress size={18} color="primary" />
+                    ) : (
+                      <FileDownloadIcon fontSize="small" sx={{ color: "#4B5563" }} />
+                    )}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={downloadTemplateInProgress ? "Downloading..." : "Template"}
+                  />
+                </MenuItem>
+              </span>
+            </Tooltip>
+          </Menu>
+        </Stack>
+      }
+    />
   );
 };
 
@@ -272,13 +200,12 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
   uploadInProgress = false,
   downloadTemplateInProgress = false,
   searchResults = [],
-  filterRemainingOnly = false,
+
   onBarcodeChange,
   onBarcodeKeyDown,
   onOpenScanner,
   onUploadExcel,
   onDownloadTemplate,
-  onToggleFilter,
   onExport,
   onReset,
   onReject,
@@ -351,18 +278,18 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
   }, [searchResults]);
 
   return (
-    <Box sx={{ width: "100%", mb: 0.6 }}>
+    <Box sx={{ width: "100%", mb: 0 }}>
 
       {/* Hero Scanner QR Box & Verification Stats Card */}
       <Paper
         elevation={0}
         sx={{
-          py: 0.75,
-          px: { xs: 1.25, md: 1.5 },
-          borderRadius: "12px",
-          border: "1px solid #E5E7EB",
-          backgroundColor: "#FFFFFF",
-          boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+          py: 1.25,
+          px: { xs: 1.25, md: 2 },
+          borderRadius: 0,
+          border: "none",
+          backgroundColor: "transparent",
+          boxShadow: "none",
         }}
       >
         <Grid container spacing={1.5} alignItems="center">
@@ -415,7 +342,7 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                 }}
               >
-                <CropFreeIcon sx={{ color: "primary.main", mr: 1.25, fontSize: 20 }} />
+                
                 <TextField
                   fullWidth
                   variant="standard"
@@ -429,7 +356,6 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                     sx: {
                       fontSize: "0.9rem",
                       color: "#1E293B",
-                      fontFamily: "monospace, Courier, monospace",
                       "& input": {
                         py: "0 !important",
                         height: "auto",
@@ -446,40 +372,35 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                 />
               </Box>
 
-              {/* Scan QR Button with thick purple border and camera icon */}
-              <Button
-                variant="outlined"
+              {/* Scan QR Button */}
+              <ActionButton
+                variant="secondary"
+                size="hero"
                 onClick={onOpenScanner}
-                startIcon={<QrCodeScannerIcon sx={{ fontSize: "1.15rem" }} />}
+                startIcon={<QrCodeScannerIcon sx={{ color: "primary.main" }} />}
                 sx={{
+                  borderRadius: "10px",
+                  minWidth: "120px",
                   height: "48px !important",
                   minHeight: "48px !important",
                   maxHeight: "48px !important",
                   boxSizing: "border-box !important",
-                  py: "0 !important",
-                  px: 2.25,
-                  borderRadius: "10px",
-                  border: "2px solid",
-                  borderColor: "primary.main",
+                  border: "2px solid !important",
+                  borderColor: "primary.main !important",
                   color: "primary.main",
+                  backgroundColor: "#FFFFFF",
                   fontWeight: 700,
                   fontSize: "0.875rem",
-                  lineHeight: "1 !important",
-                  textTransform: "none",
-                  backgroundColor: "#FFFFFF",
-                  whiteSpace: "nowrap",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
                   "&:hover": {
-                    border: "2px solid",
-                    borderColor: "primary.main",
-                    backgroundColor: "action.hover",
+                    border: "2px solid !important",
+                    borderColor: "primary.dark !important",
+                    backgroundColor: "#F3E8F8",
                   },
                 }}
               >
                 Scan QR
-              </Button>
+              </ActionButton>
             </Stack>
 
             {/* Sub-text line below scanner input */}
@@ -524,7 +445,7 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                   variant="subtitle2"
                   sx={{ fontWeight: 700, color: "#111827", fontSize: "0.8125rem" }}
                 >
-                  {`${stats.verified} of ${stats.total} lines verified`}
+                  {`${stats.verified} of ${stats.total} Parts Completed`}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -594,7 +515,7 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                     sx={{ width: 7, height: 7, borderRadius: "1px", backgroundColor: "#059669" }}
                   />
                   <Typography variant="caption" sx={{ color: "#4B5563", fontWeight: 600, fontSize: "0.7rem" }}>
-                    {stats.verified} verified
+                    {stats.verified} Completed
                   </Typography>
                 </Box>
 
@@ -603,7 +524,7 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                     sx={{ width: 7, height: 7, borderRadius: "1px", backgroundColor: "#D97706" }}
                   />
                   <Typography variant="caption" sx={{ color: "#4B5563", fontWeight: 600, fontSize: "0.7rem" }}>
-                    {stats.short} short
+                    {stats.short} Partial
                   </Typography>
                 </Box>
 
@@ -612,7 +533,7 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                     sx={{ width: 7, height: 7, borderRadius: "1px", backgroundColor: "#DC2626" }}
                   />
                   <Typography variant="caption" sx={{ color: "#4B5563", fontWeight: 600, fontSize: "0.7rem" }}>
-                    {stats.rejected} rejected
+                    {stats.rejected} Rejected
                   </Typography>
                 </Box>
 
@@ -621,7 +542,7 @@ const PrecheckActionBar: React.FC<PrecheckActionBarProps> = ({
                     sx={{ width: 7, height: 7, borderRadius: "1px", backgroundColor: "#9CA3AF" }}
                   />
                   <Typography variant="caption" sx={{ color: "#4B5563", fontWeight: 600, fontSize: "0.7rem" }}>
-                    {stats.notScanned} not scanned
+                    {stats.notScanned} Pending
                   </Typography>
                 </Box>
               </Stack>

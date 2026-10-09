@@ -36,6 +36,9 @@ import {
   type ProductionOrderMaster,
 } from "../../hooks/usePONumbers";
 import { useDebounce } from "../../hooks/useDebounce";
+import PageHeader from "../../components/ui/PageHeader";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import RequiredLabel from "../../components/ui/RequiredLabel";
 
 interface EditIRMSNFormData {
   id: number;
@@ -309,7 +312,7 @@ export default function EditIRMSN() {
         await dispatch(updateMSNNumber(payload)).unwrap();
       }
 
-      navigate("/irmsn/view");
+      navigate("/irmsn/list");
     } catch (err) {
       console.error("Failed to update:", err);
     }
@@ -321,53 +324,25 @@ export default function EditIRMSN() {
       sx={{
         py: { xs: 1, sm: 1.25 },
         px: { xs: 1.5, sm: 2 },
-        minHeight: "calc(100vh - 64px)",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "background.default",
         width: "100%",
         boxSizing: "border-box",
       }}
     >
-      {/* Header Section */}
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1.5}
-        sx={{ mb: 2 }}
-      >
-        <IconButton
-          onClick={() => navigate(-1)}
-          sx={{
-            color: "primary.main",
-            p: 0.5,
-            "&:hover": { backgroundColor: "grey.100" },
-          }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            fontSize: { xs: "1.25rem", sm: "1.5rem" },
-          }}
-        >
-          Edit {isIR ? "IR" : "MSN"} Number: {id}
-        </Typography>
-      </Stack>
+      {/* Page Header */}
+      <PageHeader
+        title={`Edit ${isIR ? "IR" : "MSN"} Number: ${id}`}
+        onBack={() => navigate(-1)}
+      />
 
-      {/* Error Alert */}
-      {apiError && (
-        <Alert
-          severity="error"
-          sx={{ mb: 2, borderRadius: "6px" }}
-          onClose={() => dispatch(clearIrmsnError())}
-        >
-          {apiError}
-        </Alert>
-      )}
+      {/* Toast Notification */}
+      <ToastSnackbar
+        open={Boolean(apiError)}
+        message={apiError || ""}
+        severity="error"
+        onClose={() => dispatch(clearIrmsnError())}
+      />
 
       {/* Main Content Card */}
       <Paper
@@ -475,7 +450,7 @@ export default function EditIRMSN() {
                         <Typography
                           variant="body2"
                           fontWeight="600"
-                          sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                          sx={{ fontSize: "0.875rem", color: "text.primary" }}
                         >
                           {drawingNo.startsWith("Drawing:")
                             ? drawingNo
@@ -498,7 +473,7 @@ export default function EditIRMSN() {
                   );
                 }}
                 renderInput={(params) => (
-                  <TextField {...params} label="Part Number" fullWidth />
+                  <TextField {...params} label={<RequiredLabel text="Part Number" required />} fullWidth />
                 )}
               />
             </Grid>
@@ -628,7 +603,7 @@ export default function EditIRMSN() {
                         <Typography
                           variant="body2"
                           fontWeight="600"
-                          sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                          sx={{ fontSize: "0.875rem", color: "text.primary" }}
                         >
                           {poNum.startsWith("PO:") ? poNum : `PO: ${poNum}`}
                         </Typography>
@@ -651,7 +626,7 @@ export default function EditIRMSN() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="PO Number"
+                    label={<RequiredLabel text="Production Order Number" required />}
                     fullWidth
                     InputProps={{
                       ...params.InputProps,
@@ -677,7 +652,7 @@ export default function EditIRMSN() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="Quantity *"
+                    label={<RequiredLabel text="Quantity" required />}
                     type="number"
                     fullWidth
                     size="small"
@@ -714,7 +689,7 @@ export default function EditIRMSN() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Stage *"
+                        label={<RequiredLabel text="Stage" required />}
                         fullWidth
                         error={!!error}
                         helperText={error?.message}
@@ -734,7 +709,7 @@ export default function EditIRMSN() {
                 render={({ field }) => (
                   <TextField
                     {...field}
-                    label="ID Number Range"
+                    label={<RequiredLabel text="ID Number Range" required />}
                     fullWidth
                     size="small"
                   />

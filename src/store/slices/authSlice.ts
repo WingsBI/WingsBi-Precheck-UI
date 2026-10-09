@@ -35,9 +35,14 @@ const initialState: AuthState = {
 
 export const login = createAsyncThunk(
   'auth/login',
-  async (credentials: { userId: string; password: string }, { rejectWithValue }) => {
+  async (credentials: { email?: string; userId?: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await api.post('/api/Auth/Login', credentials);
+      const identifier = credentials.userId || credentials.email || '';
+      const payload = {
+        userId: identifier,
+        password: credentials.password,
+      };
+      const response = await api.post('/api/Auth/login', payload);
       const token = response.data.token;
       
       if (!token) {
@@ -65,7 +70,7 @@ export const login = createAsyncThunk(
     } catch (error: any) {
       const serverMsg = error.response?.data?.message;
       if (!serverMsg || serverMsg.toLowerCase().includes('invalid credentials') || serverMsg.toLowerCase().includes('deactivated')) {
-        return rejectWithValue('Incorrect User ID or Password. Please double-check your credentials and try again.');
+        return rejectWithValue('Incorrect User ID / Email or Password. Please double-check your credentials and try again.');
       }
       return rejectWithValue(serverMsg);
     }
@@ -153,6 +158,19 @@ export const forgetPassword = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Password reset request failed');
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  'auth/logoutUser',
+  async (_, { dispatch }) => {
+    try {
+      await api.post('/api/Auth/logout');
+    } catch (error: any) {
+      console.warn('Logout API call notice:', error?.message);
+    } finally {
+      dispatch(logout());
     }
   }
 );

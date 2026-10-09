@@ -30,11 +30,15 @@ import {
   RadioGroup,
   FormControlLabel,
   FormControl,
+  Tooltip,
 } from "@mui/material";
 import { CustomPagination } from "../../components/CustomPagination";
+import { TableCard, TableCardHeader } from "../../components/ui/TableCard";
+import RequiredLabel from "../../components/ui/RequiredLabel";
+import { commonTableCellCompactCheckbox, commonTableRowStyle } from "../../components/tableStyles";
 
 import {
- 
+
   Close as CloseIcon,
   Download as DownloadIcon,
   SwapHoriz as SwapHorizIcon,
@@ -91,6 +95,9 @@ import { useHasPermission } from "../../hooks/useHasPermission";
 import type { ProductionOrderMaster } from "../../hooks/usePONumbers";
 
 import type { DrawingNumber } from "../../types";
+import PageHeader from "../../components/ui/PageHeader";
+import ActionButton from "../../components/ui/ActionButton";
+import SortableTableHeader from "../../components/ui/SortableTableHeader";
 
 // Interface for Material Request data (for update form)
 interface MaterialRequest {
@@ -553,13 +560,41 @@ const MaterialRequisition: React.FC = () => {
     dispatch(setStatusFilter(newFilter));
   };
 
+  // Sorting state for table
+  const [sortColumn, setSortColumn] = useState<string>("materialRequisitionId");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const handleSort = (columnKey: string | null) => {
+    if (columnKey === null) {
+      setSortColumn("materialRequisitionId");
+      setSortDirection("desc");
+    } else if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedRequestList = useMemo(() => {
+    if (!sortColumn) return requestList;
+    return [...requestList].sort((a: any, b: any) => {
+      let valA = a[sortColumn] ?? "";
+      let valB = b[sortColumn] ?? "";
+      if (typeof valA === "string") valA = valA.toLowerCase();
+      if (typeof valB === "string") valB = valB.toLowerCase();
+      const cmp = String(valA).localeCompare(String(valB), undefined, { numeric: true, sensitivity: "base" });
+      return sortDirection === "asc" ? cmp : -cmp;
+    });
+  }, [requestList, sortColumn, sortDirection]);
+
   // Slice requestList for current page
   const paginatedRequestList = useMemo(() => {
-    return requestList.slice(
+    return sortedRequestList.slice(
       page * rowsPerPage,
       page * rowsPerPage + rowsPerPage,
     );
-  }, [requestList, page, rowsPerPage]);
+  }, [sortedRequestList, page, rowsPerPage]);
 
   // Handle click on table row - opens drawer and populates form
   const handleRowClick = (item: RequestListItem) => {
@@ -1012,123 +1047,56 @@ const MaterialRequisition: React.FC = () => {
       sx={{
         py: 1,
         px: { xs: 1, sm: 2 },
-        bgcolor: "#fcfcfd",
-        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
       }}
     >
       {/* Page Header */}
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          width: "100%",
-          mb: 1,
-        }}
-      >
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <IconButton
-            onClick={() => navigate("/precheck/make")}
-            sx={{
-              color: "primary.main",
-              p: 0.5,
-              "&:hover": { backgroundColor: "grey.100" },
-            }}
-            title="Back to Make Precheck"
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                color: "primary.main",
-                fontSize: { xs: "1.15rem", sm: "1.35rem" },
-              }}
-            >
-              Material Requisition
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#667085", mt: 0.25 }}>
-              Create, track, swap, and manage material requisition requests.
-            </Typography>
-          </Box>
-        </Stack>
-
-        <Stack direction="row" spacing={1}>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={
-              isDownloading ? (
-                <CircularProgress size={14} color="inherit" />
-              ) : (
-                <DownloadIcon fontSize="small" />
-              )
-            }
-            onClick={handleOpenExportDialog}
-            disabled={isDownloading || apiLoading}
-            sx={{
-              height: 32,
-              borderRadius: "6px",
-              borderColor: "grey.300",
-              color: "text.secondary",
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: "0.78rem",
-              backgroundColor: "background.paper",
-              "&:hover": { borderColor: "grey.400", backgroundColor: "grey.50" },
-            }}
-          >
-            {isDownloading ? "Exporting..." : "Export"}
-          </Button>
-
-          {activeTab === 0 && (
-            <Button
-              variant="contained"
+      <PageHeader
+        title="Material Requisition"
+        mb={0.5}
+        subtitle="Create, track, swap, and manage material requisition requests."
+        actions={
+          <Stack direction="row" spacing={1}>
+            <ActionButton
+              variant="secondary"
               size="small"
-              startIcon={<AddIcon fontSize="small" />}
-              onClick={() => setCreateDialogOpen(true)}
-              sx={{
-                height: 32,
-                borderRadius: "6px",
-                backgroundColor: "primary.main",
-                color: "#ffffff",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.78rem",
-                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                "&:hover": { backgroundColor: "primary.dark" },
-              }}
+              startIcon={
+                isDownloading ? (
+                  <CircularProgress size={14} color="inherit" />
+                ) : (
+                  <DownloadIcon fontSize="small" />
+                )
+              }
+              onClick={handleOpenExportDialog}
+              disabled={isDownloading || apiLoading}
             >
-              New Requisition
-            </Button>
-          )}
-          {activeTab === 1 && (
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<SwapHorizIcon fontSize="small" />}
-              onClick={() => setSwapDialogOpen(true)}
-              sx={{
-                height: 32,
-                borderRadius: "6px",
-                backgroundColor: "primary.main",
-                color: "#ffffff",
-                textTransform: "none",
-                fontWeight: 600,
-                fontSize: "0.78rem",
-                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                "&:hover": { backgroundColor: "primary.dark" },
-              }}
-            >
-              Swap Component
-            </Button>
-          )}
-        </Stack>
-      </Box>
+              {isDownloading ? "Exporting..." : "Export"}
+            </ActionButton>
+
+            {activeTab === 0 && (
+              <ActionButton
+                variant="primary"
+                size="small"
+                startIcon={<AddIcon fontSize="small" />}
+                onClick={() => setCreateDialogOpen(true)}
+              >
+                New Requisition
+              </ActionButton>
+            )}
+            {activeTab === 1 && (
+              <ActionButton
+                variant="primary"
+                size="small"
+                startIcon={<SwapHorizIcon fontSize="small" />}
+                onClick={() => setSwapDialogOpen(true)}
+              >
+                Swap Component
+              </ActionButton>
+            )}
+          </Stack>
+        }
+      />
 
       {/* Success/Error Messages */}
       {successMessage && (
@@ -1183,16 +1151,7 @@ const MaterialRequisition: React.FC = () => {
 
       {/* ═══════════ Tab 1: Material Request ═══════════ */}
       <TabPanel value={activeTab} index={0}>
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: "12px",
-            border: "1px solid #eaecf0",
-            backgroundColor: "#ffffff",
-            overflow: "hidden",
-            mb: 1,
-          }}
-        >
+        <TableCard sx={{ mb: 1 }}>
           {/* Filter Bar */}
           <Box sx={{ p: 1, pb: 0.75, borderBottom: "1px solid #eaecf0" }}>
             <Box
@@ -1200,9 +1159,9 @@ const MaterialRequisition: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 gap: 0.75,
-                flexWrap: "nowrap",
+                flexWrap: { xs: "wrap", md: "nowrap" },
                 width: "100%",
-                overflowX: "auto",
+                overflowX: { xs: "visible", md: "auto" },
                 py: 0.25,
                 "&::-webkit-scrollbar": { height: 4 },
                 "&::-webkit-scrollbar-thumb": { backgroundColor: "#D0D5DD", borderRadius: 2 },
@@ -1306,7 +1265,7 @@ const MaterialRequisition: React.FC = () => {
               <Table stickyHeader size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell padding="checkbox" sx={{ backgroundColor: "#F9FAFB !important", borderBottom: "1px solid #EAECF0", py: 0.6, px: 1 }}>
+                    <TableCell padding="checkbox" sx={commonTableCellCompactCheckbox}>
                       <Checkbox
                         size="small"
                         checked={isAllRowsSelected}
@@ -1315,38 +1274,63 @@ const MaterialRequisition: React.FC = () => {
                         sx={{ color: "#d0d5dd", "&.Mui-checked": { color: "primary.main" }, "&.MuiCheckbox-indeterminate": { color: "primary.main" } }}
                       />
                     </TableCell>
-                    {[
-                      { label: "Request ID", width: 120, align: "left" },
-                      { label: "PO Number", width: 130, align: "left" },
-                      { label: "Drawing Number", width: 140, align: "left" },
-                      { label: "Item Code", width: 120, align: "left" },
-                      { label: "Quantity", width: 90, align: "center" },
-                      { label: "Item Description", width: 180, align: "left" },
-                      { label: "Status", width: 140, align: "center" },
-                      { label: "Created Date", width: 110, align: "center" },
-                      { label: "Created By", width: 120, align: "left" },
-                      { label: "Modified Date", width: 110, align: "center" },
-                      { label: "Modified By", width: 120, align: "left" },
-                      { label: "Action", width: 100, align: "center" },
-                    ].map((col) => (
-                      <TableCell
-                        key={col.label}
-                        align={(col.align as any) || "left"}
-                        sx={{
-                          fontWeight: 700,
-                          backgroundColor: "#F9FAFB !important",
-                          color: "#475467",
-                          fontSize: "0.78rem",
-                          borderBottom: "1px solid #EAECF0",
-                          py: 0.6,
-                          px: 1,
-                          minWidth: col.width,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {col.label}
-                      </TableCell>
-                    ))}
+                    <SortableTableHeader
+                      label="Request ID"
+                      columnKey="requestId"
+                      activeSortColumn={sortColumn}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                      minWidth={120}
+                    />
+                    <SortableTableHeader
+                      label="PO Number"
+                      columnKey="poNumber"
+                      activeSortColumn={sortColumn}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                      minWidth={130}
+                      tooltip="Production Order Number"
+                    />
+                    <SortableTableHeader
+                      label="Part Number"
+                      columnKey="drawingNumber"
+                      activeSortColumn={sortColumn}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                      minWidth={140}
+                    />
+                    <SortableTableHeader
+                      label="Item Code"
+                      columnKey="materialCode"
+                      activeSortColumn={sortColumn}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                      minWidth={120}
+                    />
+                    <SortableTableHeader label="Quantity" align="center" isSortable={false} minWidth={90} />
+                    <SortableTableHeader label="Item Description" isSortable={false} minWidth={180} />
+                    <SortableTableHeader label="Status" align="center" isSortable={false} minWidth={140} />
+                    <SortableTableHeader
+                      label="Created Date"
+                      columnKey="createdDate"
+                      activeSortColumn={sortColumn}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                      align="center"
+                      minWidth={110}
+                    />
+                    <SortableTableHeader label="Created By" isSortable={false} minWidth={120} />
+                    <SortableTableHeader
+                      label="Modified Date"
+                      columnKey="modifiedDate"
+                      activeSortColumn={sortColumn}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                      align="center"
+                      minWidth={110}
+                    />
+                    <SortableTableHeader label="Modified By" isSortable={false} minWidth={120} />
+                    <SortableTableHeader label="Action" align="center" isSortable={false} minWidth={100} />
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1359,27 +1343,15 @@ const MaterialRequisition: React.FC = () => {
                         hover={isPendingPlanner}
                         onClick={() => handleRowClick(item)}
                         sx={{
+                          ...commonTableRowStyle,
                           cursor: isPendingPlanner ? "pointer" : "default",
-                          height: 34,
                           backgroundColor:
                             selectedRow === item.id
                               ? "rgba(107, 40, 138, 0.06)"
                               : "inherit",
-                          "&:hover": isPendingPlanner
-                            ? {
-                              backgroundColor: "#f9fafb",
-                            }
-                            : {},
-                          "& td": {
-                            borderBottom: "1px solid #F2F4F7",
-                            fontSize: "0.8rem",
-                            color: "#344054",
-                            py: 0.4,
-                            px: 1,
-                          },
                         }}
                       >
-                        <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
+                        <TableCell padding="checkbox" sx={commonTableCellCompactCheckbox} onClick={(e) => e.stopPropagation()}>
                           <Checkbox
                             size="small"
                             checked={selectedRowIds.includes(item.id)}
@@ -1387,14 +1359,7 @@ const MaterialRequisition: React.FC = () => {
                             sx={{ color: "#d0d5dd", "&.Mui-checked": { color: "primary.main" } }}
                           />
                         </TableCell>
-                        <TableCell align="left">
-                          <Typography
-                            variant="body2"
-                            sx={{ fontWeight: 600, color: "#101828", fontSize: "0.8rem" }}
-                          >
-                            {item.requestId}
-                          </Typography>
-                        </TableCell>
+                        <TableCell align="left">{item.requestId}</TableCell>
                         <TableCell align="left">{item.poNumber || "N/A"}</TableCell>
                         <TableCell align="left">{item.drawingNumber || "N/A"}</TableCell>
                         <TableCell align="left">{item.materialCode}</TableCell>
@@ -1472,7 +1437,7 @@ const MaterialRequisition: React.FC = () => {
               }}
             />
           )}
-        </Paper>
+        </TableCard>
 
         {/* Right Side Drawer - Form */}
         <Drawer
@@ -1556,7 +1521,7 @@ const MaterialRequisition: React.FC = () => {
                           size="small"
                           label="Request No."
                           variant="outlined"
-                          InputLabelProps={{ shrink: true }}
+                         
                         />
                       )}
                     />
@@ -1573,7 +1538,7 @@ const MaterialRequisition: React.FC = () => {
                           size="small"
                           label="Rejected Part ID Number"
                           variant="outlined"
-                          InputLabelProps={{ shrink: true }}
+                        
                           disabled
                         />
                       )}
@@ -1637,7 +1602,7 @@ const MaterialRequisition: React.FC = () => {
                           {...field}
                           fullWidth
                           size="small"
-                          label="PO Number"
+                          label="Production Order Number"
                           variant="outlined"
                         />
                       )}
@@ -1900,40 +1865,11 @@ const MaterialRequisition: React.FC = () => {
 
       {/* ═══════════ Tab 2: Swap Components ═══════════ */}
       <TabPanel value={activeTab} index={1}>
-        <Paper
-          elevation={0}
-          sx={{
-            borderRadius: "12px",
-            border: "1px solid #eaecf0",
-            backgroundColor: "#ffffff",
-            overflow: "hidden",
-            mb: 1,
-          }}
-        >
-          {/* Header */}
-          <Box
-            sx={{
-              p: 1,
-              px: 1.5,
-              borderBottom: "1px solid #eaecf0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography
-              variant="body2"
-              sx={{ color: "#475467", fontSize: "0.8rem", fontWeight: 600 }}
-            >
-              Swap Component Records
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: "#667085", fontSize: "0.8rem", fontWeight: 500 }}
-            >
-              {swapHistory.length} {swapHistory.length === 1 ? "record" : "records"}
-            </Typography>
-          </Box>
+        <TableCard sx={{ mb: 1 }}>
+          <TableCardHeader
+            title="Swap Component Records"
+            count={swapHistory.length}
+          />
 
           {/* Table */}
           <TableContainer sx={{ maxHeight: "calc(100vh - 250px)", overflow: "auto" }}>
@@ -1970,7 +1906,7 @@ const MaterialRequisition: React.FC = () => {
                         key={col.label}
                         align={(col.align as any) || "left"}
                         sx={{
-                          fontWeight: 700,
+                          fontWeight: 600,
                           backgroundColor: "#F9FAFB !important",
                           color: "#475467",
                           fontSize: "0.78rem",
@@ -1980,7 +1916,13 @@ const MaterialRequisition: React.FC = () => {
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {col.label}
+                        {col.label.includes("PO Number") ? (
+                          <Tooltip title={col.label.replace("PO Number", "Production Order Number")} arrow placement="bottom">
+                            <span>{col.label}</span>
+                          </Tooltip>
+                        ) : (
+                          col.label
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -2030,7 +1972,7 @@ const MaterialRequisition: React.FC = () => {
               </Table>
             )}
           </TableContainer>
-        </Paper>
+        </TableCard>
       </TabPanel>
 
       {/* Swap Component Dialog */}
@@ -2148,7 +2090,7 @@ const MaterialRequisition: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            color="primary"
+                            color="text.primary"
                           >
                             PO: {option.productionOrderNumber}
                           </Typography>
@@ -2164,8 +2106,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="From Assembly PO Number *"
+                      label={<RequiredLabel text="From Assembly PO Number" required />}
                       fullWidth
+                  
                       placeholder="Select From Assembly PO Number"
                     />
                   )}
@@ -2175,8 +2118,8 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="From Assembly ID Number "
-                  required
+                  label={<RequiredLabel text="From Assembly ID Number" required />}
+                 
                   value={swapData.fromId}
                   onChange={(e) =>
                     setSwapData((prev) => ({
@@ -2231,7 +2174,7 @@ const MaterialRequisition: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            color="primary"
+                            color="text.primary"
                           >
                             PO: {option.productionOrderNumber}
                           </Typography>
@@ -2247,8 +2190,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="To Assembly PO Number *"
+                      label={<RequiredLabel text="To Assembly PO Number" required />}
                       fullWidth
+                      
                       placeholder="Select To Assembly PO Number"
                     />
                   )}
@@ -2259,8 +2203,8 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="To Assembly ID Number "
-                  required
+                  label={<RequiredLabel text="To Assembly ID Number" required />}
+                 
                   value={swapData.toId}
                   onChange={(e) =>
                     setSwapData((prev) => ({
@@ -2298,8 +2242,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Part Number *"
+                      label={<RequiredLabel text="Part Number" required />}
                       fullWidth
+                     
                       placeholder="Select Part Number to Swap"
                     />
                   )}
@@ -2309,9 +2254,9 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="ID Number  "
+                  label={<RequiredLabel text="ID Number" required />}
+              
                   placeholder="Enter ID Number of the Drawing to Swap"
-                  required
                   value={swapData.idNumber}
                   onChange={(e) =>
                     setSwapData((prev) => ({
@@ -2453,9 +2398,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Rejected part Part Number *"
+                      label={<RequiredLabel text="Rejected part Part Number" required />}
                       fullWidth
-                    />
+                                          />
                   )}
                 />
               </Grid>
@@ -2465,7 +2410,7 @@ const MaterialRequisition: React.FC = () => {
                   fullWidth
                   size="small"
                   label="Rejected part Item Description"
-                  value={newRequisition.nomenclature || ""}
+                                    value={newRequisition.nomenclature || ""}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -2474,7 +2419,7 @@ const MaterialRequisition: React.FC = () => {
                   size="small"
                   label="Quantity"
                   type="number"
-                  value={newRequisition.quantity || ""}
+                                    value={newRequisition.quantity || ""}
                   onChange={(e) =>
                     setNewRequisition((prev) => ({
                       ...prev,
@@ -2487,7 +2432,8 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="Rejected Part ID Number *"
+                  label={<RequiredLabel text="Rejected Part ID Number" required />}
+               
                   type="text"
                   value={newRequisition.rejectedIdNumber || ""}
                   onChange={(e) =>
@@ -2581,7 +2527,7 @@ const MaterialRequisition: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            color="primary"
+                            color="text.primary"
                           >
                             PO: {option.productionOrderNumber}
                           </Typography>
@@ -2597,9 +2543,9 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Assembly PO Number *"
+                      label={<RequiredLabel text="Assembly PO Number" required />}
                       fullWidth
-                      placeholder="Enter Assembly PO Number"
+                                            placeholder="Enter Assembly PO Number"
                     />
                   )}
                 />
@@ -2672,7 +2618,7 @@ const MaterialRequisition: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="Assembly Production Series *"
+                      label={<RequiredLabel text="Assembly Production Series" required />}
                       fullWidth
                       placeholder="Enter Assembly Production Series"
                     />
@@ -2684,7 +2630,7 @@ const MaterialRequisition: React.FC = () => {
                 <TextField
                   fullWidth
                   size="small"
-                  label="Assembly ID Number *"
+                  label={<RequiredLabel text="Assembly ID Number" required />}
                   type="text"
                   value={newRequisition.idNumber || ""}
                   onChange={(e) => {
@@ -2780,7 +2726,12 @@ const MaterialRequisition: React.FC = () => {
             pb: 1,
           }}
         >
-          Export Material Requisition Details
+          <Box display="flex" alignItems="center" gap={1}>
+            <DownloadIcon sx={{ color: "primary.main" }} />
+            <Typography variant="h6" fontWeight="700" color="primary.main">
+              Export Material Requisition Data
+            </Typography>
+          </Box>
           <IconButton size="small" onClick={() => setExportDialogOpen(false)} disabled={isDownloading}>
             <CloseIcon />
           </IconButton>

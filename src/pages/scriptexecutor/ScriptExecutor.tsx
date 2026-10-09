@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, type MouseEvent } from "react";
-import { Box, Snackbar, Alert } from "@mui/material";
+import { Box, Paper, Snackbar, Alert } from "@mui/material";
 import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 import { format } from "date-fns";
@@ -1031,44 +1031,58 @@ export default function ScriptExecutor() {
       {/* 1. Header Section */}
       <ImportHeader />
 
-      {/* 2. Import Type Selector Cards */}
-      <ImportTypeSelector activeTab={activeTab} onTabChange={setActiveTab} />
-
-      {/* 3. Guidance & Template Downloads */}
-      <GuidanceCard
-        activeTab={activeTab}
-        downloadMenuAnchor={downloadMenuAnchor}
-        onOpenDownloadMenu={handleDownloadButtonClick}
-        onCloseDownloadMenu={() => setDownloadMenuAnchor(null)}
-        onDownloadTemplate={handleDownloadTemplate}
-      />
-
-      {/* 4. Dropzone */}
-      <UploadDropzone
-        selectedFiles={selectedFiles}
-        fileValidationStatuses={fileValidationStatuses}
-        isFileUploadedToServer={isFileUploadedToServer}
-        isUploading={isUploading}
-        isExecuting={isExecuting}
-        isFileValid={isFileValid}
-        hasInvalidFile={hasInvalidFile}
-        isDragOver={isDragOver}
-        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-        onDragLeave={() => setIsDragOver(false)}
-        onDrop={handleFileDrop}
-        onInputChange={handleInputChange}
-        onRemoveFile={(fileName) => {
-          setSelectedFiles((prev) => prev.filter((f) => f.name !== fileName));
-          setFileValidationStatuses((prev) => {
-            const next = { ...prev };
-            delete next[fileName];
-            return next;
-          });
+      {/* Single Paper Container wrapping Import Type Selector, Guidance, and Dropzone */}
+      <Paper
+        elevation={0}
+        sx={{
+          p: { xs: 2, sm: 2.5 },
+          mb: 2,
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "neutral.border",
+          bgcolor: "background.paper",
+          boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)",
         }}
-        onConfirmUpload={handleConfirmUpload}
-        onExecuteScript={handleExecuteScript}
-        onCancel={handleResetUpload}
-      />
+      >
+        {/* 2. Import Type Selector Cards */}
+        <ImportTypeSelector activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* 3. Guidance & Template Downloads */}
+        <GuidanceCard
+          activeTab={activeTab}
+          downloadMenuAnchor={downloadMenuAnchor}
+          onOpenDownloadMenu={handleDownloadButtonClick}
+          onCloseDownloadMenu={() => setDownloadMenuAnchor(null)}
+          onDownloadTemplate={handleDownloadTemplate}
+        />
+
+        {/* 4. Dropzone */}
+        <UploadDropzone
+          selectedFiles={selectedFiles}
+          fileValidationStatuses={fileValidationStatuses}
+          isFileUploadedToServer={isFileUploadedToServer}
+          isUploading={isUploading}
+          isExecuting={isExecuting}
+          isFileValid={isFileValid}
+          hasInvalidFile={hasInvalidFile}
+          isDragOver={isDragOver}
+          onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+          onDragLeave={() => setIsDragOver(false)}
+          onDrop={handleFileDrop}
+          onInputChange={handleInputChange}
+          onRemoveFile={(fileName) => {
+            setSelectedFiles((prev) => prev.filter((f) => f.name !== fileName));
+            setFileValidationStatuses((prev) => {
+              const next = { ...prev };
+              delete next[fileName];
+              return next;
+            });
+          }}
+          onConfirmUpload={handleConfirmUpload}
+          onExecuteScript={handleExecuteScript}
+          onCancel={handleResetUpload}
+        />
+      </Paper>
 
       {/* Post-Upload Summary Card */}
       {(isUploaded || executionStats.total > 0) && (

@@ -25,6 +25,18 @@ export default defineConfig(({ mode }) => ({
             console.log(`Proxying ${req.method} ${req.url} to ${options.target}`);
           });
         }
+      },
+      '/xpopilot-widget': {
+        target: 'https://webapp-xpopilot-widget-dev.azurewebsites.net',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/xpopilot-widget/, ''),
+      },
+      '/xpopilot-api': {
+        target: 'https://webapi-xpopilot-dev.azurewebsites.net',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/xpopilot-api/, ''),
       }
     } : undefined
   },

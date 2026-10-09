@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import { Warning as WarningIcon } from "@mui/icons-material";
 
+import { commonTableHeaderStyle, commonTableRowStyle } from "../../../components/tableStyles";
+
 interface ExistingQRCodesDialogProps {
   open: boolean;
   onClose: () => void;
@@ -46,15 +48,15 @@ const ExistingQRCodesDialog = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>ID Number</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>QR Code</TableCell>
+                <TableCell sx={commonTableHeaderStyle}>ID Number</TableCell>
+                <TableCell sx={commonTableHeaderStyle}>QR Code</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {existingItems.map((item, index) => (
-                <TableRow key={index}>
+                <TableRow key={index} sx={commonTableRowStyle}>
                   <TableCell>{item.idNumber}</TableCell>
-                  <TableCell sx={{ fontFamily: "monospace" }}>
+                  <TableCell>
                     {item.qrCodeNumber || item.serialNumber}
                   </TableCell>
                 </TableRow>

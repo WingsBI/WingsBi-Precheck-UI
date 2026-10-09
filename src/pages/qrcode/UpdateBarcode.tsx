@@ -10,7 +10,6 @@ import {
   Alert,
   IconButton,
   Autocomplete,
-  Snackbar,
   CircularProgress,
   RadioGroup,
   FormControlLabel,
@@ -22,8 +21,10 @@ import {
   MenuItem,
   Stack,
 } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
+import ActionButton from "../../components/ui/ActionButton";
+import PageHeader from "../../components/ui/PageHeader";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../store/store";
 import { updateQRCodeDetails } from "../../store/slices/qrcodeSlice";
@@ -345,7 +346,7 @@ const UpdateBarcode: React.FC = () => {
   // If user refreshes the page and state is lost, redirect back to view page
   useEffect(() => {
     if (!location.state && !formData.qrCodeNumber) {
-      navigate("/qrcode/view");
+      navigate("/qrcode/list");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -362,7 +363,7 @@ const UpdateBarcode: React.FC = () => {
 
   const handleCancel = () => {
     const returnFilters = (location.state as any)?.returnFilters;
-    navigate("/qrcode/view", { state: { returnFilters } });
+    navigate("/qrcode/list", { state: { returnFilters } });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -504,7 +505,7 @@ const UpdateBarcode: React.FC = () => {
       // Navigate back to view page after 1.5 seconds
       const returnFilters = (location.state as any)?.returnFilters;
       setTimeout(() => {
-        navigate("/qrcode/view", { state: { returnFilters } });
+        navigate("/qrcode/list", { state: { returnFilters } });
       }, 1500);
     } catch (err: any) {
       setSnackbarMessage(err || "Failed to update QR code");
@@ -520,37 +521,18 @@ const UpdateBarcode: React.FC = () => {
   const handleBack = () => {
     const returnFilters = (location.state as any)?.returnFilters;
     if (returnFilters) {
-      navigate("/qrcode/view", { state: { returnFilters } });
+      navigate("/qrcode/list", { state: { returnFilters } });
     } else {
       navigate(-1);
     }
   };
 
   return (
-    <Box sx={{ py: 1.5, px: { xs: 1.5, sm: 2.5 }, bgcolor: 'background.paper', minHeight: '100vh' }}>
-      {/* Header Section */}
-      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
-        <IconButton
-          onClick={handleBack}
-          sx={{
-            color: "primary.main",
-            p: 0.5,
-            "&:hover": { backgroundColor: "grey.100" },
-          }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: "primary.main",
-            fontSize: { xs: "1.25rem", sm: "1.5rem" },
-          }}
-        >
-          {id ? "Update QR Code" : "QR Code Details"}
-        </Typography>
-      </Stack>
+    <Box sx={{ py: 1.5, px: { xs: 1.5, sm: 2.5 } }}>
+      <PageHeader
+        title={id ? "Edit QR Code" : "QR Code Details"}
+        onBack={handleBack}
+      />
 
       <Card
         elevation={0}
@@ -704,7 +686,7 @@ const UpdateBarcode: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {lnCode.startsWith("LN:")
                               ? lnCode
@@ -831,7 +813,7 @@ const UpdateBarcode: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            sx={{ fontSize: "0.875rem", color: "primary.main" }}
+                            sx={{ fontSize: "0.875rem", color: "text.primary" }}
                           >
                             {drawingNo.startsWith("Part No:")
                               ? drawingNo
@@ -1252,7 +1234,7 @@ const UpdateBarcode: React.FC = () => {
                           <Typography
                             variant="body2"
                             fontWeight="600"
-                            color="primary"
+                            color="text.primary"
                           >
                             PO: {option.productionOrderNumber}
                           </Typography>
@@ -1272,7 +1254,7 @@ const UpdateBarcode: React.FC = () => {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      label="PO Number"
+                    label="Production Order Number"
                       size="small"
                       onClick={() => setOpenPO(true)}
                       onFocus={(e) => {
@@ -1426,7 +1408,7 @@ const UpdateBarcode: React.FC = () => {
                     component="legend"
                     sx={{ mr: 2, fontSize: "0.875rem" }}
                   >
-                    Disposition *:
+                    Disposition:
                   </FormLabel>
                   <RadioGroup
                     row
@@ -1501,68 +1483,35 @@ const UpdateBarcode: React.FC = () => {
                 borderColor: "neutral.border",
               }}
             >
-              <Button
+              <ActionButton
                 type="button"
-                variant="outlined"
-                size="small"
+                variant="secondary"
+                size="standard"
                 onClick={handleCancel}
-                sx={{
-                  height: 32,
-                  minWidth: 75,
-                  px: 2,
-                  borderRadius: "6px",
-                  borderColor: "grey.300",
-                  color: "text.secondary",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.8rem",
-                  "&:hover": { borderColor: "grey.400", bgcolor: "neutral.hoverBg" },
-                }}
               >
                 Cancel
-              </Button>
+              </ActionButton>
 
-              <Button
+              <ActionButton
                 type="submit"
-                variant="contained"
-                size="small"
+                variant="primary"
+                size="standard"
                 disabled={loading}
                 startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
-                sx={{
-                  height: 32,
-                  minWidth: 75,
-                  px: 2,
-                  borderRadius: "6px",
-                  backgroundColor: "primary.main",
-                  color: "primary.contrastText",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  fontSize: "0.8rem",
-                  boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)",
-                  "&:hover": { backgroundColor: "primary.dark" },
-                }}
               >
                 {loading ? "Saving..." : "Save"}
-              </Button>
+              </ActionButton>
             </Box>
           </form>
         </CardContent>
       </Card>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbarOpen}
-        autoHideDuration={snackbarSeverity === "error" ? null : 4000}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 };

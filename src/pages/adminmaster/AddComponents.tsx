@@ -1,9 +1,9 @@
 import {
-  forwardRef,
   useImperativeHandle,
   useRef,
   useState,
   useEffect,
+  startTransition,
 } from "react";
 import {
   Box,
@@ -21,7 +21,6 @@ import {
   Alert,
   Menu,
   MenuItem,
-  Snackbar,
   Paper,
   ClickAwayListener,
   Popper,
@@ -31,13 +30,17 @@ import {
   FormControlLabel,
   FormControl,
 } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../store/store";
+import ToastSnackbar from "../../components/ui/ToastSnackbar";
+import PageHeader from "../../components/ui/PageHeader";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Check as CheckIcon, Close as CloseIcon, Search as SearchIcon, MoreVert as MoreVertIcon } from "@mui/icons-material";
 import { IconButton, Tooltip } from "@mui/material";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../store/store";
-import { useQueryClient } from "@tanstack/react-query";
-import { adminDataGridSx } from "../../components/tableStyles";
+import ActionButton from "../../components/ui/ActionButton";
+import { adminDataGridSx, DATAGRID_DEFAULT_PROPS } from "../../components/tableStyles";
+import { TableCard } from "../../components/ui";
 import { DataGridCustomPagination } from "../../components/CustomPagination";
 import {
   useUsers,
@@ -101,8 +104,8 @@ interface TabPanelProps {
 
 function TabPanel({ children, value, index }: TabPanelProps) {
   return (
-    <Box role="tabpanel" hidden={value !== index}>
-      {value === index && <Box>{children}</Box>}
+    <Box role="tabpanel" hidden={value !== index} sx={{ display: value === index ? "block" : "none" }}>
+      {children}
     </Box>
   );
 }
@@ -177,31 +180,29 @@ function GenericTable<T extends { id: number }>({
   loading,
 }: GenericTableProps<T>) {
   return (
-    <Box sx={{ width: "100%" }}>
-      <DataGrid
-        autoHeight
-        rowHeight={42}
-        columnHeaderHeight={40}
-        rows={rows}
-        columns={columns}
-        loading={loading}
-        initialState={{
-          pagination: { paginationModel: { pageSize: 10 } },
-          sorting: {
-            sortModel: [{ field: "srNo", sort: "asc" }],
-          },
-        }}
-        pageSizeOptions={[10, 20, 50]}
-        disableRowSelectionOnClick
-        disableColumnMenu
-        disableColumnFilter
-        disableColumnSelector
-        slots={{
-          pagination: DataGridCustomPagination,
-        }}
-        sx={adminDataGridSx}
-      />
-    </Box>
+    <TableCard>
+      <Box sx={{ width: "100%" }}>
+        <DataGrid
+          {...DATAGRID_DEFAULT_PROPS}
+          autoHeight
+          rows={rows}
+          columns={columns}
+          loading={loading}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 10 } },
+          }}
+          pageSizeOptions={[10, 20, 50]}
+          disableRowSelectionOnClick
+          disableColumnMenu
+          disableColumnFilter
+          disableColumnSelector
+          slots={{
+            pagination: DataGridCustomPagination,
+          }}
+          sx={adminDataGridSx}
+        />
+      </Box>
+    </TableCard>
   );
 }
 
@@ -258,19 +259,19 @@ function AddEditDialog({
           {extraFields}
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button size="small" onClick={onClose} disabled={saving}>
+      <DialogActions sx={{ px: 3, py: 2 }}>
+        <ActionButton variant="secondary" size="standard" onClick={onClose} disabled={saving}>
           Cancel
-        </Button>
-        <Button
-          size="small"
-          variant="contained"
+        </ActionButton>
+        <ActionButton
+          variant="primary"
+          size="standard"
           onClick={handleSave}
           disabled={!name.trim() || saving}
-          startIcon={saving ? <CircularProgress size={14} /> : undefined}
+          startIcon={saving ? <CircularProgress size={14} color="inherit" /> : undefined}
         >
           {saving ? "Saving…" : "Save"}
-        </Button>
+        </ActionButton>
       </DialogActions>
     </Dialog>
   );
@@ -291,10 +292,15 @@ const formatDate = (val?: string | null) => {
 };
 
 //unit tab
-const UnitTab = forwardRef<
-  TabHandle,
-  { createdBy: number; showSnackbar: (msg: string, severity?: "success" | "error") => void }
->(function UnitTab({ createdBy, showSnackbar }, ref) {
+const UnitTab = ({
+  createdBy,
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  showSnackbar: (msg: string, severity?: "success" | "error") => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
   const { data: units = [], isLoading: loading, error: fetchError } = useUnits();
   const { data: users = [] } = useUsers();
   const addMutation = useAddUnit();
@@ -376,7 +382,10 @@ const UnitTab = forwardRef<
       {
         field: "srNo",
         headerName: "Sr No",
-        width: 100,
+         headerAlign: "center",
+        align: "center",
+        width: 89,
+        sortable: false,
         valueGetter: (params) =>
           rows.findIndex((r) => r.id === params.row.id) + 1,
       },
@@ -385,6 +394,7 @@ const UnitTab = forwardRef<
         field: "createdBy",
         headerName: "Created By",
         flex: 1,
+        sortable: false,
         minWidth: 180,
         renderCell: (params) => getUserName(params.row.createdBy, users),
       },
@@ -399,6 +409,7 @@ const UnitTab = forwardRef<
         headerName: "Modified By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.modifiedBy, users),
       },
       {
@@ -475,15 +486,22 @@ const UnitTab = forwardRef<
       />
     </>
   );
-});
+};
 
 // stage tab
 const STAGE_TYPES = ["IR", "MSN"] as const;
 
-const StageTab = forwardRef<
-  TabHandle,
-  { createdBy: number; stageFilter?: string; showSnackbar: (msg: string, severity?: "success" | "error") => void }
->(function StageTab({ createdBy, stageFilter = "IR", showSnackbar }, ref) {
+const StageTab = ({
+  createdBy,
+  stageFilter = "IR",
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  stageFilter?: string;
+  showSnackbar: (msg: string, severity?: "success" | "error") => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
   const { data: allStages = [], isLoading: loading, error: fetchError } = useAllStages();
   const { data: users = [] } = useUsers();
   const addMutation = useAddStage();
@@ -571,6 +589,9 @@ const StageTab = forwardRef<
         field: "srNo",
         headerName: "Sr No",
         width: 100,
+        headerAlign: "center",
+        align: "center",
+        sortable: false,
         valueGetter: (params) =>
           rows.findIndex((r) => r.id === params.row.id) + 1,
       },
@@ -581,12 +602,13 @@ const StageTab = forwardRef<
         minWidth: 160,
         valueGetter: (params) => params.row.stageName || params.row.stage || "-",
       },
-      { field: "stageType", headerName: "Stage Type", width: 110 },
+      { field: "stageType", headerName: "Stage Type", width: 110,sortable: false, },
       {
         field: "createdBy",
         headerName: "Created By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.createdBy, users),
       },
       {
@@ -600,6 +622,7 @@ const StageTab = forwardRef<
         headerName: "Modified By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.modifiedBy, users),
       },
       {
@@ -691,13 +714,18 @@ const StageTab = forwardRef<
       />
     </>
   );
-});
+};
 
 // material tab
-const MaterialTab = forwardRef<
-  TabHandle,
-  { createdBy: number; showSnackbar: (msg: string, severity?: "success" | "error") => void }
->(function MaterialTab({ createdBy, showSnackbar }, ref) {
+const MaterialTab = ({
+  createdBy,
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  showSnackbar: (msg: string, severity?: "success" | "error") => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
   const { data: shapes = [], isLoading: loading, error: fetchError } = useShapes();
   const { data: users = [] } = useUsers();
   const addMutation = useAddShape();
@@ -780,6 +808,9 @@ const MaterialTab = forwardRef<
         field: "srNo",
         headerName: "Sr No",
         width: 100,
+        headerAlign: "center",
+        align: "center",
+        sortable: false,
         valueGetter: (params) =>
           rows.findIndex((r) => r.id === params.row.id) + 1,
       },
@@ -795,6 +826,7 @@ const MaterialTab = forwardRef<
         headerName: "Created By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.createdBy, users),
       },
       {
@@ -807,6 +839,7 @@ const MaterialTab = forwardRef<
         field: "modifiedBy",
         headerName: "Modified By",
         flex: 1,
+        sortable: false,
         minWidth: 180,
         renderCell: (params) => getUserName(params.row.modifiedBy, users),
       },
@@ -884,13 +917,18 @@ const MaterialTab = forwardRef<
       />
     </>
   );
-});
+};
 
 // production series
-const ProductionSeriesTab = forwardRef<
-  TabHandle,
-  { createdBy: number; showSnackbar: (msg: string, severity?: "success" | "error") => void }
->(function ProductionSeriesTab({ createdBy, showSnackbar }, ref) {
+const ProductionSeriesTab = ({
+  createdBy,
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  showSnackbar: (msg: string, severity?: "success" | "error") => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
 
   const { data: productionSeries = [], isLoading: loading, error: fetchError } =
     useProductionSeries();
@@ -1000,7 +1038,10 @@ const ProductionSeriesTab = forwardRef<
       {
         field: "srNo",
         headerName: "Sr No",
+        headerAlign: "center",
+        align: "center",
         width: 100,
+        sortable: false,
         valueGetter: (params) =>
           rows.findIndex((r: any) => r.id === params.row.id) + 1,
       },
@@ -1009,6 +1050,7 @@ const ProductionSeriesTab = forwardRef<
         headerName: "Production Series",
         flex: 1,
         minWidth: 160,
+        sortable: false,
         valueGetter: (params) =>
           params.row.productionSeries || "-",
       },
@@ -1016,6 +1058,7 @@ const ProductionSeriesTab = forwardRef<
         field: "createdBy",
         headerName: "Created By",
         flex: 1,
+        sortable: false,
         minWidth: 180,
         renderCell: (params) => getUserName(params.row.createdBy, users),
       },
@@ -1030,6 +1073,7 @@ const ProductionSeriesTab = forwardRef<
         headerName: "Modified By",
         flex: 1,
         minWidth: 180,
+        sortable: false,
         renderCell: (params) => getUserName(params.row.modifiedBy, users),
       },
       {
@@ -1126,22 +1170,21 @@ const ProductionSeriesTab = forwardRef<
       />
     </>
   );
-});
+};
 
-const SignatureTab = forwardRef<
-  TabHandle,
-  {
-    createdBy: number;
-    users: any[];
-    showSnackbar: (
-      msg: string,
-      severity?: "success" | "error"
-    ) => void;
-  }
->(function SignatureTab(
-  { users, showSnackbar },
-  ref
-) {
+const SignatureTab = ({
+  users,
+  showSnackbar,
+  ref,
+}: {
+  createdBy: number;
+  users: any[];
+  showSnackbar: (
+    msg: string,
+    severity?: "success" | "error"
+  ) => void;
+  ref?: React.Ref<TabHandle>;
+}) => {
   const queryClient = useQueryClient();
   const { data: usersWithSignatures = [], isLoading: loading, error: fetchError } = useUsersWithSignatures();
 
@@ -1467,7 +1510,7 @@ const SignatureTab = forwardRef<
       </Dialog>
     </>
   );
-});
+};
 
 
 // tab labels
@@ -1536,31 +1579,11 @@ export default function AddComponents({ hideHeader = false }: { hideHeader?: boo
 
   return (
     <Box sx={{ py: hideHeader ? 0 : { xs: 1.5, sm: 2 }, px: hideHeader ? 0 : { xs: 1.5, sm: 2.5 } }}>
-      {/* 1. Top Header Bar */}
       {!hideHeader && (
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          justifyContent="space-between"
-          alignItems={{ xs: "flex-start", sm: "center" }}
-          spacing={2}
-          sx={{ mb: 1.5 }}
-        >
-          <Box>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 700,
-                color: "primary.main",
-                fontSize: { xs: "1.25rem", sm: "1.5rem" },
-              }}
-            >
-              Master Data
-            </Typography>
-            <Typography variant="body2" sx={{ color: "#667085", mt: 0.5 }}>
-              Manage system units, stages, materials, production series, and user signatures.
-            </Typography>
-          </Box>
-        </Stack>
+        <PageHeader
+          title="Master Data"
+          subtitle="Manage system units, stages, materials, production series, and user signatures."
+        />
       )}
 
       {/* 2. Tabs Bar (Outside Container) */}
@@ -1574,7 +1597,7 @@ export default function AddComponents({ hideHeader = false }: { hideHeader?: boo
       >
         <Tabs
           value={activeTab}
-          onChange={(_e, newValue) => setActiveTab(newValue)}
+          onChange={(_e, newValue) => startTransition(() => setActiveTab(newValue))}
           textColor="primary"
           indicatorColor="primary"
           aria-label="master data tabs"
@@ -1589,12 +1612,14 @@ export default function AddComponents({ hideHeader = false }: { hideHeader?: boo
               px: 1.5,
               minHeight: 40,
               color: "#475467",
+              transition: "color 0.15s ease",
             },
             "& .MuiTab-root.Mui-selected": { color: "primary.main", fontWeight: 700 },
             "& .MuiTabs-indicator": {
               backgroundColor: "primary.main",
               height: 3,
               borderRadius: "3px 3px 0 0",
+              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important",
             },
           }}
         >
@@ -1792,16 +1817,12 @@ export default function AddComponents({ hideHeader = false }: { hideHeader?: boo
         </Box>
       </Paper>
 
-      <Snackbar
+      <ToastSnackbar
         open={snackbar.open}
-        autoHideDuration={snackbar.severity === "error" ? undefined : 6000}
+        message={snackbar.message}
+        severity={snackbar.severity}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      />
     </Box>
   );
 }
