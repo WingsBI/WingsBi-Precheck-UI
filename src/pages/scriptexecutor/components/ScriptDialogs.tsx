@@ -385,8 +385,8 @@ interface ScriptErrorDialogProps {
   scriptErrorDetails: { message: string; output?: string; error?: string } | null;
   errorDialogTab: number;
   onErrorDialogTabChange: (val: number) => void;
-  copied: boolean;
-  onCopyLog: () => void;
+  copied?: boolean;
+  onCopyLog?: () => void;
   onDownloadErrorReport?: () => void;
 }
 
@@ -396,15 +396,20 @@ export const ScriptErrorDialog: React.FC<ScriptErrorDialogProps> = ({
   scriptErrorDetails,
   errorDialogTab,
   onErrorDialogTabChange,
-  copied,
-  onCopyLog,
   onDownloadErrorReport,
 }) => {
   const errorMessage = scriptErrorDetails?.message || "Execution encountered an error.";
+  const hasDistinctLog = Boolean(
+    (scriptErrorDetails?.output && scriptErrorDetails.output.trim() !== errorMessage.trim()) ||
+    (scriptErrorDetails?.error && scriptErrorDetails.error.trim() !== errorMessage.trim())
+  );
+
   const displayLog =
     errorDialogTab === 0
-      ? (scriptErrorDetails?.output || scriptErrorDetails?.error || errorMessage)
-      : (scriptErrorDetails?.error || scriptErrorDetails?.output || errorMessage);
+      ? (scriptErrorDetails?.output || scriptErrorDetails?.error || "")
+      : (scriptErrorDetails?.error || scriptErrorDetails?.output || "");
+
+  const showLogSection = hasDistinctLog && displayLog.trim().length > 0 && displayLog.trim() !== errorMessage.trim();
 
   return (
     <Dialog
@@ -423,34 +428,36 @@ export const ScriptErrorDialog: React.FC<ScriptErrorDialogProps> = ({
     >
       <Box
         sx={{
-          background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-          color: "white",
+          bgcolor: "white",
+          color: "primary.main",
           px: 3,
           py: 2,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          borderBottom: "1px solid",
+          borderColor: "neutral.border",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <WarningIcon sx={{ fontSize: 28 }} />
+          <WarningIcon sx={{ fontSize: 28, color: "warning.main" }} />
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2, color: "white" }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2, color: "primary.main" }}>
               Script Execution Failed
             </Typography>
-            <Typography variant="caption" sx={{ opacity: 0.9, fontSize: "0.775rem" }}>
+            <Typography variant="caption" sx={{ color: "primary.main", opacity: 0.85, fontSize: "0.775rem" }}>
               Execution encountered an error. See details below:
             </Typography>
           </Box>
         </Box>
-        <IconButton size="small" onClick={onClose} sx={{ color: "white", p: 0.5 }}>
+        <IconButton size="small" onClick={onClose} sx={{ color: "primary.main", p: 0.5 }}>
           <CloseIcon fontSize="small" />
         </IconButton>
       </Box>
 
       <DialogContent sx={{ p: 0, display: "flex", flexDirection: "column", bgcolor: "grey.50" }}>
         {/* Prominent Red Alert Box */}
-        <Box sx={{ px: 3, pt: 2.5, pb: 1 }}>
+        <Box sx={{ px: 3, pt: 2.5, pb: showLogSection ? 1 : 2.5 }}>
           <Alert
             severity="error"
             sx={{
@@ -465,69 +472,64 @@ export const ScriptErrorDialog: React.FC<ScriptErrorDialogProps> = ({
           </Alert>
         </Box>
 
-        {scriptErrorDetails?.output && scriptErrorDetails?.error && (
-          <Tabs
-            value={errorDialogTab}
-            onChange={(_, val) => onErrorDialogTabChange(val)}
-            sx={{
-              borderBottom: "1px solid",
-              borderColor: "neutral.border",
-              px: 2,
-              bgcolor: "background.paper",
-              "& .MuiTabs-indicator": {
-                backgroundColor: "primary.main",
-                height: 3,
-              },
-              "& .MuiTab-root": {
-                textTransform: "none",
-                fontWeight: 600,
-                color: "text.secondary",
-                "&.Mui-selected": {
-                  color: "primary.main",
-                },
-              },
-            }}
-          >
-            <Tab label="Validation Report" value={0} />
-            <Tab label="Developer Stacktrace" value={1} />
-          </Tabs>
+        {showLogSection && (
+          <>
+            {scriptErrorDetails?.output && scriptErrorDetails?.error && (
+              <Tabs
+                value={errorDialogTab}
+                onChange={(_, val) => onErrorDialogTabChange(val)}
+                sx={{
+                  borderBottom: "1px solid",
+                  borderColor: "neutral.border",
+                  px: 2,
+                  bgcolor: "background.paper",
+                  "& .MuiTabs-indicator": {
+                    backgroundColor: "primary.main",
+                    height: 3,
+                  },
+                  "& .MuiTab-root": {
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: "text.secondary",
+                    "&.Mui-selected": {
+                      color: "primary.main",
+                    },
+                  },
+                }}
+              >
+                <Tab label="Validation Report" value={0} />
+                <Tab label="Developer Stacktrace" value={1} />
+              </Tabs>
+            )}
+
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 3, py: 1.25, bgcolor: "background.paper" }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
+                {errorDialogTab === 0 ? "ERROR LOG & OUTPUT DETAILS" : "DEVELOPER STACKTRACE"}
+              </Typography>
+            </Box>
+
+            <Box sx={{ px: 3, pb: 2.5, pt: 0 }}>
+              <Box
+                sx={{
+                  bgcolor: "#ffffff",
+                  color: "#dc2626",
+                  p: 2.5,
+                  borderRadius: 2.5,
+                  border: "1px solid #fecdd3",
+                  fontSize: "0.85rem",
+                  lineHeight: 1.5,
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-all",
+                  maxHeight: "350px",
+                  overflowY: "auto",
+                }}
+                className="scroll-hover"
+              >
+                {displayLog}
+              </Box>
+            </Box>
+          </>
         )}
-
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", px: 3, py: 1.25, bgcolor: "background.paper" }}>
-          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-            {errorDialogTab === 0 ? "ERROR LOG & OUTPUT DETAILS" : "DEVELOPER STACKTRACE"}
-          </Typography>
-          <ActionButton
-            variant="secondary"
-            size="compact"
-            onClick={onCopyLog}
-            startIcon={copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <DownloadIcon sx={{ fontSize: 14 }} />}
-          >
-            {copied ? "Copied" : "Copy Log"}
-          </ActionButton>
-        </Box>
-
-        <Box sx={{ px: 3, pb: 2.5, pt: 0 }}>
-          <Box
-            sx={{
-              bgcolor: "grey.900",
-              color: "#F87171",
-              p: 2.5,
-              borderRadius: 2.5,
-              border: "1px solid",
-              borderColor: "grey.800",
-              fontSize: "0.85rem",
-              lineHeight: 1.5,
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-all",
-              maxHeight: "350px",
-              overflowY: "auto",
-            }}
-            className="scroll-hover"
-          >
-            {displayLog}
-          </Box>
-        </Box>
       </DialogContent>
 
       <DialogActions sx={{ px: 3, py: 2, bgcolor: "background.paper", borderTop: "1px solid", borderColor: "neutral.border", display: "flex", justifyContent: "space-between" }}>

@@ -838,21 +838,32 @@ export default function ScriptExecutor() {
 
         const resData = response.data;
         if (resData) {
-          if (resData.file1) {
-            if (typeof resData.file1 === "string") {
-              assemblyServerFileName = resData.file1;
+          const f1 = resData.fileName1 || resData.filename1 || resData.file1Name || resData.file1;
+          if (f1) {
+            if (typeof f1 === "string") {
+              assemblyServerFileName = f1;
             } else {
-              assemblyServerFileName = resData.file1.fileName || resData.file1.filename || resData.file1.uploadedFileName || resData.file1.filePath || assemblyServerFileName;
-              assemblyRecords = resData.file1.data || resData.file1.records || resData.file1.rows || [];
+              assemblyServerFileName = f1.fileName || f1.filename || f1.uploadedFileName || f1.filePath || assemblyServerFileName;
+              assemblyRecords = f1.data || f1.records || f1.rows || [];
             }
           }
-          if (resData.file2) {
-            if (typeof resData.file2 === "string") {
-              drawingServerFileName = resData.file2;
+
+          const f2 = resData.fileName2 || resData.filename2 || resData.file2Name || resData.file2;
+          if (f2) {
+            if (typeof f2 === "string") {
+              drawingServerFileName = f2;
             } else {
-              drawingServerFileName = resData.file2.fileName || resData.file2.filename || resData.file2.uploadedFileName || resData.file2.filePath || drawingServerFileName;
-              drawingRecords = resData.file2.data || resData.file2.records || resData.file2.rows || [];
+              drawingServerFileName = f2.fileName || f2.filename || f2.uploadedFileName || f2.filePath || drawingServerFileName;
+              drawingRecords = f2.data || f2.records || f2.rows || [];
             }
+          }
+
+          if (Array.isArray(resData.fileNames) && resData.fileNames.length >= 2) {
+            assemblyServerFileName = resData.fileNames[0];
+            drawingServerFileName = resData.fileNames[1];
+          } else if (Array.isArray(resData.files) && resData.files.length >= 2) {
+            assemblyServerFileName = typeof resData.files[0] === "string" ? resData.files[0] : resData.files[0].fileName || resData.files[0].filename || assemblyServerFileName;
+            drawingServerFileName = typeof resData.files[1] === "string" ? resData.files[1] : resData.files[1].fileName || resData.files[1].filename || drawingServerFileName;
           }
         }
 
