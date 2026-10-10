@@ -2392,6 +2392,8 @@ const ProductionOrderUpload: React.FC = () => {
               sx={{
                 flexGrow: 1,
                 minHeight: 300,
+                width: "100%",
+                minWidth: 0,
                 backgroundColor: "#ffffff",
                 position: "relative",
                 display: "flex",

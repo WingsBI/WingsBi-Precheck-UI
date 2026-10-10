@@ -638,64 +638,65 @@ const MakePrecheck: React.FC = () => {
   // Handle PO details when fetched via usePODetails (for both navigation and manual selection)
   useEffect(() => {
     if (poDetailsData && !isClearedRef.current) {
-      if (!selectedPO || selectedPO.productionOrderNumber === poDetailsData.productionOrderNumber) {
-        setSelectedPO((prev) => (prev ? { ...poDetailsData, ...prev } : poDetailsData));
-      }
+      setSelectedPO((prev) => {
+        if (!prev) return poDetailsData;
+        if (prev.productionOrderNumber === poDetailsData.productionOrderNumber) {
+          const isMissingMeta = !prev.drawingNumberId || !prev.prodSeriesId;
+          if (isMissingMeta) {
+            return { ...poDetailsData, ...prev };
+          }
+        }
+        return prev;
+      });
 
       // Map Production Series if not set yet or lacks id
-      if ((poDetailsData.productionSeries || poDetailsData.prodSeriesId) && (!selectedProductionSeries || !selectedProductionSeries.id)) {
-        let matchingProdSeries = null;
-        if (productionSeriesData && productionSeriesData.length > 0) {
-          matchingProdSeries = productionSeriesData.find(
-            (ps: any) =>
-              (poDetailsData.prodSeriesId && ps.id === poDetailsData.prodSeriesId) ||
-              (ps.productionSeries && poDetailsData.productionSeries && String(ps.productionSeries).trim().toLowerCase() === String(poDetailsData.productionSeries).trim().toLowerCase()),
-          );
-        }
-        if (matchingProdSeries) {
-          setSelectedProductionSeries(matchingProdSeries);
-        } else if (!selectedProductionSeries) {
-          setSelectedProductionSeries({
+      if (poDetailsData.productionSeries || poDetailsData.prodSeriesId) {
+        setSelectedProductionSeries((prevSeries: any) => {
+          if (prevSeries && (prevSeries.id || prevSeries.prodSeriesId)) return prevSeries;
+          let matchingProdSeries = null;
+          if (productionSeriesData && productionSeriesData.length > 0) {
+            matchingProdSeries = productionSeriesData.find(
+              (ps: any) =>
+                (poDetailsData.prodSeriesId && ps.id === poDetailsData.prodSeriesId) ||
+                (ps.productionSeries && poDetailsData.productionSeries && String(ps.productionSeries).trim().toLowerCase() === String(poDetailsData.productionSeries).trim().toLowerCase()),
+            );
+          }
+          if (matchingProdSeries) return matchingProdSeries;
+          return {
             id: poDetailsData.prodSeriesId,
             productionSeries: poDetailsData.productionSeries || "",
-          });
-        }
+          };
+        });
       }
 
       // Map ID Number if not set yet
       const navState = location.state as any;
       const poStartId = poDetailsData.startIdNumber ?? poDetailsData.endIdNumber;
       const targetId = navState?.startIdNumber ?? navState?.idNumber ?? poStartId;
-      if (targetId !== undefined && targetId !== null && !idNumber) {
-        setIdNumber(targetId.toString());
+      if (targetId !== undefined && targetId !== null) {
+        setIdNumber((prevId) => (prevId ? prevId : targetId.toString()));
       }
 
       // Map Drawing if not set yet or lacks id
       if (poDetailsData.drawingNumber || poDetailsData.drawingNumberId || poDetailsData.lnItemCode) {
-        const matchingDrawing = findMatchingDrawingInList(allDrawingNumbers, poDetailsData);
-
-        if (matchingDrawing) {
-          setSelectedDrawing(matchingDrawing);
-        } else if (!selectedDrawing || !selectedDrawing.id) {
-          setSelectedDrawing({
+        setSelectedDrawing((prevDrawing: any) => {
+          if (prevDrawing && (prevDrawing.id || prevDrawing.drawingNumberId)) return prevDrawing;
+          const matchingDrawing = findMatchingDrawingInList(allDrawingNumbers, poDetailsData);
+          if (matchingDrawing) return matchingDrawing;
+          return {
             id: poDetailsData.drawingNumberId,
             drawingNumber: poDetailsData.drawingNumber || "",
             lnItemCode: poDetailsData.lnItemCode || "",
             nomenclature: poDetailsData.nomenclature || "",
             componentType: poDetailsData.componentType || "",
-          });
-        }
+          };
+        });
       }
     }
   }, [
     poDetailsData,
-    selectedPO,
-    navigationState,
     productionSeriesData,
     allDrawingNumbers,
-    selectedProductionSeries,
-    idNumber,
-    selectedDrawing,
   ]);
 
   const validateFields = () => {
