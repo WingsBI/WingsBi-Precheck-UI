@@ -125,6 +125,8 @@ export const commonTableLoadingRowSx = {
 };
 
 export const commonDataGridSx = {
+  width: "100%",
+  minWidth: 0,
   border: `1px solid ${TABLE_TOKENS.rowBorderColor}`,
   borderRadius: "12px",
   backgroundColor: "#FFFFFF",
@@ -241,6 +243,8 @@ export const commonDataGridSx = {
 };
 
 export const adminDataGridSx = {
+  width: "100%",
+  minWidth: 0,
   border: "none !important",
   borderRadius: "0px",
   backgroundColor: "#FFFFFF",
