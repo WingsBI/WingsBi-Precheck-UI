@@ -379,7 +379,7 @@ export const KpiDashboard: React.FC = () => {
           </Box>
 
           <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 500, fontSize: "0.88rem" }}>
-            Real-time insights on BOM coverage, rejections and QR code status
+            Real-time insights on Production Orders, QR code status and Rejection Analysis
           </Typography>
         </Box>
 
