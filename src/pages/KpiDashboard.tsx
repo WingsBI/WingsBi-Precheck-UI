@@ -28,21 +28,15 @@ import {
   Tab,
 } from "@mui/material";
 import {
-  QrCodeScanner as QrCodeIcon,
   SwapHoriz as SwapIcon,
   Download as DownloadIcon,
   Search as SearchIcon,
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon,
   Description as DocIcon,
-  ArrowForward as ArrowForwardIcon,
   ArrowBack as ArrowBackIcon,
-  ReceiptLong as ReceiptIcon,
   HourglassEmpty as PendingIcon,
   Sync as InProgressIcon,
-  Warehouse as WarehouseIcon,
-  PrecisionManufacturing as LineIcon,
-  QrCode2 as QrCode2Icon,
   ViewInAr as CubeIcon,
   Layers as LayersIcon,
   Settings as SettingsIcon,
@@ -56,17 +50,12 @@ import {
 
 import type {
   UserRole,
-  ComponentType,
-  ScanOutcome,
   IrMsnDocumentDetails,
   ScanRecord,
-  QrLifecycleAnalyticsItem,
 } from "../types/kpiDashboard";
 import {
   INITIAL_COMPONENT_MIX,
   INITIAL_REJECTION_REASONS,
-  INITIAL_IRMSN_ANALYTICS,
-  INITIAL_QR_LIFECYCLE_ANALYTICS,
   MOCK_TREND_DATA,
   MOCK_MATERIAL_REQUISITIONS,
   MOCK_COMPONENT_SWAPS,
@@ -81,14 +70,14 @@ export const KpiDashboard: React.FC = () => {
   const SHOW_NON_INTEGRATED = false;
 
   // Derived Analytics Data from GET /api/analytics/summary
-  const poPending = analyticsSummary?.productionOrders?.pending ?? 31;
-  const poPartial = analyticsSummary?.productionOrders?.partial ?? 1;
+  const poPending = analyticsSummary?.productionOrders?.pending ?? 39;
+  const poPartial = analyticsSummary?.productionOrders?.partial ?? 2;
   const poCompleted = analyticsSummary?.productionOrders?.completed ?? 2;
   const poTotal = poPending + poPartial + poCompleted;
 
-  const qrReady = analyticsSummary?.qrCodes?.readyForConsumption ?? 30;
-  const qrGenerated = analyticsSummary?.qrCodes?.generated ?? 14;
-  const qrConsumed = analyticsSummary?.qrCodes?.consumed ?? 2;
+  const qrReady = analyticsSummary?.qrCodes?.readyForConsumption ?? 31;
+  const qrGenerated = analyticsSummary?.qrCodes?.generated ?? 26;
+  const qrConsumed = analyticsSummary?.qrCodes?.consumed ?? 3;
   const qrTotal = qrReady + qrGenerated + qrConsumed;
 
   const rejectedComponents = analyticsSummary?.materialRequisition?.rejectedComponents ?? 1;
@@ -108,12 +97,11 @@ export const KpiDashboard: React.FC = () => {
   const [mainTab, setMainTab] = useState<number>(0);
   const [selectedPoDetails, setSelectedPoDetails] = useState<string>("PO123");
   const [selectedRole, setSelectedRole] = useState<UserRole>("QC");
-  const [selectedPo, setSelectedPo] = useState<string>("ALL");
+  const [selectedPo] = useState<string>("ALL");
   const [dateRange, setDateRange] = useState<string>("today");
-  const [trendMode, setTrendMode] = useState<"volume" | "rate">("volume");
   const [tableStatusFilter, setTableStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [_isExporting, setIsExporting] = useState<boolean>(false);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
 
   // Modal State
@@ -144,7 +132,7 @@ export const KpiDashboard: React.FC = () => {
 
   // Role pill cycle handler
   const roles: UserRole[] = ["Planner", "Store", "QC", "Admin"];
-  const handleCycleRole = () => {
+  const _handleCycleRole = () => {
     const currentIndex = roles.indexOf(selectedRole);
     const nextIndex = (currentIndex + 1) % roles.length;
     setSelectedRole(roles[nextIndex]);
@@ -189,19 +177,19 @@ export const KpiDashboard: React.FC = () => {
 
 
   // Filtered Material Requisitions by PO
-  const filteredReqs = useMemo(() => {
+  const _filteredReqs = useMemo(() => {
     if (selectedPo === "ALL") return MOCK_MATERIAL_REQUISITIONS;
     return MOCK_MATERIAL_REQUISITIONS.filter((mr) => mr.poNumber === selectedPo);
   }, [selectedPo]);
 
   // Filtered Component Swaps by PO
-  const filteredSwaps = useMemo(() => {
+  const _filteredSwaps = useMemo(() => {
     if (selectedPo === "ALL") return MOCK_COMPONENT_SWAPS;
     return MOCK_COMPONENT_SWAPS.filter((swp) => swp.sourcePo === selectedPo || swp.targetPo === selectedPo);
   }, [selectedPo]);
 
   // Document modal trigger
-  const handleOpenDoc = (scan: ScanRecord) => {
+  const _handleOpenDoc = (scan: ScanRecord) => {
     const docDetails: IrMsnDocumentDetails = {
       docNumber: scan.irNumber || scan.msnNumber || "DDR-8849",
       docType: scan.status === "Swapped" ? "MSN" : "IR",
@@ -228,7 +216,7 @@ export const KpiDashboard: React.FC = () => {
   };
 
   // Sparkline Generator Helper
-  const renderSparkline = (points: number[], color: string) => {
+  const _renderSparkline = (points: number[], color: string) => {
     const min = Math.min(...points);
     const max = Math.max(...points);
     const range = max - min || 1;
@@ -261,7 +249,7 @@ export const KpiDashboard: React.FC = () => {
   };
 
   // Total Rejections for Donut Chart
-  const totalRejectionsCount = INITIAL_REJECTION_REASONS.reduce((acc, curr) => acc + curr.count, 0);
+  const _totalRejectionsCount = INITIAL_REJECTION_REASONS.reduce((acc, curr) => acc + curr.count, 0);
 
   return (
     <Box sx={{ flexGrow: 1, p: { xs: 2, md: 3 }, bgcolor: "#f8fafc", minHeight: "100vh" }}>
@@ -391,7 +379,7 @@ export const KpiDashboard: React.FC = () => {
           </Box>
 
           <Typography variant="body2" sx={{ color: "#64748b", fontWeight: 500, fontSize: "0.88rem" }}>
-            Real-time insights on BOM coverage, rejections and QR code status
+            Real-time insights on Production Orders, QR code status and Rejection Analysis
           </Typography>
         </Box>
 
@@ -462,7 +450,7 @@ export const KpiDashboard: React.FC = () => {
         <Box>
           {/* 3. KPI METRICS ROW (INTEGRATED WITH /api/analytics/summary) */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            {/* KPI 1: PO Pending */}
+            {/* KPI 1: PO Pending - Amber */}
             <Grid item xs={12} sm={6} md={4} lg={2}>
               <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #f59e0b", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
                 <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
@@ -476,7 +464,7 @@ export const KpiDashboard: React.FC = () => {
                     <Box sx={{ width: `${poPendingPct}%`, bgcolor: "#f59e0b", height: "100%" }} />
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Chip label={`Partial: ${poPartial}`} size="small" sx={{ bgcolor: "#fef3c7", color: "#b45309", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
+                    <Chip label={`Pending: ${poPending}`} size="small" sx={{ bgcolor: "#fef3c7", color: "#b45309", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
                     <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 700, fontSize: "0.68rem" }}>
                       {poPendingPct}%
                     </Typography>
@@ -485,30 +473,53 @@ export const KpiDashboard: React.FC = () => {
               </Card>
             </Grid>
 
-            {/* KPI 2: QR Ready for Consumption */}
+            {/* KPI 2: PO Partial - Purple */}
             <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #10b981", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
+              <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #8b5cf6", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
                 <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
                   <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: "uppercase", fontSize: "0.7rem" }}>
-                    QR Ready Store
+                    PO Partial
                   </Typography>
-                  <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 800, color: "#059669", my: 0.5 }}>
-                    {qrReady}
+                  <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 800, color: "#7c3aed", my: 0.5 }}>
+                    {poPartial}
                   </Typography>
-                  <Box sx={{ width: "100%", bgcolor: "#d1fae5", height: 5, borderRadius: 3, my: 1, overflow: "hidden" }}>
-                    <Box sx={{ width: `${qrReadyPct}%`, bgcolor: "#10b981", height: "100%" }} />
+                  <Box sx={{ width: "100%", bgcolor: "#f3e8ff", height: 5, borderRadius: 3, my: 1, overflow: "hidden" }}>
+                    <Box sx={{ width: `${poPartialPct}%`, bgcolor: "#8b5cf6", height: "100%" }} />
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Chip label={`Consumed: ${qrConsumed}`} size="small" sx={{ bgcolor: "#dcfce7", color: "#15803d", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
+                    <Chip label={`Partial: ${poPartial}`} size="small" sx={{ bgcolor: "#f3e8ff", color: "#6b21a8", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
                     <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 700, fontSize: "0.68rem" }}>
-                      {qrReadyPct}%
+                      {poPartialPct}%
                     </Typography>
                   </Box>
                 </CardContent>
               </Card>
             </Grid>
 
-            {/* KPI 3: QR Codes Generated */}
+            {/* KPI 3: PO Completed - Emerald Green */}
+            <Grid item xs={12} sm={6} md={4} lg={2}>
+              <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #10b981", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
+                <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: "uppercase", fontSize: "0.7rem" }}>
+                    PO Completed
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 800, color: "#059669", my: 0.5 }}>
+                    {poCompleted}
+                  </Typography>
+                  <Box sx={{ width: "100%", bgcolor: "#d1fae5", height: 5, borderRadius: 3, my: 1, overflow: "hidden" }}>
+                    <Box sx={{ width: `${poCompletedPct}%`, bgcolor: "#10b981", height: "100%" }} />
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <Chip label="Completed" size="small" sx={{ bgcolor: "#dcfce7", color: "#15803d", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
+                    <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 700, fontSize: "0.68rem" }}>
+                      {poCompletedPct}%
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* KPI 4: QR Codes Generated - Ocean Blue */}
             <Grid item xs={12} sm={6} md={4} lg={2}>
               <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #0284c7", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
                 <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
@@ -522,7 +533,7 @@ export const KpiDashboard: React.FC = () => {
                     <Box sx={{ width: `${qrGeneratedPct}%`, bgcolor: "#0284c7", height: "100%" }} />
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Chip label="Ready Store In" size="small" sx={{ bgcolor: "#e0f2fe", color: "#0369a1", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
+                    <Chip label="Ready to Store In" size="small" sx={{ bgcolor: "#e0f2fe", color: "#0369a1", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
                     <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 700, fontSize: "0.68rem" }}>
                       {qrGeneratedPct}%
                     </Typography>
@@ -531,69 +542,46 @@ export const KpiDashboard: React.FC = () => {
               </Card>
             </Grid>
 
-            {/* KPI 4: Rejected Components */}
+            {/* KPI 5: QR Ready for Consumption - Teal */}
             <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #e11d48", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
+              <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #0d9488", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
                 <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
                   <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: "uppercase", fontSize: "0.7rem" }}>
-                    Rejections
+                    QR For Consumption
                   </Typography>
-                  <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 800, color: "#e11d48", my: 0.5 }}>
-                    {rejectedComponents}
+                  <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 800, color: "#0f766e", my: 0.5 }}>
+                    {qrReady}
                   </Typography>
-                  <Box sx={{ width: "100%", bgcolor: "#ffe4e6", height: 5, borderRadius: 3, my: 1, overflow: "hidden" }}>
-                    <Box sx={{ width: "100%", bgcolor: "#e11d48", height: "100%" }} />
+                  <Box sx={{ width: "100%", bgcolor: "#ccfbf1", height: 5, borderRadius: 3, my: 1, overflow: "hidden" }}>
+                    <Box sx={{ width: `${qrReadyPct}%`, bgcolor: "#0d9488", height: "100%" }} />
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Chip label="Material Requisition" size="small" sx={{ bgcolor: "#fee2e2", color: "#991b1b", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
-                    <Typography variant="caption" sx={{ color: "#e11d48", fontWeight: 700, fontSize: "0.68rem" }}>
-                      Flagged
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* KPI 5: Pending Component Swaps */}
-            <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #7c3aed", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
-                <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: "uppercase", fontSize: "0.7rem" }}>
-                    Pending Swaps
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 800, color: "#7c3aed", my: 0.5 }}>
-                    {pendingSwaps}
-                  </Typography>
-                  <Box sx={{ width: "100%", bgcolor: "#f3e8ff", height: 5, borderRadius: 3, my: 1, overflow: "hidden" }}>
-                    <Box sx={{ width: "100%", bgcolor: "#7c3aed", height: "100%" }} />
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Chip label="Inter-PO Transfer" size="small" sx={{ bgcolor: "#f3e8ff", color: "#6b21a8", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
-                    <Typography variant="caption" sx={{ color: "#7c3aed", fontWeight: 700, fontSize: "0.68rem" }}>
-                      Active
-                    </Typography>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-
-            {/* KPI 6: PO Completed */}
-            <Grid item xs={12} sm={6} md={4} lg={2}>
-              <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #059669", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
-                <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
-                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: "uppercase", fontSize: "0.7rem" }}>
-                    PO Completed
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 800, color: "#059669", my: 0.5 }}>
-                    {poCompleted}
-                  </Typography>
-                  <Box sx={{ width: "100%", bgcolor: "#d1fae5", height: 5, borderRadius: 3, my: 1, overflow: "hidden" }}>
-                    <Box sx={{ width: `${poCompletedPct}%`, bgcolor: "#059669", height: "100%" }} />
-                  </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Chip label="Fully Verified" size="small" sx={{ bgcolor: "#d1fae5", color: "#065f46", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
+                    <Chip label="Ready for verification" size="small" sx={{ bgcolor: "#ccfbf1", color: "#115e59", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
                     <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 700, fontSize: "0.68rem" }}>
-                      {poCompletedPct}%
+                      {qrReadyPct}%
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* KPI 6: QR Consumed - Indigo */}
+            <Grid item xs={12} sm={6} md={4} lg={2}>
+              <Card sx={{ borderRadius: 2.5, boxShadow: "0 4px 14px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", borderLeft: "5px solid #6366f1", transition: "transform 0.2s, box-shadow 0.2s", "&:hover": { transform: "translateY(-2px)", boxShadow: "0 8px 20px rgba(0,0,0,0.08)" } }}>
+                <CardContent sx={{ p: 2, "&:last-child": { pb: 2 } }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: "uppercase", fontSize: "0.7rem" }}>
+                    QR Consumed
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontFamily: "monospace", fontWeight: 800, color: "#4f46e5", my: 0.5 }}>
+                    {qrConsumed}
+                  </Typography>
+                  <Box sx={{ width: "100%", bgcolor: "#e0e7ff", height: 5, borderRadius: 3, my: 1, overflow: "hidden" }}>
+                    <Box sx={{ width: `${qrConsumedPct}%`, bgcolor: "#6366f1", height: "100%" }} />
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <Chip label={`Consumed in parts: ${qrConsumed}`} size="small" sx={{ bgcolor: "#e0e7ff", color: "#3730a3", fontWeight: 700, height: 20, fontSize: "0.65rem" }} />
+                    <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 700, fontSize: "0.68rem" }}>
+                      {qrConsumedPct}%
                     </Typography>
                   </Box>
                 </CardContent>
@@ -642,7 +630,7 @@ export const KpiDashboard: React.FC = () => {
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                       <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "#64748b" }} />
                       <Typography variant="body2" sx={{ fontWeight: 700, color: "#334155" }}>
-                        Pending Verification
+                        Pending
                       </Typography>
                     </Box>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -657,7 +645,7 @@ export const KpiDashboard: React.FC = () => {
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                       <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "#f59e0b" }} />
                       <Typography variant="body2" sx={{ fontWeight: 700, color: "#334155" }}>
-                        Partially Verified
+                        Partial 
                       </Typography>
                     </Box>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -672,7 +660,7 @@ export const KpiDashboard: React.FC = () => {
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                       <Box sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: "#10b981" }} />
                       <Typography variant="body2" sx={{ fontWeight: 700, color: "#334155" }}>
-                        Completed & Closed
+                        Completed
                       </Typography>
                     </Box>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -692,7 +680,7 @@ export const KpiDashboard: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 800, color: "#0f172a", fontSize: "1.05rem" }}>
-                      QR Code Lifecycle & Quality
+                      QR Code Lifecycle
                     </Typography>
                     <Typography variant="caption" sx={{ color: "#64748b" }}>
                       Distribution of {qrTotal} active QR codes in inventory & line
@@ -703,19 +691,7 @@ export const KpiDashboard: React.FC = () => {
 
                 {/* QR Lifecycle Flow Cards */}
                 <Grid container spacing={1.5} sx={{ my: 1 }}>
-                  <Grid item xs={4}>
-                    <Paper elevation={0} sx={{ p: 1.5, textAlign: "center", bgcolor: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 2 }}>
-                      <Typography variant="caption" sx={{ color: "#0369a1", fontWeight: 700, fontSize: "0.68rem", textTransform: "uppercase" }}>
-                        Ready Store
-                      </Typography>
-                      <Typography variant="h5" sx={{ fontWeight: 800, color: "#0284c7", fontFamily: "monospace", my: 0.3 }}>
-                        {qrReady}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 600, fontSize: "0.68rem" }}>
-                        {qrReadyPct}% share
-                      </Typography>
-                    </Paper>
-                  </Grid>
+                 
 
                   <Grid item xs={4}>
                     <Paper elevation={0} sx={{ p: 1.5, textAlign: "center", bgcolor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 2 }}>
@@ -727,6 +703,19 @@ export const KpiDashboard: React.FC = () => {
                       </Typography>
                       <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 600, fontSize: "0.68rem" }}>
                         {qrGeneratedPct}% share
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                   <Grid item xs={4}>
+                    <Paper elevation={0} sx={{ p: 1.5, textAlign: "center", bgcolor: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 2 }}>
+                      <Typography variant="caption" sx={{ color: "#0369a1", fontWeight: 700, fontSize: "0.68rem", textTransform: "uppercase" }}>
+                        Ready For Consumption
+                      </Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 800, color: "#0284c7", fontFamily: "monospace", my: 0.3 }}>
+                        {qrReady}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "#64748b", fontWeight: 600, fontSize: "0.68rem" }}>
+                        {qrReadyPct}% share
                       </Typography>
                     </Paper>
                   </Grid>
@@ -752,7 +741,7 @@ export const KpiDashboard: React.FC = () => {
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                       <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: "#e11d48" }} />
                       <Typography variant="body2" sx={{ fontWeight: 700, color: "#9f1239" }}>
-                        Material Requisition (Rejected)
+                        Component Rejected
                       </Typography>
                     </Box>
                     <Chip label={`${rejectedComponents} Component Flagged`} size="small" sx={{ bgcolor: "#ffe4e6", color: "#be123c", fontWeight: 800, fontSize: "0.68rem" }} />
